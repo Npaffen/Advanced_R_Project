@@ -18,7 +18,6 @@ date <- today()-0:time_length(interval(ymd(str_c((year(today())-5), str_c(0,mont
 date <- as.character(date) %>% gsub(pattern = "-" , replacement = "",  x = . )
 
 library(RSelenium)
-RSelenium::startServer()
 remDr <- remoteDriver(remoteServerAddr = "192.168.99.100", port = 4445L)
 remDr$open()
 remDr$navigate("https://tinyurl.com/rq8vom4")
@@ -43,7 +42,8 @@ paper_length <- read_html(remDr$getPageSource()[[1]]) %>%
   html_nodes("li h3 a") %>%
   html_attr("href") %>%
   gsub('(/[a-z]+/\\d+/\\d/)', replacement ="", x = . ) %>%
-  grep('([a-z0-9]{32})' , value = T, x = .)
+  grep('([a-z0-9]{32})' , value = T, x = .)%>%
+  gsub('^', replacement = str_c(1,'/',sep = ""), x = .)
 #} 
 remDr$navigate(str_c("http://data.people.com.cn.s894ibwr0870.erf.sbb.spk-berlin.de/rmrb",date[1],paper_length[1],articles[1], sep = "/"))
 test_one_article<- map(all.nodes, ~read_html(remDr$getPageSource()[[1]])%>%
