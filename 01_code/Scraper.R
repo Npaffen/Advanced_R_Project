@@ -6,7 +6,7 @@ library(httr)
 library(xml2)
 library(stringr)
 
-#### PLEASE USE THIS GUIDE TO INSTALL DOCKER https://rpubs.com/johndharrison/RSelenium-Docker
+#### PLEASE USE THIS GUIDE TO INSTALL DOCKER  https://rpubs.com/johndharrison/RSelenium-Docker
 
 Sys.setlocale("LC_TIME", "C")
 
@@ -16,14 +16,12 @@ all.nodes <- c(".sha_right ", " .author", ".subtitle",
 # date <- (today()-1)-0:time_length(interval(ymd(str_c((year((today()-1))-5), str_c(0,month((today()-1))), day((today()-1)) , sep = "-" )),
 #                                            ymd((today()-1))) , unit = "day")
 
-# This will get the same result, what do you think?
-# And, `date` is an existing function so we should probabily
-# avoid overwriting it, so `dates` would be a good name.
+
 
 dates <- seq(from = as.Date('2015-03-01'),
              to = as.Date(today() - 1),
              by = 1)
-# the result is already is a character vector.
+
 
 dates <- dates %>% gsub(pattern = "-" ,
                         replacement = "",
