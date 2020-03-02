@@ -68,8 +68,7 @@ f_scraper <- function(date){
 
 
 database <- map(date,~f_scraper(.x))
-                                    
-                                                                              
+                                                                                                                  
 
 
  
