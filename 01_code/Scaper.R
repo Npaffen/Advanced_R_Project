@@ -32,14 +32,14 @@ dates <- dates %>% gsub(pattern = "-" ,
 library(RSelenium)
 remDr <- remoteDriver(remoteServerAddr = "192.168.99.100", port = 4445L)
 remDr$open()
-remDr$navigate("https://tinyurl.com/rq8vom4")
+  remDr$navigate("https://tinyurl.com/rq8vom4")
 
 remDr$findElement("css selector", "#login :nth-child(1)")$sendKeysToElement(list("dschulze"))
 remDr$findElement("css selector", "#login :nth-child(2)")$sendKeysToElement(list("bonsaibonsai"))
 remDr$findElement("css selector", "#login_button")$sendKeysToElement(list(key = "enter"))
 
 f_articles_url <- function(paper_length, dates) {
-  Sys.sleep(round(runif(1, 3, 5)))
+  Sys.sleep(runif(1,5,10))
   
   remDr$navigate(
     str_c(
@@ -66,7 +66,7 @@ f_articles_url <- function(paper_length, dates) {
 }
 
 f_content <- function(url_articles) {
-  Sys.sleep(round(runif(1, 3, 5)))
+  Sys.sleep(runif(1,5,10))
   remDr$navigate(
     str_c(
       "http://data.people.com.cn.s894ibwr0870.erf.sbb.spk-berlin.de/rmrb",
@@ -96,26 +96,30 @@ f_content <- function(url_articles) {
 
 
 f_scraper <- function(dates) {
-  remDr$navigate(
-    str_c(
-      "http://data.people.com.cn.s894ibwr0870.erf.sbb.spk-berlin.de/rmrb",
-      dates[1],
-      1,
-      sep = "/"
-    )
-  )
-  paper_length <- read_html(remDr$getPageSource()[[1]]) %>%
-    html_nodes("#banci_btn > div > div > ul") %>%
-    xml_length() %>%
-    1:.
+#  remDr$navigate(
+#    str_c(
+#      "http://data.people.com.cn.s894ibwr0870.erf.sbb.spk-berlin.de/rmrb",
+#      dates,
+#      1,
+#      sep = "/"
+#    )
+#  )
+  paper_length <- 1:2 # read_html(remDr$getPageSource()[[1]]) %>% 
+#    html_nodes("#banci_btn > div > div > ul") %>%
+#    xml_length() %>%
+#    1:.
   
   url_articles <- map(paper_length,  ~ f_articles_url(.x, dates[1]))
   
   map(flatten(url_articles), ~ f_content(.x))
 }
 
+data
+database_m1 <- map(dates[(length(dates)-6):length(dates)],  ~ f_scraper(.x))
+database_m2 <- map(dates[(length(dates)-13):(length(dates)-7)],  ~ f_scraper(.x))
+database_m3 <- map(dates[(length(dates)-89):(length(dates)-59)],  ~ f_scraper(.x))
+database_m4 <- map(dates[(length(dates)-119):(length(dates)-89)],  ~ f_scraper(.x))
 
-database <- map(dates,  ~ f_scraper(.x))
 
 
-
+remDr$screenshot
