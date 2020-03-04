@@ -117,9 +117,23 @@ f_scraper <- function(dates) {
 data
 database_m1 <- map(dates[(length(dates)-6):length(dates)],  ~ f_scraper(.x))
 database_m2 <- map(dates[(length(dates)-13):(length(dates)-7)],  ~ f_scraper(.x))
-database_m3 <- map(dates[(length(dates)-89):(length(dates)-59)],  ~ f_scraper(.x))
-database_m4 <- map(dates[(length(dates)-119):(length(dates)-89)],  ~ f_scraper(.x))
 
+shell('git config --global user.email "nils.paffen@wopic.de"')
+shell('git config --global user.name "npaffen"')
 
+j = 2
+for (i in seq(from = 0, to = length(dates), by = 29 )){
+  j = j + 1
+  
+  str_c("database", j, sep = "_m") <- map(dates[(length(dates)-i-29):length(dates)-i],  ~ f_scraper(.x))
+  shell('git add -A')
+  shell(str_c('git commit -m', str_c("Month", j, sep = "_"), sep = " "))
+  
+}
+  
 
 remDr$screenshot
+
+
+shell('git add -a')
+shell(str_c('git commit -m', "", sep = " "))

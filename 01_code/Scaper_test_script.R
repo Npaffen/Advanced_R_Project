@@ -25,7 +25,7 @@ remDr$findElement("css selector", "#login :nth-child(2)")$sendKeysToElement(list
 remDr$findElement("css selector", "#login_button")$sendKeysToElement(list(key = "enter"))
 
 f_articles_url<- function(paper_length, date){
-  Sys.sleep(round(runif(1,3,5)))
+  Sys.sleep(runif(1,5,10))
     remDr$navigate(str_c("http://data.people.com.cn.s894ibwr0870.erf.sbb.spk-berlin.de/rmrb", date, paper_length, sep="/")) 
   
   
@@ -40,7 +40,7 @@ f_articles_url<- function(paper_length, date){
   }
 
 f_content <- function(url_articles){
-  Sys.sleep(round(runif(1,3,5)))
+  Sys.sleep(runif(1,5,10))
   remDr$navigate(str_c("http://data.people.com.cn.s894ibwr0870.erf.sbb.spk-berlin.de/rmrb",
                        url_articles, sep = "/"))
   
