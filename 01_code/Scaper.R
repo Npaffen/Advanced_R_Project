@@ -20,7 +20,7 @@ all.nodes <- c(".sha_right ", " .author", ".subtitle",
 # And, `date` is an existing function so we should probabily
 # avoid overwriting it, so `dates` would be a good name.
 
-dates <- seq(from = as.Date('2015-03-01'),
+dates <- seq(from = as.Date('2019-01-01'),
              to = as.Date(today() - 1),
              by = 1)
 # the result is already is a character vector.
@@ -29,14 +29,7 @@ dates <- dates %>% gsub(pattern = "-" ,
                         replacement = "",
                         x = .)
 
-library(RSelenium)
-remDr <- remoteDriver(remoteServerAddr = "192.168.99.100", port = 4445L)
-remDr$open()
-  remDr$navigate("https://tinyurl.com/rq8vom4")
 
-remDr$findElement("css selector", "#login :nth-child(1)")$sendKeysToElement(list("dschulze"))
-remDr$findElement("css selector", "#login :nth-child(2)")$sendKeysToElement(list("bonsaibonsai"))
-remDr$findElement("css selector", "#login_button")$sendKeysToElement(list(key = "enter"))
 
 f_articles_url <- function(paper_length, dates) {
   Sys.sleep(runif(1,5,10))
@@ -114,26 +107,90 @@ f_scraper <- function(dates) {
   map(flatten(url_articles), ~ f_content(.x))
 }
 
-data
 database_m1 <- map(dates[(length(dates)-6):length(dates)],  ~ f_scraper(.x))
 database_m2 <- map(dates[(length(dates)-13):(length(dates)-7)],  ~ f_scraper(.x))
 
-shell('git config --global user.email "nils.paffen@wopic.de"')
-shell('git config --global user.name "npaffen"')
+library(RSelenium)
+remDr <- remoteDriver(remoteServerAddr = "192.168.99.100", port = 4445L)
+remDr$open()
+remDr$navigate("https://tinyurl.com/rq8vom4")
 
-j = 2
-for (i in seq(from = 0, to = length(dates), by = 29 )){
+remDr$findElement("css selector", "#login :nth-child(1)")$sendKeysToElement(list("dschulze"))
+remDr$findElement("css selector", "#login :nth-child(2)")$sendKeysToElement(list("bonsaibonsai"))
+remDr$findElement("css selector", "#login_button")$sendKeysToElement(list(key = "enter"))
+
+#######################################NEW SCRAPER########
+monyear <- dates %>% sub(pattern = "-\\d{2}$",
+                         "",
+                         x = .) 
+
+sday <- dates %>% sub(pattern = "\\d{4}-\\d{2}-" ,
+                      "",
+                      x = .)
+
+dates <- map2(monyear, sday, ~str_c(.x, .y, sep = "/")) %>% unlist()
+
+
+#Zeitung 1 http://paper.people.com.cn/rmrb/html/2020-01/30/nw.D110000renmrb_20200130_3-02.htm nodes : .lai , h1, p
+
+f_url_articles <- function(dates, paper_length){
+  
+  read_html(str_c("http://paper.people.com.cn/rmrb/html/", 
+                  dates[[1]],
+                  "/nbs.D110000renmrb_0",
+                  paper_length[[1]], 
+                  ".htm", sep = "")) %>%
+    html_nodes( "#titleList a") %>%
+    html_attr("href") %>%
+    map(~str_c(dates[[1]], .x, sep = "/"))
+}
+all_nodes <- c(".lai "," h2"," h1", "#ozoom p")
+f_content <- function(url_articles){
+  article <- read_html(str_c("http://paper.people.com.cn/rmrb/html/",
+                             url_articles, 
+                             sep = "/"))
+  map(all_nodes, ~html_nodes(article, .x) %>%
+        html_text())
+  
+}
+
+f_scraper <- function(dates){
+  paper_length <- 1:2 # since we only want page 1 & 2
+  
+  url_articles <- map(paper_length, ~f_url_articles(dates = dates, paper_length = .x))
+  
+  
+  map(unlist(url_articles), ~f_content(.x))
+}
+
+
+
+
+
+
+#DO NOT EXECUTE WILL BE DELETED LATER
+
+shell("git.lnk config --global user.email \"nils.paffen@wopic.de\"")
+shell("git.lnk config --global user.name \"npaffen\"")
+soda <- seq(from = 0, to = length(dates), by = 29 )
+j = 0
+for (i in seq_along(soda)){
   j = j + 1
   
-  str_c("database", j, sep = "_m") <- map(dates[(length(dates)-i-29):length(dates)-i],  ~ f_scraper(.x))
-  shell('git add -A')
-  shell(str_c('git commit -m', str_c("Month", j, sep = "_"), sep = " "))
+  assign(str_c("database","_m", j, sep = ), map(dates[(length(dates)-i-29):length(dates)-i],  ~ f_scraper(.x)))
+  saveRDS(str_c("database","_m", j, sep = ), str_c("00_data/","database","_m", j,".rds", sep = ))
   
+  #shell('git.lnk add -A')
+  #shell(str_c('git.lnk commit -m', str_c("Month", j, sep = "_"), sep = " "))
+  #shell("git.lnk push origin")
 }
   
 
 remDr$screenshot
-
+x <- 1
+for (i in seq(0,8,2)){
+  x <- x+i
+}
 
 shell('git add -a')
 shell(str_c('git commit -m', "", sep = " "))

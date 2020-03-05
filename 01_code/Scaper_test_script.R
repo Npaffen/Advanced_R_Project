@@ -31,7 +31,7 @@ f_articles_url<- function(paper_length, date){
   
 
   read_html(remDr$getPageSource()[[1]]) %>%
-    html_nodes("li h3 a") %>% #
+    html_nodes("#titleList a") %>% #
     html_attr("href") %>%
     gsub('(/[a-z]+/\\d+/\\d+/)', replacement = "", x = . ) %>%
     grep('([a-z0-9]{32})', value = T, x = .) %>%
@@ -60,7 +60,7 @@ paper_length <- read_html(remDr$getPageSource()[[1]]) %>%
   xml_length()%>%
   1:.
 
-url_articles <- map(paper_length,~f_articles_url(.x, date[1] ))
+url_articles <- map(paper_length,~f_articles_url(.x, dates ))
 
 map(flatten(url_articles), ~f_content(.x ))
 }
@@ -74,32 +74,62 @@ remDr$screenshot(display = T)
 
 
 
-xsummary(n)
 
 
-url <- 
-#Direct access to the login, using tinyurl to keep things short, tinyURL page states : urls "never expire"
-session <- html_session("https://tinyurl.com/rq8vom4")
-session
-form <- html_form(session)[[1]]
+monyear <- dates %>% sub(pattern = "-\\d{2}$",
+                         "",
+                         x = .) 
 
-form <- set_values(form,
-                   j_username = "dschulze",
-                   j_password = "bonsaiboi")
+sday <- dates %>% sub(pattern = "\\d{4}-\\d{2}-" ,
+                      "",
+                      x = .)
 
-submit_form(session , form, submit = '_eventId_proceed',config(referer = session$url))
-session
-paper <-   jump_to(session,"http://data.people.com.cn.s894ibwr0870.erf.sbb.spk-berlin.de/rmrb/20200217/1")
-paper  
-session_history(session2)
-session2
+dates <- map2(monyear, sday, ~str_c(.x, .y, sep = "/"))
 
 
-  #Zeitung 1 http://paper.people.com.cn/rmrb/html/2020-01/30/nw.D110000renmrb_20200130_3-02.htm nodes : .lai , h1, p
-  paper <- read_html("http://data.people.com.cn.s894ibwr0870.erf.sbb.spk-berlin.de/rmrb/20200217/1")
-  test <- html_nodes(paper, "li h3") %>%
-                       html_text()
+#Zeitung 1 http://paper.people.com.cn/rmrb/html/2020-01/30/nw.D110000renmrb_20200130_3-02.htm nodes : .lai , h1, p
 
+f_url_articles <- function(dates, paper_length){
+ 
+  read_html(str_c("http://paper.people.com.cn/rmrb/html/", 
+                                  dates[[1]],
+                                  "/nbs.D110000renmrb_0",
+                                  paper_length[[1]], 
+                                  ".htm", sep = "")) %>%
+    html_nodes( "#titleList a") %>%
+    html_attr("href") %>%
+    map(~str_c(dates[[1]], .x, sep = "/"))
+}
+
+f_content <- function(url_articles){
+  read_html(str_c("http://paper.people.com.cn/rmrb/html/",
+                             url_articles, 
+                             sep = "/")) %>%
+    html_nodes(" .lai", 
+               "h1",
+               "p") %>%
+    html_text()
+  
+}
+
+f_scraper <- function(dates){
+  paper_length <- 1:2 # since we only want page 1 & 2
+  
+  url_articles <- map(paper_length, ~f_url_articles(dates = dates[[1]], paper_length = .x))
+  
+  map(url_articles, ~f_content(.x))
+}
+f_scraper(dates[[1]]) 
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
 scraper_info <- function(pages){
   newspaper <- read_html(paste("http://ipaidabribe.com/reports/paid?page", pages, sep = "="))
