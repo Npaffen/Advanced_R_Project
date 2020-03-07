@@ -118,19 +118,74 @@ data
 database_m1 <- map(dates[(length(dates)-6):length(dates)],  ~ f_scraper(.x))
 database_m2 <- map(dates[(length(dates)-13):(length(dates)-7)],  ~ f_scraper(.x))
 
-shell('git config --global user.email "nils.paffen@wopic.de"')
-shell('git config --global user.name "npaffen"')
 
-j = 2
-for (i in seq(from = 0, to = length(dates), by = 29 )){
-  j = j + 1
+#######################################NEW SCRAPER########
+monyear <- dates %>% sub(pattern = "-\\d{2}$",
+                         "",
+                         x = .) 
+
+sday <- dates %>% sub(pattern = "\\d{4}-\\d{2}-" ,
+                      "",
+                      x = .)
+
+dates <- map2(monyear, sday, ~str_c(.x, .y, sep = "/")) %>% unlist()
+
+
+#Zeitung 1 http://paper.people.com.cn/rmrb/html/2020-01/30/nw.D110000renmrb_20200130_3-02.htm nodes : .lai , h1, p
+
+f_url_articles <- function(dates, paper_length){
   
-  str_c("database", j, sep = "_m") <- map(dates[(length(dates)-i-29):length(dates)-i],  ~ f_scraper(.x))
-  shell('git add -A')
-  shell(str_c('git commit -m', str_c("Month", j, sep = "_"), sep = " "))
+  read_html(str_c("http://paper.people.com.cn/rmrb/html/", 
+                  dates[[1]],
+                  "/nbs.D110000renmrb_0",
+                  paper_length[[1]], 
+                  ".htm", sep = "")) %>%
+    html_nodes( "#titleList a") %>%
+    html_attr("href") %>%
+    map(~str_c(dates[[1]], .x, sep = "/"))
+}
+all_nodes <- c(".lai "," h2"," h1", "#ozoom p")
+f_content <- function(url_articles){
+  article <- read_html(str_c("http://paper.people.com.cn/rmrb/html/",
+                             url_articles, 
+                             sep = "/"))
+  map(all_nodes, ~html_nodes(article, .x) %>%
+        html_text())
   
 }
+
+f_scraper <- function(dates){
+  paper_length <- 1:2 # since we only want page 1 & 2
   
+  url_articles <- map(paper_length, ~f_url_articles(dates = dates, paper_length = .x))
+  
+  
+  map(unlist(url_articles), ~f_content(.x))
+}
+
+
+
+
+
+
+#DO NOT EXECUTE WILL BE DELETED LATER
+
+shell("git.lnk config --global user.email \"nils.paffen@wopic.de\"")
+shell("git.lnk config --global user.name \"npaffen\"")
+soda <- seq(from = 0, to = l145, by =29)
+j = 12
+for (i in seq_along(soda)){
+  j = j + 1
+  
+  assign(str_c("database","_m", j, sep = ), map(dates[(length(dates)-174-29):(length(dates)-174)],  ~ f_scraper(.x)))
+  list.save(database_m14, str_c("00_data/","database","_m", j,".rds", sep = ))
+}
+  
+  remDr$screenshot
+  x <- 1
+  for (i in seq(0,8,2)){
+    x <- x+i
+  }
 
 remDr$screenshot
 
