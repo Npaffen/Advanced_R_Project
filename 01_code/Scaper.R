@@ -20,7 +20,7 @@ all.nodes <- c(".sha_right ", " .author", ".subtitle",
 # And, `date` is an existing function so we should probabily
 # avoid overwriting it, so `dates` would be a good name.
 
-dates <- seq(from = as.Date('2015-03-01'),
+dates <- seq(from = as.Date('2019-01-01'),
              to = as.Date(today() - 1),
              by = 1)
 # the result is already is a character vector.
@@ -172,15 +172,15 @@ f_scraper <- function(dates){
 
 shell("git.lnk config --global user.email \"nils.paffen@wopic.de\"")
 shell("git.lnk config --global user.name \"npaffen\"")
-soda <- seq(from = 0, to = l145, by =29)
-j = 12
+soda <- seq(from = 0, to = 145, by =29)
+j = 0
 for (i in seq_along(soda)){
   j = j + 1
   
-  assign(str_c("database","_m", j, sep = ), map(dates[(length(dates)-174-29):(length(dates)-174)],  ~ f_scraper(.x)))
-  list.save(database_m14, str_c("00_data/","database","_m", j,".rds", sep = ))
-}
+  assign(str_c("database","_m", j, sep = ), map(dates[(length(dates)-i-29):(length(dates)-i)],  ~ f_scraper(.x)))
   
+}
+list.save("database","_m", j,".rds", sep = )
   remDr$screenshot
   x <- 1
   for (i in seq(0,8,2)){
