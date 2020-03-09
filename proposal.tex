@@ -1,0 +1,103 @@
+% !TEX TS-program = pdflatex
+% !TEX encoding = UTF-8 Unicode
+
+% This is a simple template for a LaTeX document using the "article" class.
+% See "book", "report", "letter" for other types of document.
+
+\documentclass[11pt]{scrarticle} % use larger type; default would be 10pt
+
+\usepackage[utf8]{inputenc} % set input encoding (not needed with XeLaTeX)
+
+%%% Examples of Article customizations
+% These packages are optional, depending whether you want the features they provide.
+% See the LaTeX Companion or other references for full information.
+
+%%% PAGE DIMENSIONS
+\usepackage{geometry} % to change the page dimensions
+\geometry{a4paper} % or letterpaper (US) or a5paper or....
+% \geometry{margin=2in} % for example, change the margins to 2 inches all round
+% \geometry{landscape} % set up the page for landscape
+%   read geometry.pdf for detailed page layout information
+
+\usepackage{graphicx} % support the \includegraphics command and options
+
+% \usepackage[parfill]{parskip} % Activate to begin paragraphs with an empty line rather than an indent
+
+%%% PACKAGES
+\usepackage{booktabs} % for much better looking tables
+\usepackage{array} % for better arrays (eg matrices) in maths
+\usepackage{paralist} % very flexible & customisable lists (eg. enumerate/itemize, etc.)
+\usepackage{verbatim} % adds environment for commenting out blocks of text & for better verbatim
+\usepackage{subfig} % make it possible to include more than one captioned figure/table in a single float
+% These packages are all incorporated in the memoir class to one degree or another...
+
+%%% HEADERS & FOOTERS
+\usepackage{fancyhdr} % This should be set AFTER setting up the page geometry
+\pagestyle{fancy} % options: empty , plain , fancy
+\renewcommand{\headrulewidth}{0pt} % customise the layout...
+\lhead{}\chead{}\rhead{}
+\lfoot{}\cfoot{\thepage}\rfoot{}
+
+%%% SECTION TITLE APPEARANCE
+\usepackage{sectsty}
+\allsectionsfont{\sffamily\mdseries\upshape} % (See the fntguide.pdf for font help)
+% (This matches ConTeXt defaults)
+
+%%% ToC (table of contents) APPEARANCE
+\usepackage[nottoc,notlof,notlot]{tocbibind} % Put the bibliography in the ToC
+\usepackage[titles,subfigure]{tocloft} % Alter the style of the Table of Contents
+\renewcommand{\cftsecfont}{\rmfamily\mdseries\upshape}
+\renewcommand{\cftsecpagefont}{\rmfamily\mdseries\upshape} % No bold!
+
+\usepackage{hyperref}
+%%% END Article customizations
+
+%%% The "real" document content comes below...
+
+\title{What's driving Chinese news - and where?}
+\subtitle{Project Proposal - Advanced R for Econometricians WS19/20}
+\author{Nils Paffen, Eyayaw Teka Beze, David Schulze}
+%\date{} % Activate to display a given date or no date (if empty),
+         % otherwise the current date is printed 
+
+\begin{document}
+\maketitle
+
+\section{Idea}
+
+Build a small app that performs three tasks:
+
+\begin{itemize}
+\item generate and update a database of recent Chinese economic and news data
+\item perform exploratory statistics and visualisation
+\item automate some exploratory and correlation analysis
+\item optional: create a dictionary for translation with translate.yandex API or Google translate
+\end{itemize}
+
+\section{Motivation}
+
+\par Plentiful websites and software nonwithstanding, insights from economic data and simple statistical analysis remain locked away to most non-statisticians behind the barriers of technical skill. Especially for contextualising news articles and analysing trends, tools are limited and inconvenient to use for most users. Taking advantage of APIs that deliver regularly updated economic data and the well-structured \href{http://paper.people.com.cn/}{People's Daily Website}\footnote{\href{http://paper.people.com.cn/}{http://paper.people.com.cn/}, data is available for studying, research and other non-commercial purposes}, our app wants to provide a tool that enables basic insights into economic trends and correlation, as well as comparing those to results from simple news text analysis. To makes this app a little ``smart'', it will automatically find those variables that are especially correlated and give an overview. To limit the scope of the exercise, we will look only on the last 5 years of data, front pages of one newspaper and China.
+
+\section{Functional goals}
+
+\begin{itemize}
+\item scraping the last 5 years' first page articles from the \href{http://paper.people.com.cn/}{People's Daily Website}, database storage and updating routines
+\item database storage and updating for selected economic data API(s), indirectly e.g. via quandl.com, or directly from World Bank, FRED, etc.
+\item simple time series visualisation and 2d scatterplots with trendlines
+\item calculate simple data for text analysis: Trending words, word groups, keyness (comparing which words were more salient in a subsample compared to the main corpus).
+\item automate correlation analysis between words and economic data incorporating time lags: What economic factor are driving the news and where is the news driving to economically?
+\item optional: translation using translate.yandex API
+\end{itemize}
+
+\section{Comments from Martin and Alex}
+
+\begin{itemize}
+\item Look into some text mining tools and applications.
+\item Remember to incorporate economic analysis.
+\item Make translation non-optional and include alternative translations.
+\end{itemize}
+
+
+
+
+\end{document}
