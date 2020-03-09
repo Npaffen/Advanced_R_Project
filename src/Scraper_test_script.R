@@ -25,13 +25,13 @@ remDr$findElement("css selector", "#login :nth-child(2)")$sendKeysToElement(list
 remDr$findElement("css selector", "#login_button")$sendKeysToElement(list(key = "enter"))
 
 f_articles_url<- function(paper_length, date){
-  Sys.sleep(runif(1,5,10))
+  Sys.sleep(round(runif(1,3,5)))
     remDr$navigate(str_c("http://data.people.com.cn.s894ibwr0870.erf.sbb.spk-berlin.de/rmrb", date, paper_length, sep="/")) 
   
   
 
   read_html(remDr$getPageSource()[[1]]) %>%
-    html_nodes("#titleList a") %>% #
+    html_nodes("li h3 a") %>% #
     html_attr("href") %>%
     gsub('(/[a-z]+/\\d+/\\d+/)', replacement = "", x = . ) %>%
     grep('([a-z0-9]{32})', value = T, x = .) %>%
@@ -40,7 +40,7 @@ f_articles_url<- function(paper_length, date){
   }
 
 f_content <- function(url_articles){
-  Sys.sleep(runif(1,5,10))
+  Sys.sleep(round(runif(1,3,5)))
   remDr$navigate(str_c("http://data.people.com.cn.s894ibwr0870.erf.sbb.spk-berlin.de/rmrb",
                        url_articles, sep = "/"))
   
@@ -60,7 +60,7 @@ paper_length <- read_html(remDr$getPageSource()[[1]]) %>%
   xml_length()%>%
   1:.
 
-url_articles <- map(paper_length,~f_articles_url(.x, dates ))
+url_articles <- map(paper_length,~f_articles_url(.x, date[1] ))
 
 map(flatten(url_articles), ~f_content(.x ))
 }
@@ -74,61 +74,32 @@ remDr$screenshot(display = T)
 
 
 
+xsummary(n)
 
 
-monyear <- dates %>% sub(pattern = "-\\d{2}$",
-                         "",
-                         x = .) 
+url <- 
+#Direct access to the login, using tinyurl to keep things short, tinyURL page states : urls "never expire"
+session <- html_session("https://tinyurl.com/rq8vom4")
+session
+form <- html_form(session)[[1]]
 
-sday <- dates %>% sub(pattern = "\\d{4}-\\d{2}-" ,
-                      "",
-                      x = .)
+form <- set_values(form,
+                   j_username = "dschulze",
+                   j_password = "bonsaiboi")
 
-dates <- map2(monyear, sday, ~str_c(.x, .y, sep = "/")) %>% unlist()
+submit_form(session , form, submit = '_eventId_proceed',config(referer = session$url))
+session
+paper <-   jump_to(session,"http://data.people.com.cn.s894ibwr0870.erf.sbb.spk-berlin.de/rmrb/20200217/1")
+paper  
+session_history(session2)
+session2
 
 
-#Zeitung 1 http://paper.people.com.cn/rmrb/html/2020-01/30/nw.D110000renmrb_20200130_3-02.htm nodes : .lai , h1, p
+  #Zeitung 1 http://paper.people.com.cn/rmrb/html/2020-01/30/nw.D110000renmrb_20200130_3-02.htm nodes : .lai , h1, p
+  paper <- read_html("http://data.people.com.cn.s894ibwr0870.erf.sbb.spk-berlin.de/rmrb/20200217/1")
+  test <- html_nodes(paper, "li h3") %>%
+                       html_text()
 
-f_url_articles <- function(dates, paper_length){
- 
-  read_html(str_c("http://paper.people.com.cn/rmrb/html/", 
-                                  dates[[1]],
-                                  "/nbs.D110000renmrb_0",
-                                  paper_length[[1]], 
-                                  ".htm", sep = "")) %>%
-    html_nodes( "#titleList a") %>%
-    html_attr("href") %>%
-    map(~str_c(dates[[1]], .x, sep = "/"))
-}
-all_nodes <- c(".lai "," h2"," h1", "#ozoom p")
-f_content <- function(url_articles){
-  article <- read_html(str_c("http://paper.people.com.cn/rmrb/html/",
-                             url_articles, 
-                             sep = "/"))
-    map(all_nodes, ~html_nodes(article, .x) %>%
-    html_text())
-  
-}
-
-f_scraper <- function(dates){
-  paper_length <- 1:2 # since we only want page 1 & 2
-  
-  url_articles <- map(paper_length, ~f_url_articles(dates = dates, paper_length = .x))
-  
-
-    map(unlist(url_articles), ~f_content(.x))
-}
-f_scraper(dates[[1]]) 
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
 
 scraper_info <- function(pages){
   newspaper <- read_html(paste("http://ipaidabribe.com/reports/paid?page", pages, sep = "="))
