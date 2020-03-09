@@ -93,26 +93,26 @@ tidy_it2 <- function(database) {
 
 
 
-paths <- fs::dir_ls("00_data/")
-names(paths) <- str_sub(paths, start = 9, end = -5)
+paths <- fs::dir_ls("data/")
+names(paths) <- str_sub(paths, start = -16, end = -5)
 
 # using function tidy_it2
-df <- map(paths, read_and_tidy, fun = tidy_it2)
+df <- purrr::map(paths[-c(11, 12)], read_and_tidy, fun = tidy_it2)
 
 # using function tidy_it
-df_2 <- suppressMessages(map(paths, read_and_tidy, fun = tidy_it))
+df_2 <- suppressMessages(purrr::map(paths[-c(11, 12)], read_and_tidy, fun = tidy_it))
 
 ##### ----- write files into .csv or .rds
 
-# fs::dir_create('tidied_data')
-# fs::dir_create('tidied_data/tidy_it')
-# fs::dir_create('tidied_data/tidy_it2')
+
+# fs::dir_create('output/tidy_it')
+# fs::dir_create('output/tidy_it2')
 
 walk2(.x = df, 
       .y = names(df), 
-      ~write_rds(.x, paste0('tidied_data/tidy_it2/', .y, '.rds')))
+      ~write_rds(.x, paste0('output/tidy_it2/', .y, '.rds')))
 
 walk2(.x = df_2, 
       .y = names(df_2), 
-      ~write_rds(.x, paste0('tidied_data/tidy_it/', .y, '.rds')))
+      ~write_rds(.x, paste0('output/tidy_it/', .y, '.rds')))
 
