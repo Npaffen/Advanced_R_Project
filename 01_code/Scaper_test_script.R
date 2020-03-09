@@ -26,7 +26,7 @@ remDr$findElement("css selector", "#login_button")$sendKeysToElement(list(key = 
 
 f_articles_url<- function(paper_length, date){
   Sys.sleep(runif(1,5,10))
-    remDr$navigate(str_c("http://data.people.com.cn.s894ibwr0870.erf.sbb.spk-berlin.de/rmrb", date, paper_length, sep="/")) 
+    remDr$navigate(str_c("http://data.people.com.cn.s894ibwr0870.erf.sbb.spk-berlin.de/rmrb", date[1], paper_length[1], sep="/")) 
   
   
 

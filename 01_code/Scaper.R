@@ -20,8 +20,8 @@ all.nodes <- c(".sha_right ", " .author", ".subtitle",
 # And, `date` is an existing function so we should probabily
 # avoid overwriting it, so `dates` would be a good name.
 
-dates <- seq(from = as.Date('2019-01-01'),
-             to = as.Date(today() - 1),
+dates <- seq(from = as.Date('2015-01-01'),
+             to = as.Date('2019-01-01'),
              by = 1)
 # the result is already is a character vector.
 
@@ -75,6 +75,15 @@ f_content <- function(url_articles) {
     )
   )
   
+  
+  #captcha <- read_html(remDr$getPageSource()[[1]])
+  #download_html(remDr$navigate(""), file = "captcha.hmtl")
+  
+  if (read_html(remDr$getPageSource()[[1]])%>%
+      html_nodes() %>% html_text()  == captcha_text) message(str_c("Captcha Code after", Sys.time() - start_time, sep = " " ))
+  else
+  
+  
   map(
     all.nodes,
     ~ read_html(remDr$getPageSource()[[1]]) %>%
@@ -96,7 +105,8 @@ f_content <- function(url_articles) {
 
 
 f_scraper <- function(dates) {
-#  remDr$navigate(
+  start_time <- Sys.time()
+  #  remDr$navigate(
 #    str_c(
 #      "http://data.people.com.cn.s894ibwr0870.erf.sbb.spk-berlin.de/rmrb",
 #      dates,
@@ -120,6 +130,10 @@ database_m2 <- map(dates[(length(dates)-13):(length(dates)-7)],  ~ f_scraper(.x)
 
 
 #######################################NEW SCRAPER########
+dates <- seq(from = as.Date('2019-01-01'),
+            to = as.Date('2020-01-01'),
+            by = 1)
+
 monyear <- dates %>% sub(pattern = "-\\d{2}$",
                          "",
                          x = .) 
@@ -136,21 +150,22 @@ dates <- map2(monyear, sday, ~str_c(.x, .y, sep = "/")) %>% unlist()
 f_url_articles <- function(dates, paper_length){
   
   read_html(str_c("http://paper.people.com.cn/rmrb/html/", 
-                  dates[[1]],
+                  dates,
                   "/nbs.D110000renmrb_0",
-                  paper_length[[1]], 
+                  paper_length, 
                   ".htm", sep = "")) %>%
     html_nodes( "#titleList a") %>%
     html_attr("href") %>%
-    map(~str_c(dates[[1]], .x, sep = "/"))
+    map(~str_c(dates, .x, sep = "/"))
 }
-all_nodes <- c(".lai "," h2"," h1", "#ozoom p")
+all_nodes <- c(".lai "," h2"," h1", "#ozoom p", ".list_l .l_t")
 f_content <- function(url_articles){
   article <- read_html(str_c("http://paper.people.com.cn/rmrb/html/",
                              url_articles, 
                              sep = "/"))
   map(all_nodes, ~html_nodes(article, .x) %>%
-        html_text())
+        html_text()) 
+    
   
 }
 
@@ -172,8 +187,8 @@ f_scraper <- function(dates){
 
 shell("git.lnk config --global user.email \"nils.paffen@wopic.de\"")
 shell("git.lnk config --global user.name \"npaffen\"")
-soda <- seq(from = 0, to = 145, by =29)
-j = 0
+soda <- seq(from = length(dates)-29, to = length(dates), by =29)
+j = 10
 for (i in seq_along(soda)){
   j = j + 1
   
@@ -182,12 +197,8 @@ for (i in seq_along(soda)){
 }
 list.save("database","_m", j,".rds", sep = )
   remDr$screenshot
-  x <- 1
-  for (i in seq(0,8,2)){
-    x <- x+i
-  }
 
-remDr$screenshot
+
 
 
 shell('git add -a')
