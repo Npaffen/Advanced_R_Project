@@ -96,11 +96,12 @@ tidy_it2 <- function(database) {
 paths <- fs::dir_ls("data/")
 names(paths) <- str_sub(paths, start = -16, end = -5)
 
-# using function tidy_it2
-df <- purrr::map(paths[-c(11, 12)], read_and_tidy, fun = tidy_it2)
-
 # using function tidy_it
-df_2 <- suppressMessages(purrr::map(paths[-c(11, 12)], read_and_tidy, fun = tidy_it))
+df <- suppressMessages(purrr::map(paths[-c(11, 12)], read_and_tidy, fun = tidy_it))
+
+# using function tidy_it2
+df_2 <- purrr::map(paths[-c(11, 12)], read_and_tidy, fun = tidy_it2)
+
 
 ##### ----- write files into .csv or .rds
 
@@ -110,9 +111,22 @@ df_2 <- suppressMessages(purrr::map(paths[-c(11, 12)], read_and_tidy, fun = tidy
 
 walk2(.x = df, 
       .y = names(df), 
-      ~write_rds(.x, paste0('output/tidy_it2/', .y, '.rds')))
+      ~write_rds(.x, paste0('output/tidy_it/', .y, '.rds')))
 
 walk2(.x = df_2, 
       .y = names(df_2), 
-      ~write_rds(.x, paste0('output/tidy_it/', .y, '.rds')))
+      ~write_rds(.x, paste0('output/tidy_it2/', .y, '.rds')))
+
+# all in one
+
+news_article_2020 <- df_2 %>% bind_rows()
+
+write_rds(news_article_2020, 'output/new_article_2020.rds')
+
+
+
+
+
+
+
 
