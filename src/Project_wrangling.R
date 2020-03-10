@@ -121,7 +121,7 @@ walk2(.x = df_2,
 
 news_article_2020 <- df_2 %>% bind_rows()
 
-write_rds(news_article_2020, 'output/new_article_2020.rds')
+write_rds(news_article_2020, 'output/news_article_2020.rds')
 
 
 
