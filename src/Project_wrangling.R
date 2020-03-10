@@ -1,49 +1,58 @@
+
+# load packages -----------------------------------------------------------
+
+
 pkgs <- c("tidyr", "ggplot2", "dplyr", "purrr", "readr", "stringr", 
-          "haven", "tibble", "broom", "forcats", "lubridate", "tidyverse", 
-          "readxl", "here", "janitor", "usethis", "scales")
+          "tibble", "lubridate", "here", 'fs')
 
-sapply(pkgs, require, character.only = T, quietly = T, warn.conflicts = T)
+sshhh_library <- function(pkg) {
+  suppressWarnings(suppressPackageStartupMessages(
+    library(pkg, character.only = TRUE)))
+}
 
-rm(pkgs)
 
-# Helper functions and creating vectors of names and tidying the
+invisible(sapply(pkgs, sshhh_library))
+
+
+rm(pkgs, sshhh_library)
+
+
+# write helper functions ------------------------------------------------------
+
+# Helper functions for creating vectors of names and tidying the
 # database which comes as a nested list of daily news articles.
-# --------------------------
-
-
-var_names <- c("Date", "subtitle", "title", "content")  # names for the columns of
-# the final data frames
 
 # creats a vector of names for x.
 
-create_names <- function(x, day_or_article = "Day") {
+create_names <- function(x, name_prefix) {
   len <- length(x)
-  nms <- paste0(day_or_article, "_", seq(1, len, by = 1))
+  nms <- paste0(name_prefix, "_", seq(1, len, by = 1))
   nms
 }
 
 
 
-### takes a list (of one month new article data) and returns a
-### tibble with 5 vars
+# tidy_it() takes a list (of one month news article dataset) & returns a tibble.
 
 tidy_it <- function(database) {
   
   out <- vector("list", length(database))
   
-  for (m in seq_along(out)) out[[m]] <- vector("list", length(database[[m]]))
-  
+  for (m in seq_along(out)) {
+    out[[m]] <- vector("list", length(database[[m]]))
+  }
   out <- set_names(out, create_names(out, "Day"))
   
-  for (h in seq_along(out)) names(out[[h]]) <- create_names(out[[h]], 
-                                                            "article")
+  for (h in seq_along(out)) {
+    names(out[[h]]) <- create_names(out[[h]],  "article")
+  }
   
   for (day in seq_along(database)) {
-    for (article in seq_along(database[[day]])) {
+       for (article in seq_along(database[[day]])) {
       
       out[[day]][[article]] <- set_names(x = database[[day]][[article]], 
                                          nm = create_names(x = database[[day]][[article]], 
-                                                           day_or_article = "var")) %>% 
+                                                           name_prefix = "var")) %>% 
         flatten() %>% as_tibble(x = ., .name_repair = "unique") %>% 
         mutate(var_4 = paste(select(., -contains("var")), collapse = "||")) %>% 
         select(contains("var"))
@@ -59,7 +68,7 @@ tidy_it <- function(database) {
                             glue::glue("Day_{.x}"), length(database[[.x]])) 
                           ) %>%  unlist()
   
-  colnames(df) <- c("article_number", var_names)
+  colnames(df) <- c("article_number", "Date", "subtitle", "title", "content")
   
   df$Day_of_the_month <- Day_of_the_month
   
@@ -92,6 +101,7 @@ tidy_it2 <- function(database) {
 }
 
 
+# convert lists into tidy tibbles -----------------------------------------
 
 paths <- fs::dir_ls("data/")
 names(paths) <- str_sub(paths, start = -16, end = -5)
