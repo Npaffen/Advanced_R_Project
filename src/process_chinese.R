@@ -77,9 +77,9 @@ dict_CN <- dict_CN[dict_CN != ""] # remove empty string
 
 #####################################################################
 # 3. Request translation of the dictionary with Yandex translation API
-dict_EN <- character(length = length(dict_CN)) # create empty English dictionary
-Sys.setlocale(locale = "Chinese") # fix character encoding
 if(0){ # only run once! character limit: 1,000,000/day, 10,000,000 month
+  dict_EN <- character(length = length(dict_CN)) # create empty English dictionary
+  Sys.setlocale(locale = "Chinese") # fix character encoding
   api_key="trnsl.1.1.20200315T225616Z.880e92d51073d977.c51f6e74be74a3598a6cc312d721303abb5e846a"
   for(i in 1:length(dict_CN)){ # replace 1 here with last step "i" if time-out
     dict_EN[i] <- translate(api_key, text=dict_CN[i], lang="zh-en")$text
@@ -88,34 +88,63 @@ if(0){ # only run once! character limit: 1,000,000/day, 10,000,000 month
   dict_CN_EN <- data.frame(chinese = dict_CN, english = dict_EN)
   saveRDS(dict_CN_EN, "output/dictionary.rds")
   write.csv(dict_CN_EN, file = "output/dictionary.csv", fileEncoding = "UTF-16LE")
+  Sys.setlocale() # restore default locale
 } # this part took several attempts, due to server time-out
   # I just evaluated "i" to get the last step and repeated from there until finished
-Sys.setlocale() # restore default locale
+
 "output/dictionary.rds" %>%
   readRDS  %>%  # load in case translation not run
-  mutate_if(is.factor, as.character) -> dict_CN_EN 
+  modify_if(is.factor, as.character) -> dict_CN_EN 
 
 
 #####################################################################
 # 4. Translate all articles word for word (for quant analysis only!)
 
-# below is brute force matching each dictionary entry to the whole
-# database, open to suggestions that improve performance
-# idea: reverse maching would be faster
-Sys.setlocale(locale = "Chinese") # fix character encoding
-if(0){ # takes hours at the moment
+# below is the first try brute force matching each dictionary entry
+# to the whole database, works slowly and with mistakes
+if(0){ # takes half a day at the moment
+  Sys.setlocale(locale = "Chinese") # fix character encoding
   sep_articles_EN <- sep_articles
-  #for(i in rownames(dict_CN_EN)){
-  for(i in 2800:length(rownames(dict_CN_EN))){
+  for(i in rownames(dict_CN_EN)){
+  #for(i in 2800:length(rownames(dict_CN_EN))){
     for(j in names(sep_articles)){
+      word_cn <- paste0(" ",dict_CN_EN[i,"chinese"], " ")
+      word_en <- paste0(" ",dict_CN_EN[i,"english"], " ")
       sep_articles_EN[[j]] <- sep_articles_EN[[j]] %>%
-        str_replace_all(., dict_CN_EN[i,"chinese"], dict_CN_EN[i,"english"])
+        str_replace_all(., pattern = word_cn, replacement = word_en)
     }
     if(as.integer(i) %% 100 == 0){cat(i, " out of ", dim(dict_CN_EN)[1], "\n")}
   }
   saveRDS(sep_articles_EN, "output/news_article_2020_sep_EN.rds")
   Sys.setlocale() # restore default locale
-  
+}
+
+
+# better approach:
+# translate CN article words with the dictionary using the vector list
+# and remerging chunks after translation
+if(0){ # takes around 45 min.
+  Sys.setlocale(locale = "Chinese") # fix character encoding
+  art_words_EN <- art_words
+  words_cn_to_en <- function(words_cn){ # translate one title, subtitle, or content chunk
+      words_en <- modify(words_cn, ~ {
+                        if(is.character(.x)){
+                          word_en <- dict_CN_EN[dict_CN_EN[[1]] == .x,2] # find translation
+                          str_replace(.x, pattern = .x, replacement = word_en)
+                        }})
+      if(words_en != "") return(words_en)
+  }
+  str_not_zero <- function(x){nchar(x) !=0} # nonempty character condition
+  for(i in names(art_words)){
+    for(j in 1:length(art_words[[i]])){
+      art_words_EN[[i]][[j]] <- modify_if(art_words[[i]][[j]], str_not_zero,
+                                ~ words_cn_to_en(.x))
+      if(j %% 50 == 0){cat(i, j, " out of ", length(art_words[[i]]), "\n")}
+    }
+    art_words_EN[[i]] <- modify(art_words_EN[[i]], ~ str_c(., collapse = " "))
+  }
+  saveRDS(art_words_EN, "output/news_article_2020_sep_EN_v2.rds")
+  Sys.setlocale() # restore default locale
 }
 
 
