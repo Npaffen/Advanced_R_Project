@@ -68,13 +68,13 @@ tidy_it <- function(database) {
                             glue::glue("Day_{.x}"), length(database[[.x]])) 
                           ) %>%  unlist()
   
-  colnames(df) <- c("article_number", "Date", "subtitle", "title", "content")
+  colnames(df) <- c("article_number", "date", "subtitle", "title", "content")
   
   df$Day_of_the_month <- Day_of_the_month
   
   df <- df %>% 
-    mutate(Date = str_extract(Date, "\\d{4}.\\d{2}.\\d{2}")) %>% 
-    mutate(Date = lubridate::ymd(str_replace_all(Date, "[^0-9]",  "-")))
+    mutate(date = str_extract(date, "\\d{4}.\\d{2}.\\d{2}")) %>% 
+    mutate(date = lubridate::ymd(str_replace_all(date, "[^0-9]",  "-")))
   return(df)
 }
 
@@ -84,16 +84,16 @@ tidy_it <- function(database) {
 tidy_it2 <- function(database) {
   df <- map_df(database, function(x) {
     tibble(
-      Date = map_chr(x, 1), 
+      date = map_chr(x, 1), 
       subtitle = map_chr(x, 2), 
       title = map_chr(x, 3), 
       content = map_chr(x, function(xx) paste0(xx[[4]], collapse = "||")))
   })
-  # parse Date from the Date column of each tibble.
+  # parse date from the date column of each tibble.
   df <- mutate(.data = df, 
-               Date = str_extract(Date, "\\d{4}.\\d{2}.\\d{2}")) %>% 
+               date = str_extract(date, "\\d{4}.\\d{2}.\\d{2}")) %>% 
       mutate(.data = ., 
-             Date = lubridate::ymd(str_replace_all(Date, "[^0-9]", "-")))
+             date = lubridate::ymd(str_replace_all(date, "[^0-9]", "-")))
   return(df)
 }
 
