@@ -125,7 +125,7 @@ f_scraper <- function(dates) {
 }
 
 data
-database_m1 <- map(dates[(length(dates)-6):length(dates)],  ~ f_scraper(.x))
+database_m1 <- map(dates[(length(dates)-30):length(dates)],  ~ f_scraper(.x))
 database_m2 <- map(dates[(length(dates)-13):(length(dates)-7)],  ~ f_scraper(.x))
 
 
