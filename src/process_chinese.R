@@ -10,9 +10,12 @@
 #####################################################################
 # 0. Preparation
 
+# source self-written functions
+source("src/functions.R")
+
 # load/install required packages
 require(purrr) # install.packages("purrr")
-require(devtools) # install.packages("devtools") # for installing packages
+# require(devtools) # install.packages("devtools") # for installing packages
 
 # install/load packages for separating Chinese words
 # "Rwordseg" by Jian Li (2019) (https://github.com/lijian13/Rwordseg)
@@ -32,9 +35,9 @@ require("RYandexTranslate") #devtools::install_github("mukul13/RYandexTranslate"
 # install/load packages for translating with the dictionary
 require("stringr") #install.packages("stringr")
 
-# read article data
-articles <- readRDS("output/news_article_2020.rds")
-
+# read article data and delete duplicates
+articles <- readRDS("output/news_article_2020.rds") %>%
+                      remove_duplicates()
 
 
 #####################################################################
@@ -42,15 +45,15 @@ articles <- readRDS("output/news_article_2020.rds")
 
 # use the separation algorithm on each element
 # make a list that inserts spaces
-sep_articles <- modify_if(articles[,2:dim(articles)[2]], is.character,
-                          ~ segmentCN(.,
-                                      analyzer = "jiebaR",
-                                      # different options for "analyzer" : "default", 
-                                      #   "hmm", "jiebaR", "fmm","coreNLP"
-                                      nature = TRUE,  # recognizes word nature
-                                      nosymbol = TRUE, # eliminates symbols
-                                      returnType = "tm" ) # returns string sep by spaces)
-                          )
+
+sep_articles <- insert_spaces(articles,
+                              analyzer = "jiebaR",
+                              # different options for "analyzer" : "default",
+                              # "hmm", "jiebaR", "fmm","coreNLP"
+                              nature = TRUE, # recognizes word nature
+                              nosymbol = TRUE, # eliminates symbols
+                              returnType = "tm" # default is insert spaces
+)
 saveRDS(sep_articles, "output/news_article_2020_sep.rds")
 
 
@@ -58,64 +61,56 @@ saveRDS(sep_articles, "output/news_article_2020_sep.rds")
 #####################################################################
 ## 2. Create dictionary of all words in articles
 
-# make a list that returns vectors of words for the dictionary
-art_words <- modify_if(articles[,2:dim(articles)[2]], is.character,
-                       ~ segmentCN(.,
-                                   analyzer = "jiebaR",
-                                   # different options for "analyzer" : "default", 
-                                   #   "hmm", "jiebaR", "fmm","coreNLP"
-                                   nature = FALSE,  # recognizes word nature
-                                   nosymbol = TRUE, # eliminates symbols
-                                   returnType = "vector" ) # returns vectors of strings)
+# make a list that returns the articles separated into word vectors
+art_words <- insert_spaces(articles,
+                              analyzer = "jiebaR",
+                              # different options for "analyzer" : "default",
+                              # "hmm", "jiebaR", "fmm","coreNLP"
+                              nature = FALSE, # recognizes word nature
+                              nosymbol = TRUE, # eliminates symbols
+                              returnType = "vector" # default is insert spaces
 )
 
 # extract dictionary of unique words from article words
-dict_CN <- art_words %>% unlist %>% unique
-dict_CN <- dict_CN[dict_CN != ""] # remove empty string
+dict_CN <- art_words %>%
+  extract_dictionary() %>%
+  delete_numbers()
 
 
 
 #####################################################################
 # 3. Request translation of the dictionary with Yandex translation API
-dict_EN <- character(length = length(dict_CN)) # create empty English dictionary
-Sys.setlocale(locale = "Chinese") # fix character encoding
 if(0){ # only run once! character limit: 1,000,000/day, 10,000,000 month
-  api_key="trnsl.1.1.20200315T225616Z.880e92d51073d977.c51f6e74be74a3598a6cc312d721303abb5e846a"
-  for(i in 1:length(dict_CN)){ # replace 1 here with last step "i" if time-out
-    dict_EN[i] <- translate(api_key, text=dict_CN[i], lang="zh-en")$text
-    if(i %% 100 == 0){cat(i, " out of ", length(dict_CN), "\n")}
-  }
-  dict_CN_EN <- data.frame(chinese = dict_CN, english = dict_EN)
+  Sys.setlocale(locale = "Chinese") # fix character encoding
+  dict_CN_EN <- request_translation(dict_CN[2],
+                     # free keys can be generated here:
+                     # https://tech.yandex.com/translate/
+                     api_key="trnsl.1.1.20200315T225616Z.880e92d51073d977.c51f6e74be74a3598a6cc312d721303abb5e846a",
+                     start = 1 # if this fails at a certain "i", just restart at i-1
+                     )
   saveRDS(dict_CN_EN, "output/dictionary.rds")
-  write.csv(dict_CN_EN, file = "output/dictionary.csv", fileEncoding = "UTF-16LE")
-} # this part took several attempts, due to server time-out
-  # I just evaluated "i" to get the last step and repeated from there until finished
-Sys.setlocale() # restore default locale
+  write.csv(dict_CN_EN, # csv file for further use
+            file = "output/dictionary.csv",
+            fileEncoding = "UTF-16LE")
+  Sys.setlocale() # restore default locale
+} # this part took several attempts, due to server time-out, connection errors, etc.
+  # get the last step from "i" and repeated with "start = i-1" until finished
+
 "output/dictionary.rds" %>%
   readRDS  %>%  # load in case translation not run
-  mutate_if(is.factor, as.character) -> dict_CN_EN 
+  modify_if(is.factor, as.character) -> dict_CN_EN 
 
 
 #####################################################################
 # 4. Translate all articles word for word (for quant analysis only!)
 
-# below is brute force matching each dictionary entry to the whole
-# database, open to suggestions that improve performance
-# idea: reverse maching would be faster
-Sys.setlocale(locale = "Chinese") # fix character encoding
-if(0){ # takes hours at the moment
-  sep_articles_EN <- sep_articles
-  #for(i in rownames(dict_CN_EN)){
-  for(i in 2800:length(rownames(dict_CN_EN))){
-    for(j in names(sep_articles)){
-      sep_articles_EN[[j]] <- sep_articles_EN[[j]] %>%
-        str_replace_all(., dict_CN_EN[i,"chinese"], dict_CN_EN[i,"english"])
-    }
-    if(as.integer(i) %% 100 == 0){cat(i, " out of ", dim(dict_CN_EN)[1], "\n")}
-  }
-  saveRDS(sep_articles_EN, "output/news_article_2020_sep_EN.rds")
+# translate CN article words with the dictionary using the vector list
+# and remerging chunks after translation
+if(0){ # takes around 45 min.
+  Sys.setlocale(locale = "Chinese") # fix character encoding
+  art_words_EN <- translate_articles(art_words)
+  saveRDS(art_words_EN, "output/news_article_2020_sep_EN.rds")
   Sys.setlocale() # restore default locale
-  
 }
 
 
