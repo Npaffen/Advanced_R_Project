@@ -138,9 +138,3 @@ news_article_2020 <- bind_rows(df_2)
 write_rds(news_article_2020, 'output/news_article_2020.rds')
 
 
-
-
-
-
-
-

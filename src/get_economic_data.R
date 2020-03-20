@@ -1,0 +1,67 @@
+# Download Economic Indicators From FRED API --------------------
+
+library(fredr)
+
+# my_fred_key <- '5fb47a42104bd917db0e26c389******'
+
+# fredr_set_key(my_fred_key)
+
+# all available indicators for China in FRED database.
+
+china <- fredr_request(endpoint = "tags/series", tag_names = "china")
+
+china %>%
+  select(
+    popularity, id, title, frequency_short, units_short,
+    seasonal_adjustment_short,
+  ) %>%
+  filter(frequency_short %in% c("D", "M")) %>%
+  arrange(desc(popularity)) %>%
+  view()
+
+
+econ_indicators <- c(ex_rate_daily = 'DEXCHUS', 
+                     ex_rate_monthly = 'EXCHUS', 
+                     realeff_ex_rate = 'CCRETT01CNM661N',
+                     exports = 'XTEXVA01CNM667S', 
+                     cpi = 'CHNCPIALLMINMEI', 
+                     interest_rates = 'INTDSRCNM193N',
+                     confidence_index = 'CSCICP03CNM665S', 
+                     un_rate = 'LMUNRRTTCNQ156S',
+                     normalized_gdp = 'CHNLORSGPNOSTSAM')
+
+### 1. GDP
+
+# Leading Indicators OECD: Reference series: Gross Domestic Product (GDP):
+# Normalised for China (CHNLORSGPNOSTSAM)
+# [CHNLORSGPNOSTSAM](https://fred.stlouisfed.org/series/CHNLORSGPNOSTSAM)
+
+normalized_gdp <- econ_indicators[['normalized_gdp']]
+
+econ_data_china <- fredr(
+  series_id = normalized_gdp,
+  observation_start = as.Date("2019-01-01"),
+  observation_end = as.Date("2020-03-15"),
+  frequency = "m"
+)
+
+plot(econ_data_china$date, econ_data_china$value,
+  type = "b",
+  xlab = "Time", ylab = "GDP"
+)
+
+## 2. prices and inflation
+
+# Consumer Price Index for China
+
+
+
+# Real Effective Exchange Rates Based on Manufacturing Consumer Price Index for China
+
+
+## 3. Labor market variables.
+
+# Registered Unemployment Rate for China, Seasonally Adjusted, Quarterly.
+
+
+# saveRDS(china, 'data/Econ_China.Rds')
