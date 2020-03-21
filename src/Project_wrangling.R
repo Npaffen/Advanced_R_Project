@@ -161,6 +161,14 @@ walk2(
 
 news_article_2020 <- bind_rows(df_2)
 
+ # remove empty contents
+
+# news_article_2020 <- filter(news_article_2020, content!='')
+
+# remove duplicates.
+
+news_article_2020 <- news_article_2020[!duplicated(news_article_2020$content), ]
+
 write_rds(news_article_2020, "output/news_article_2020.rds")
 
 
