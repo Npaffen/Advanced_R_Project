@@ -198,10 +198,7 @@ for (i in seq_along(sort(time_span_archive_monthly, decreasing = T))){
   list.save(x =str_c("database","_m", j, sep = ), str_c("database","_m", j,".rds", sep = ""))
 }
 
-  remDr$screenshot
 
 
 
 
-shell('git add -a')
-shell(str_c('git commit -m', "", sep = " "))
