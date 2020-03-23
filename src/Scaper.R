@@ -14,17 +14,11 @@ Sys.setlocale("LC_TIME", "C")
 all.nodes <- c(".sha_right ", " .author", ".subtitle", 
                ".sha_left span", " #FontZoom", " .title")
 captcha_tester <- read_html("captcha.html")
-# date <- (today()-1)-0:time_length(interval(ymd(str_c((year((today()-1))-5), str_c(0,month((today()-1))), day((today()-1)) , sep = "-" )),
-#                                            ymd((today()-1))) , unit = "day")
-
-# This will get the same result, what do you think?
-# And, `date` is an existing function so we should probabily
-# avoid overwriting it, so `dates` would be a good name.
 
 dates <- seq(from = as.Date('2015-01-01'),
              to = as.Date('2020-03-23'),
              by = 1)
-# the result is already is a character vector.
+
 
 dates <- dates %>% gsub(pattern = "-" ,
                         replacement = "",
