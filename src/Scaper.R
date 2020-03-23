@@ -30,7 +30,9 @@ remDr$open()
   remDr$navigate("https://tinyurl.com/rq8vom4")
 
 remDr$findElement("css selector", "#login :nth-child(1)")$sendKeysToElement(list("dschulze"))
+Sys.sleep(3L)
 remDr$findElement("css selector", "#login :nth-child(2)")$sendKeysToElement(list("bonsaibonsai"))
+Sys.sleep(3L)
 remDr$findElement("css selector", "#login_button")$sendKeysToElement(list(key = "enter"))
 
 f_articles_url <- function(paper_length, date_url) {
