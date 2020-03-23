@@ -20,7 +20,7 @@ dates <- seq(from = as.Date('2015-01-01'),
              by = 1)
 
 
-dates <- dates %>% gsub(pattern = "-" ,
+date_url <- dates %>% gsub(pattern = "-" ,
                         replacement = "",
                         x = .)
 
@@ -33,13 +33,13 @@ remDr$findElement("css selector", "#login :nth-child(1)")$sendKeysToElement(list
 remDr$findElement("css selector", "#login :nth-child(2)")$sendKeysToElement(list("bonsaibonsai"))
 remDr$findElement("css selector", "#login_button")$sendKeysToElement(list(key = "enter"))
 
-f_articles_url <- function(paper_length, dates) {
+f_articles_url <- function(paper_length, date_url) {
   Sys.sleep(runif(1,5,10))
   
   remDr$navigate(
     str_c(
       "http://data.people.com.cn.s894ibwr0870.erf.sbb.spk-berlin.de/rmrb",
-      dates,
+      date_url,
       paper_length,
       sep = "/"
     )
@@ -55,7 +55,7 @@ f_articles_url <- function(paper_length, dates) {
          x = .) %>%
     grep('([a-z0-9]{32})', value = T, x = .) %>%
     gsub('^',
-         replacement = str_c(dates, paper_length, "", sep = "/"),
+         replacement = str_c(date_url, paper_length, "", sep = "/"),
          x = .)
   
 }
@@ -161,12 +161,12 @@ html_text() == html_text(xml_child(xml_child(captcha_test, 2), 2)))#check if the
 }
 
 
-f_scraper <- function(dates) {
+f_scraper <- function(date_url) {
 
   paper_length <- 1:2 # Only page 1 and 2 of each newspaper will be analyzed
 
   
-  url_articles <- map(paper_length,  ~ f_articles_url(.x, dates)) #grab the article adresses
+  url_articles <- map(paper_length,  ~ f_articles_url(.x, date_url)) #grab the article adresses
   
   map(flatten(url_articles), ~ f_content(.x)) #grab the content
 }
@@ -175,7 +175,7 @@ f_scraper <- function(dates) {
 #shell("git.lnk config --global user.email \"nils.paffen@wopic.de\"")
 #shell("git.lnk config --global user.name \"npaffen\"")
 
-archive_partly <- dates <- seq(from = as.Date('2019-01-01'),
+archive_partly <- date_url <- seq(from = as.Date('2019-01-01'),
                                to = as.Date('2020-03-23'),
                                by = 1)
 
@@ -187,7 +187,7 @@ for (i in seq_along(sort(time_span_archive_monthly, decreasing = T))){
   j = j + 1
   
   assign(str_c("database","_m", j, sep = ""),
-         map(dates[(length(dates)-i-30):(length(dates)-i)],
+         map(date_url[(length(date_url)-i-30):(length(date_url)-i)],
              ~ f_scraper(.x)))
   list.save(x =str_c("database","_m", j, sep = ), str_c("database","_m", j,".rds", sep = ""))
 }
