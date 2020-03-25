@@ -6,19 +6,20 @@ library(fredr)
 
 # fredr_set_key(my_fred_key)
 
-# all available indicators for China in FRED database.
+# Let's get all available indicators for China in FRED database.
 
 china <- fredr_request(endpoint = "tags/series", tag_names = "china")
 
 china %>%
   select(
-    popularity, id, title, frequency_short, units_short,
-    seasonal_adjustment_short,
+    popularity, id, title, frequency_short, units_short, seasonal_adjustment_short,
   ) %>%
-  filter(frequency_short %in% c("D", "M")) %>%
+  dplyr::filter(.data=., 
+                frequency_short %in% c("D", "M"), 
+                !str_detect(title, 'DISCONTINUED'),
+                seasonal_adjustment_short !="SA") %>%
   arrange(desc(popularity)) %>%
   view()
-
 
 econ_indicators <- c(ex_rate_daily = 'DEXCHUS', 
                      ex_rate_monthly = 'EXCHUS', 
@@ -38,14 +39,14 @@ econ_indicators <- c(ex_rate_daily = 'DEXCHUS',
 
 normalized_gdp <- econ_indicators[['normalized_gdp']]
 
-econ_data_china <- fredr(
+gdp_china <- fredr(
   series_id = normalized_gdp,
   observation_start = as.Date("2019-01-01"),
   observation_end = as.Date("2020-03-15"),
   frequency = "m"
 )
 
-plot(econ_data_china$date, econ_data_china$value,
+plot(gdp_china$date, gdp_china$value,
   type = "b",
   xlab = "Time", ylab = "GDP"
 )
