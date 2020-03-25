@@ -159,12 +159,13 @@ get_article_data <- function(article_urls) {
 
 # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++----
 # Scraping begins
-# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++----
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+# For 2018 -----------------------------------------------------------
 
 # create vectors of dates.
 first_date_2018 <- ymd("2018-01-01")
 last_date_2018 <- ymd("2019-01-01") - 1
-
 dates_2018 <- seq.Date(first_date_2018, last_date_2018, by = 1)
 
 # first issue/subarticle of 2018.
@@ -172,41 +173,88 @@ dates_2018 <- seq.Date(first_date_2018, last_date_2018, by = 1)
 # last issue/subarticle of 2018.
 # source: http://paper.people.com.cn/rmrbhwb/html/2018-12/31/content_1901725.htm
 
+# For 2017 -----------------------------------------------------------
 
-# Article urls for 2018 ----------------------------------------------
+first_date_2017 <- ymd("2017-01-01")
+last_date_2017 <- ymd("2018-01-01") - 1
+dates_2017 <- seq.Date(first_date_2017, last_date_2017, by = 1)
+
+
+
+# Article urls for 2018 
+
+# count <- 0
+# article_urls_2018 <- map(dates_2018, function(x) {
+#   count <<- count + 1
+#   print(sprintf(
+#     "Hang on there, %d iters left >>>>> :D",
+#     length(dates_2018) - count
+#   ))
+# safely_slowly_generate_url(x)
+# })
+# 
+# 
+# names(article_urls_2018) <- dates_2018
+# 
+# article_urls_2018 <- transpose(article_urls_2018)
+# 
+# 
+# is_ok_urls <- article_urls_2018$error %>% map_lgl(is_null)
+# 
+# 
+# article_urls_2018_ok <- bind_rows(article_urls_2018$result[is_ok_urls], .id = "id")
+# article_urls_2018_notok <- article_urls_2018$error[!is_ok_urls]
+# 
+# 
+# 
+# # saveRDS(article_urls_2018, 'data/article_urls_2018.RDS')
+# 
+# 
+# 
+# # Download content ----------------------------------------------
+# 
+# article_data_2018 <- get_article_data(article_urls_2018_ok)
+# 
+# # successful ones
+# article_data_ok_2018 <- article_data_2018$article_data_ok
+# 
+# # saveRDS(article_data_ok_2018, 'data/article_data_ok_2018.rds')
+
+# Article urls for 2017
+
 count <- 0
-article_urls_2018 <- map(dates_2018, function(x) {
+article_urls_2017 <- map(dates_2017, function(x) {
   count <<- count + 1
   print(sprintf(
     "Hang on there, %d iters left >>>>> :D",
-    length(dates_2018) - count
+    length(dates_2017) - count
   ))
-safely_slowly_generate_url(x)
+  safely_slowly_generate_url(x)
 })
 
 
-names(article_urls_2018) <- dates_2018
+names(article_urls_2017) <- dates_2017
 
-article_urls_2018 <- transpose(article_urls_2018)
-
-
-is_ok_urls <- article_urls_2018$error %>% map_lgl(is_null)
+article_urls_2017 <- transpose(article_urls_2017)
 
 
-article_urls_2018_ok <- bind_rows(article_urls_2018$result[is_ok_urls], .id = "id")
-article_urls_2018_notok <- article_urls_2018$error[!is_ok_urls]
+is_ok_urls_2017 <- article_urls_2017$error %>% map_lgl(is_null)
+
+
+article_urls_2017_ok <- bind_rows(article_urls_2017$result[is_ok_urls_2017], .id = "id")
+article_urls_2017_notok <- article_urls_2017$error[!is_ok_urls_2017]
 
 
 
-# saveRDS(article_urls_2018, 'data/article_urls_2018.RDS')
+# saveRDS(article_urls_2017, 'data/article_urls_2017.RDS')
 
 
 
 # Download content ----------------------------------------------
 
-article_data_2018 <- get_article_data(article_urls_2018_ok)
+article_data_2017 <- get_article_data(article_urls_2017_ok)
 
 # successful ones
-article_data_ok_2018 <- article_data_2018$article_data_ok
+article_data_ok_2017 <- article_data_2017$article_data_ok
 
-# saveRDS(article_data_ok_2018, 'data/article_data_ok_2018.rds')
+# saveRDS(article_data_ok_2017, 'data/article_data_ok_2017.rds')
