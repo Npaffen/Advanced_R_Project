@@ -7,8 +7,10 @@ library(tidyverse)
 library(glue)
 
 
-## This function creates a url for a "edition/version 01" article published
-# on a specific date and for columns on it.
+# func 1. ======================= start ---------------------------------------
+
+# This function creates a url for a "edition/version 01" article
+# published on a specific date and for columns on it
 
 generate_article_url <- function(date, edition = "01") {
   date <- ymd(date)
@@ -26,11 +28,11 @@ generate_article_url <- function(date, edition = "01") {
 
   # Using the following code (which is bound to cols*), we found out that
   # the maximum number of columns in a single article is 9.
-  # We do not have to scrape just to get the number of column counts
-  # for each article, we default the number of columns or sections in any
-  # article to 9. Anyway, the use of safely() in the data getter function
-  # (see `get_article_data()` below) captures the error if the actual
-  # column counts are below or above 9.
+  # We do not have to send requests to scrape just the number of columns
+  # on/in an article. As a result, we make the number of columns or sections in any
+  # article default to 9. Anyway, the use of safely(), during the request
+  # (see `get_article_data()` below), captures the error if the actual
+  # column counts are below or above 9---Will be flagged as **Not Found (HTTP 404)**.
 
   # checker -------------------------------------------------------
   # cols <- read_html(article_url) %>%
@@ -56,7 +58,11 @@ generate_article_url <- function(date, edition = "01") {
   )
 }
 
+# func 1. ======================= end ---------------------------------------
 
+
+
+# func 2. ======================= start -----------------------------------
 
 extract_content <- function(cols_url) {
   page <- read_html(cols_url)
@@ -94,8 +100,10 @@ extract_content <- function(cols_url) {
   df
 }
 
-# Scraping begins -----------------------------------------------
+# func 2. ======================= end -----------------------------------
 
+
+# func 3. ======================= start ------------------------------
 
 # make a pause in each iteration.
 safely_slowly_extract <- safely(
@@ -105,6 +113,10 @@ safely_slowly_extract <- safely(
   ),
   quiet = FALSE
 )
+
+# func 3. ======================= end ------------------------------
+
+# func 4. ======================= start ------------------------------
 
 
 # create a function that extractes the article text data and ----
@@ -118,7 +130,7 @@ get_article_data <- function(article_urls) {
     count <<- count + 1
 
     print(sprintf(
-      "Hang on there, %d iterations left. :(",
+      "Hang on there, %d iters left >>>>> :D",
       length(article_urls$cols_url) - count
     ))
 
@@ -153,25 +165,33 @@ get_article_data <- function(article_urls) {
   )
 }
 
+
+# func 4. ======================= end -------------------------------
+
+
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++----
+# Scraping begins
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++----
+
 # create vectors of dates.
 
 date_vec_2020 <- seq(ymd("2020-01-01"), today(), by = 1)
 
 date_vec_2019 <- seq(ymd("2019-01-01"), ymd("2020-01-01") - 1, by = 1)
 
-# For 2020 ---------------------------------------------------
+# Article urls for 2020 ----------------------------------------------
 article_urls_2020 <- map_df(date_vec_2020, generate_article_url)
-
 
 # saveRDS(article_urls_2020, 'data/article_urls_2020.RDS')
 
-# For 2019 ---------------------------------------------------
+# Article urls for 2019 ----------------------------------------------
 
 article_urls_2019 <- map_df(date_vec_2019, generate_article_url)
 
 # saveRDS(article_urls_2019, 'data/article_urls_2019.RDS')
 
 
+# Download content ----------------------------------------------
 
 article_data_2020 <- get_article_data(article_urls_2020)
 
