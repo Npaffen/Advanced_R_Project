@@ -8,7 +8,7 @@ generate_article_url <- function(date, edition = "01") {
   mm <- if_else(mm < 10, paste0(0, mm), as.character(mm))
   dd <- lubridate::day(date)
   dd <- if_else(dd < 10, paste0(0, dd), as.character(dd))
-  
+
   initial <- glue::glue("http://paper.people.com.cn/rmrb/html/{yyyy}-{mm}/{dd}/")
 
   # article link
@@ -76,20 +76,6 @@ extract_content <- function(cols_url) {
   df
 }
 
-
-date_vec <- seq(as.Date("2020-01-01"), lubridate::today(), by = 1)
-
-article_urls <- map(date_vec, generate_article_url)
-
-article_urls <- setNames(article_urls, date_vec)
-
-
-article_urls <- map_df(article_urls, as_tibble)
-
-# saveRDS(article_urls, 'data/article_urls.RDS')
-
-
-
 # Scraping begins -----------------------------------------------
 
 
@@ -103,35 +89,69 @@ safely_slowly_extract <- safely(
 )
 
 
-## here it goes 
+
+
+# create vectors of dates.
+
+date_vec_2020 <- seq(as.Date("2020-01-01"), lubridate::today(), by = 1)
+
+date_vec_2019 <- seq(as.Date("2019-01-01"), lubridate::ymd("2020-01-01") - 1, by = 1)
+
+########## for 2020
+article_urls_2020 <- map(date_vec_2020, generate_article_url)
+
+article_urls_2020 <- setNames(article_urls_2020, date_vec_2020)
+
+
+article_urls_2020 <- map_df(article_urls_2020, as_tibble)
+
+# saveRDS(article_urls_2020, 'data/article_urls_2020.RDS')
+
+########## for 2019
+article_urls_2019 <- map(date_vec_2019, generate_article_url)
+
+article_urls_2019 <- setNames(article_urls_2019, date_vec_2019)
+
+
+article_urls_2019 <- map_df(article_urls_2019, as_tibble)
+
+# saveRDS(article_urls_2019, 'data/article_urls_2019.RDS')
 
 count <- 0
 
-article_data <- map(article_urls$cols_url, function(x) {
-  count <<- count + 1
-  
-  print(sprintf("Hang on there, %d iteration left.:(", 
-                length(article_urls$cols_url) - count))
-  
-  safely_slowly_extract(x)
-})
+get_article_data <- function(article_urls) {
+  article_data <- map(article_urls$cols_url, function(x) {
+    count <<- count + 1
+
+    print(sprintf(
+      "Hang on there, %d iterations left. :(",
+      length(article_urls$cols_url) - count
+    ))
+
+    safely_slowly_extract(x)
+  })
 
 
-names(article_data) <- article_urls$cols
+  names(article_data) <- article_urls$cols
 
-article_transposed <- transpose(article_data)
-
-
-is_ok <-  article_transposed$error %>% map_lgl(is_null)
+  article_data <- transpose(article_data)
 
 
-article_data_ok <- bind_rows(article_transposed$result[is_ok], .id = 'id')
+  is_ok <- article_data$error %>% map_lgl(is_null)
 
 
-# saveRDS(article_data_ok, 'data/article_data_ok.rds')
-# saveRDS(article_transposed, 'data/article_transposed.rds')
+  article_data_ok <- bind_rows(article_data$result[is_ok], .id = "id")
 
-# article_transposed$error[!is_ok]
+  rm(article_data)
+  rm(is_ok)
 
-# $`nw.D110000renmrb_20200118_4-01.htm`
-# <simpleError in open.connection(x, "rb"): Recv failure: Connection reset by peer>
+  article_data_ok
+}
+
+
+article_data_ok_2020 <- get_article_data(article_urls_2020)
+article_data_ok_2019 <- get_article_data(article_urls_2019)
+
+
+# saveRDS(article_data_ok_2020, 'data/article_data_ok_2020.rds')
+# saveRDS(article_data_ok_2019, 'data/article_data_ok_2019.rds')
