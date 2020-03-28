@@ -13,10 +13,6 @@ library(rlist)
 
 Sys.setlocale("LC_TIME", "C")
 
-all.nodes <- c(
-  ".sha_right ", " .author", ".subtitle",
-  ".sha_left span", " #FontZoom", " .title"
-)
 captcha_tester <- read_html("captcha.html")
 
 dates <- seq(
@@ -92,7 +88,7 @@ f_captcha <- function() {
       x = .
     ) # catch the ticket ID
 
-  Sys.sleep(20L) # wait untill solving
+  Sys.sleep(10L) # wait untill solving
 
   if (httr::GET(url = str_c("https://2captcha.com/res.php?key=d3ce30748e45dc73365f4e327acaebee&action=get&id=",
     captcha_ID,
@@ -121,6 +117,7 @@ f_captcha <- function() {
 }
 
 f_content <- function(url_articles) {
+  Sys.sleep(runif(1,12,15))
   remDr$navigate(
     str_c(
       "http://data.people.com.cn.s894ibwr0870.erf.sbb.spk-berlin.de/rmrb",
@@ -190,18 +187,21 @@ f_content <- function(url_articles) {
       content = get_paragraph(page),
       date = get_date(page),
       PageNumber = get_page_num(page) 
-    )
+    ) %>% 
+      map(~if(length(.x) == 0){.x = NA} else .x = .x)
     
+
+  
      df <- tibble(
       title = df_l$title,
       subtitle = df_l$subtitle,
-      #date = df_l$date,
-      #PageNumber = df_l$PageNumber,
-      #content = paste(df_l$content, collapse = ""),
-      #num_paragraph = length(df_l$content)
-    )
+      date = df_l$date,
+      PageNumber = df_l$PageNumber,
+      content = paste0(df_l$content, collapse = ""),
+      num_paragraph = length(df_l$content)
+    ) 
     
-    df
+    
   } # grab the article content
 }
 
