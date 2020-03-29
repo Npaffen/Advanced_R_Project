@@ -36,3 +36,25 @@ ap_top_terms %>%
   coord_flip() +
   scale_x_reordered()
 
+
+#As an alternative, we could consider the terms that had the greatest difference in  
+#β between topic 1 and topic 2.
+library(tidyr)
+
+beta_spread <- ap_topics %>%
+  mutate(topic = paste0("topic", topic)) %>%
+  spread(topic, beta) %>%
+  filter(topic1 > .001 | topic2 > .001) %>%
+  mutate(log_ratio = log2(topic2 / topic1))
+
+beta_spread
+#Besides estimating each topic as a mixture of words, LDA also models each document as a mixture of topics.
+#We can examine the per-document-per-topic probabilities, called (“gamma”), with the matrix = "gamma" argument to tidy().
+
+ap_documents <- tidy(ap_lda, matrix = "gamma")
+ap_documents
+
+#Each of these values is an estimated proportion of words from that document that are generated from that topic.
+#For example, the model estimates that only about 25% of the words in document 1 were generated from topic 1.
+
+
