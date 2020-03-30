@@ -1,4 +1,3 @@
-
 # load packages -------------------------------------------------
 
 library(lubridate)
@@ -6,202 +5,58 @@ library(rvest)
 library(tidyverse)
 library(glue)
 
+# ---------------------------------------------------------------
 
-# func 1. ======================= start ---------------------------------------
+scrape_all <- function(version, year, ...) {
+  source("src/make_dates.R") # sources make_dates()
+  source("src/generate_article_urls.R") # sources generate_urls()
 
-# This function creates a url for a "edition/version 01" article
-# published on a specific date and for columns on it
+  dates <- make_dates(year = year, ...)
+  dates <- as_date(unlist(unname(dates)))
 
-generate_article_url <- function(date, edition = "01") {
-  date <- ymd(date)
-  yyyy <- year(date)
-  mm <- month(date)
-  mm <- if_else(mm < 10, paste0(0, mm), as.character(mm))
-  dd <- day(date)
-  dd <- if_else(dd < 10, paste0(0, dd), as.character(dd))
+  # Article urls for the given year -----------------------------
 
-  initial <- glue("http://paper.people.com.cn/rmrb/html/{yyyy}-{mm}/{dd}")
+  # ================================= -----------------------------
 
-  # article link
-  article_url <- glue("{initial}/nbs.D110000renmrb_{edition}.htm")
+  # status notifier
+  len <- length(dates)
 
 
-  # Using the following code (which is bound to cols*), we found out that
-  # the maximum number of columns in a single article is 9.
-  # We do not have to send requests to scrape just the number of columns
-  # on/in an article. As a result, we make the number of columns or sections in any
-  # article default to 9. Anyway, the use of safely(), during the request
-  # (see `get_article_data()` below), captures the error if the actual
-  # column counts are below or above 9---Will be flagged as **Not Found (HTTP 404)**.
+  # ================================= -----------------------------
 
-  # checker -------------------------------------------------------
-  # cols <- read_html(article_url) %>%
-  #           html_nodes('a[href*="nw.D110000renmrb"]') %>%
-  #           html_attr("href") %>%
-  #           unique() # *
-  # checker -------------------------------------------------------
-
-  max_cols <- 9
-
-  yyyymmdd <- paste0(yyyy, mm, dd)
-
-  # suffix for columns url
-  cols <- glue("nw.D110000renmrb_{yyyymmdd}_{1:max_cols}-{edition}.htm")
-
-  cols_url <- glue("{initial}/{cols}")
-
-  tibble(
-    article_url = article_url,
-    cols_url = cols_url,
-    date = date,
-    cols = cols
+  article_urls <- map(
+    .x = dates,
+    .f = function(x) {
+      len <<- len - 1
+      if (len > 0 || len %% 50 == 0 || len < 10) {
+        message(message("GETTING URLS","--------"),
+          "Grab some coffee ", "<", len, "> ",
+          "iter", if (len > 1) "s", " left....."
+        )
+      }
+      #------------------------------------------
+      safely(slowly(generate_urls), quiet = FALSE)(date=x, 
+                                                   version = version) # will be returned
+    }
   )
-}
+  article_urls <- transpose(article_urls)
+  is_ok_urls <- article_urls$error %>% map_lgl(is_null)
+  article_urls_ok <- suppressWarnings(bind_rows(article_urls$result[is_ok_urls],
+    .id = "id"
+  ))
+  article_urls_notok <- article_urls$error[!is_ok_urls]
 
-# func 1. ======================= end ---------------------------------------
+  # Download content ----------------------------------------------
 
+  source("src/get_content.R")
+  article_data <- get_article_data(article_urls_ok)
 
+  # successful ones
+  article_data_ok <- article_data$dat_ok
 
-# func 2. ======================= start -----------------------------------
-
-extract_content <- function(cols_url) {
-  page <- read_html(cols_url)
-
-  get_h1 <- compose(html_text,
-    partial(html_nodes, css = "h1"),
-    partial(html_nodes, css = ".text_c"),
-    .dir = "backward"
-  )
-
-  get_h3 <- compose(html_text,
-    partial(html_nodes, css = "h3"),
-    partial(html_nodes, css = ".text_c"),
-    .dir = "backward"
-  )
-
-  get_paragraph <- compose(html_text,
-    partial(html_nodes, css = "p"),
-    partial(html_nodes, css = ".c_c"),
-    .dir = "backward"
-  )
-
-  df <- list(
-    title = get_h1(page),
-    subtitle = get_h3(page),
-    content = get_paragraph(page)
-  )
-
-  df <- tibble(
-    title = df$title,
-    subtitle = df$subtitle,
-    content = paste0(df$content, collapse = "||"),
-    num_paragraph = length(df$content)
-  )
-  df
-}
-
-# func 2. ======================= end -----------------------------------
-
-
-# func 3. ======================= start ------------------------------
-
-# make a pause in each iteration.
-safely_slowly_extract <- safely(
-  slowly(
-    extract_content,
-    quiet = FALSE
-  ),
-  quiet = FALSE
-)
-
-# func 3. ======================= end ------------------------------
-
-# func 4. ======================= start ------------------------------
-
-
-# create a function that extractes the article text data and ----
-# other additional infor.
-
-
-get_article_data <- function(article_urls) {
-  count <- 0
-
-  article_data <- map(article_urls$cols_url, function(x) {
-    count <<- count + 1
-
-    print(sprintf(
-      "Hang on there, %d iters left >>>>> :D",
-      length(article_urls$cols_url) - count
-    ))
-
-    safely_slowly_extract(x)
-  })
-
-
-  names(article_data) <- article_urls$cols
-
-  article_data <- transpose(article_data)
-
-
-  is_ok <- article_data$error %>% map_lgl(is_null)
-
-
-  article_data_ok <- bind_rows(article_data$result[is_ok], .id = "id")
-  article_data_notok <- article_data$error[!is_ok]
-
-  rm(article_data)
-  rm(is_ok)
-
-  article_data_ok %>%
-    mutate(
-      date = ymd(str_extract(id, "\\d{8}")),
-      column_num = str_extract(id, "(_\\d-)"),
-      column_num = str_extract(column_num, "\\d")
-    )
-
+  # final output of the function
   list(
-    article_data_ok = article_data_ok,
-    article_data_notok = article_data_notok
+    urls = article_urls,
+    data = article_data_ok
   )
 }
-
-
-# func 4. ======================= end -------------------------------
-
-
-# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++----
-# Scraping begins
-# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++----
-
-# create vectors of dates.
-
-date_vec_2020 <- seq(ymd("2020-01-01"), today(), by = 1)
-
-date_vec_2019 <- seq(ymd("2019-01-01"), ymd("2020-01-01") - 1, by = 1)
-
-# Article urls for 2020 ----------------------------------------------
-article_urls_2020 <- map_df(date_vec_2020, generate_article_url)
-
-# saveRDS(article_urls_2020, 'data/article_urls_2020.RDS')
-
-# Article urls for 2019 ----------------------------------------------
-
-article_urls_2019 <- map_df(date_vec_2019, generate_article_url)
-
-# saveRDS(article_urls_2019, 'data/article_urls_2019.RDS')
-
-
-# Download content ----------------------------------------------
-
-article_data_2020 <- get_article_data(article_urls_2020)
-
-# successful ones
-article_data_ok_2020 <- article_data_2020$article_data_ok
-
-article_data_2019 <- get_article_data(article_urls_2019)
-
-# successful ones
-article_data_ok_2019 <- article_data_2019$article_data_ok
-
-# saveRDS(article_data_ok_2020, 'data/article_data_ok_2020.rds')
-# saveRDS(article_data_ok_2019, 'data/article_data_ok_2019.rds')
