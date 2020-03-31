@@ -6,7 +6,7 @@ library(dplyr)
 make_dates <- function(year = 2020L,
                        month = 1L,
                        from_day = 1L,
-                       to_day = 1L,
+                       to_day = 2L,
                        all_dates = FALSE) {
   stopifnot(is.integer(as.integer(year))) # accepts quoted year.
   stopifnot(all(between(as.integer(month), 1, 12)))
@@ -14,6 +14,10 @@ make_dates <- function(year = 2020L,
     as.integer(from_day),
     as.integer(to_day)
   ), 1, 31)))
+
+
+  if (missing(to_day) && !missing(from_day)) to_day <- from_day
+  stopifnot(from_day <= to_day)
 
   if (all(
     missing(year), missing(month),

@@ -7,12 +7,12 @@ library(glue)
 
 # ---------------------------------------------------------------
 
-scrape_all <- function(version, year, ...) {
+scrape_article <- function(version, year, ...) {
   source("src/make_dates.R") # sources make_dates()
   source("src/generate_article_urls.R") # sources generate_urls()
 
   dates <- make_dates(year = year, ...)
-  dates <- as_date(unlist(unname(dates)))
+  dates <- as.Date(unlist(unname(dates)), origin)
 
   # Article urls for the given year -----------------------------
 
@@ -29,14 +29,15 @@ scrape_all <- function(version, year, ...) {
     .f = function(x) {
       len <<- len - 1
       if (len > 0 || len %% 50 == 0 || len < 10) {
-        message(message("GETTING URLS","--------"),
+        message(
+          message("GETTING URLS", "--------"),
           "Grab some coffee ", "<", len, "> ",
           "iter", if (len > 1) "s", " left....."
         )
       }
       #------------------------------------------
-      safely(slowly(generate_urls), quiet = FALSE)(date=x, 
-                                                   version = version) # will be returned
+      safely(slowly(generate_urls), quiet = FALSE)(date = x,
+        version = version) # will be returned
     }
   )
   article_urls <- transpose(article_urls)
@@ -48,7 +49,7 @@ scrape_all <- function(version, year, ...) {
 
   # Download content ----------------------------------------------
 
-  source("src/get_content.R")
+  source("src/get_article_contents.R")
   article_data <- get_article_data(article_urls_ok)
 
   # successful ones
