@@ -1,0 +1,85 @@
+---
+title: 'Whats driving chinese news'
+author: 'David Schulze,Eyayaw Beze, Nils Paffen'
+subtitle: "How news correlates with the economy "
+type: "Scientifc Report"
+discipline: "Phd Programm RWI, VWL M.Sc.,"
+date: "today"
+studid: "3071594, ID David, ID Eyayaw"
+supervisor: "M.Sc. Martin Schulz"
+secondsupervisor: "M. Sc. Alexander Gerber"
+ssemester: "3"
+estdegree_emester: "Winter Term 2020"
+deadline: "Apr. 7th 2020"
+output:
+  pdf_document:
+    keep_tex: yes
+    template: template.tex
+    fig_caption: yes
+    citation_package: biblatex
+    number_sections: true
+toc: true
+lot: true
+lof: true
+graphics: true
+biblio-title: References
+fontsize: 12pt
+geometry: lmargin = 3 cm,rmargin = 2.5cm,tmargin=2.5cm,bmargin=2.5cm
+biblio-files: references.bib
+classoption: a4paper
+---
+
+
+# Introduction
+
+This will be a short introduction into the topic. Maybe cite some big historic impact of news on the economy- (Maybe watergate affiar or some other disclosure repots of a news paper). Then a introduction into the structure of the chinese newspaper we looked into. Maybe notice that it is highly swayed be the government of the People's Republic of China.
+
+# Curent (economic?) situation in China
+
+Here we might add some background information about the current situation in china and the effect of the COVID-19 outbreak.
+
+
+# Data Description
+About one year and three month of data. Scraped from the free archive of [Peoples Daily](http://paper.people.com.cn/rmrb/html/2020-04/01/nbs.D110000renmrb_01.htm). A more detailed explanation of the scraping process is added in the method section \ref{sec:Methods} The database will be updated daily with the newest paper issue.
+
+
+
+
+
+## Structure of the Application
+
+
+# Scraping process
+
+
+# Text Mining, exploratory statistics and visualisation
+
+
+
+# Shiny application
+
+
+
+#Results
+Here we should show some of the results of our application. As discussed before COVID-19 will be most likely the centre of our examples but maybe we can show here the mentioned theory of the shadow page aswell
+#Discussion
+How could we improve the app? Extend the archive? Add more economic data? Implement some other statistical information?
+
+# Conclusion
+
+Summary of our application and our results. Do we have plans to expand and update the app further in the near future?
+
+
+
+\newpage
+
+
+
+
+
+
+
+
+
+
+
