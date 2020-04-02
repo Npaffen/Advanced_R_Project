@@ -17,7 +17,7 @@ captcha_tester <- read_html("captcha.html")
 
 dates <- seq(
   from = as.Date("2015-01-01"),
-  to = as.Date("2020-03-23"),
+  to = as.Date("2018-12-31"),
   by = 1
 )
 
@@ -30,6 +30,7 @@ date_url <- dates %>% gsub(
 
 library(RSelenium)
 remDr <- remoteDriver(remoteServerAddr = "192.168.99.100", port = 4445L)
+login <- function(){
 remDr$open()
 remDr$navigate("https://tinyurl.com/rq8vom4")
 
@@ -38,7 +39,7 @@ Sys.sleep(3L)
 remDr$findElement("css selector", "#login :nth-child(2)")$sendKeysToElement(list("bonsaibonsai"))
 Sys.sleep(3L)
 remDr$findElement("css selector", "#login_button")$sendKeysToElement(list(key = "enter"))
-
+}
 f_articles_url <- function(paper_length, date_url) {
   Sys.sleep(runif(1, 5, 10))
 
@@ -113,12 +114,12 @@ f_captcha <- function() {
   remDr$findElement("css selector", "#validateCode")$sendKeysToElement(list(captcha_key, key = "enter")) # post it to the form
 
 
-  # grab the article content
+  
 }
 
 f_content <- function(url_articles) {
-  Sys.sleep(runif(1,12,15))
-  remDr$navigate(
+  
+   remDr$navigate(
     str_c(
       "http://data.people.com.cn.s894ibwr0870.erf.sbb.spk-berlin.de/rmrb",
       url_articles,
@@ -126,23 +127,50 @@ f_content <- function(url_articles) {
     )
   )
 
-
-
-
-  if (read_html(remDr$getPageSource()[[1]]) %>% xml_child(2) %>% xml_child(2) %>%
-    html_text() == html_text(xml_child(xml_child(captcha_tester, 2), 2))) { # check if the archive requests a captcha
+  if (read_html(remDr$getPageSource()[[1]]) %>%
+      xml_child(2) %>%
+      xml_child(2) %>%
+      html_text() == timeout %>%
+      xml_child(2) %>%
+      xml_child(2) %>%
+      html_text()) message(str_c("Timeout after",as.numeric(Sys.time()-start_time, units = "mins") ), sep = " ")
+      
+      if (read_html(remDr$getPageSource()[[1]]) %>%
+      xml_child(2) %>%
+      xml_child(2) %>%
+    html_text() %>%
+    gsub(x = .,
+         pattern ="(\\n)+|(\\t)+|\\s|(\\r)+",
+         replacement = "") ==  captcha_tester %>%
+    xml_child(2) %>%
+    xml_child(2) %>%
+    html_text() %>%
+    gsub(x = .,
+         pattern ="(\\n)+|\\r|\\s",
+         replacement = "")) { # check if the archive requests a captcha
     f_captcha()
   } # solve the captcha if necessary
 
 
 
 
-   if (read_html(remDr$getPageSource()[[1]]) %>% xml_child(2) %>% xml_child(2) %>%
-    html_text() == html_text(xml_child(xml_child(captcha_tester, 2), 2))) { # check if the captcha was solved correctly
+  if (read_html(remDr$getPageSource()[[1]]) %>%
+      xml_child(2) %>%
+      xml_child(2) %>%
+      html_text() %>%
+      gsub(x = .,
+           pattern ="(\\n)+|(\\t)+|\\s|(\\r)+",
+           replacement = "") ==  captcha_tester %>%
+      xml_child(2) %>%
+      xml_child(2) %>%
+      html_text() %>%
+      gsub(x = .,
+           pattern ="(\\n)+|\\r|\\s",
+           replacement = "")) { # check if the captcha was solved correctly
     f_captcha()
   } # solve again if not true
 
-  else {
+
     page <- read_html(remDr$getPageSource()[[1]])
     
     get_title <- compose(html_text,   
@@ -174,6 +202,7 @@ f_content <- function(url_articles) {
                              partial(html_nodes, css = "#detail_pop_content"),
                              .dir = "backward"
     )
+    
     get_page_num <- compose(html_text,
                         partial(html_nodes, css = ".sha_left span:nth-child(2)"),
                         partial(html_nodes, css = "#detail_pop_content"),
@@ -192,28 +221,30 @@ f_content <- function(url_articles) {
     
 
   
-     df <- tibble(
+    df <- tibble(
       title = df_l$title,
       subtitle = df_l$subtitle,
       date = df_l$date,
       PageNumber = df_l$PageNumber,
       content = paste0(df_l$content, collapse = ""),
       num_paragraph = length(df_l$content)
-    ) 
-    
-    
-  } # grab the article content
+    ) # grab the article content
+      
+      df
 }
 
 
 f_scraper <- function(date_url) {
+  start_time <- Sys.time()
   paper_length <- 1:2 # Only page 1 and 2 of each newspaper will be analyzed
 
 
-  url_articles <- map(paper_length, ~ f_articles_url(.x, date_url[1])) # grab the article adresses
+  url_articles <- map(paper_length, ~ f_articles_url(.x, date_url)) # grab the article adresses
 
-  tryCatch({map_df(flatten(url_articles)[1], ~ f_content(.x))}, error=function(e){cat("ERROR :",conditionMessage(e), "\n")}) #grab the content
-}
+  content <-tryCatch(map_df(flatten(url_articles), ~ f_content(.x)), error=function(e){cat("ERROR :",conditionMessage(e), "\n")}) #grab the content
+  Sys.sleep(runif(1,600,630))
+  content
+  }
 
 
 #shell("git.lnk config --global user.email \"nils.paffen@wopic.de\"")
@@ -226,17 +257,18 @@ time_span_archive_monthly <- seq(from = 1,
                                  by = 30)
 j = 12
 y = 2018
-
+login()
 for (i in time_span_archive_monthly){
   
   
   assign(str_c("database", "m", j,"year", y, sep =  "_"),
          map_df(date_url[(length(date_url)-i+1):(length(date_url)-i-28)],
-             ~ f_scraper(.x)))
-  list.save(x =str_c("database", "m", j, "year", y, sep =  "_"), str_c("database_", "m_", j, "_", "year", "_", y, ".rds", sep = ""))
+             ~ f_scraper(.x))) %>%
+  save(file = str_c("database_", "m_", j, "_", "year", "_", y, ".rds", sep = ""))
   if (j == 1) 
     j = 12 
   else j = j-1
   if (j==1)
     y = y - 1 
 }
+
