@@ -23,7 +23,8 @@ library(showtext)
 ```
 
 ```{r, fig.cap="The most common words in the past three months of 2020 China Daily News Articles", fig.showtext=TRUE}
-article_2020 <- read_rds("data/article_data_ok_2020.rds")
+path <- paste0(here::here(), "/data/article_data_ok_2020.rds")
+article_2020 <- read_rds(path)
 
 article_2020_subset <- article_2020 %>%
   select(id, content, date, num_paragraph, column_num) %>%

@@ -28,74 +28,97 @@ biblio-files: references.bib
 classoption: a4paper
 ---
 
+% This command is used by pandoc when create lists and is defined in pandoc's default latex template
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 
-## Introduction (David)
+
+# Introduction (David)
 
 - short intro
+
 - motivation: historic impact of news
+
 - intro to structure of People's Daily
+
 - motivation: People's Daily is the governing Chinese Communist Party's Major Outlet
 
 
-# Current Situation in China (David)
+## Current Situation in China (David)
 
 - End of 2019: Trade war with the US
+
 - 2020: Covid-19
 
 
 
-## Data Sources 
+# Data Sources 
 
-# Text Data (Nils)
+## Text Data (Nils)
+
 - short and general info
+
 About one year and three month of data. Scraped from the free archive of [Peoples Daily](http://paper.people.com.cn/rmrb). A more detailed explanation of the scraping process is added in the method section \ref{sec:Methods} The app includes an automated updating routine that expands the database scraping directly from paper.people.com.cn.
 
-# Economic Data (Eyayaw)
+## Economic Data (Eyayaw)
 
 
 
-## Construction of the Application
+# Construction of the Application
 
-# Scraping process for original database (Nils)
+## Scraping process for original database (Nils)
+
 - idea, process and issues we encountered
 
 
-# Translation from Chinese (David)
+## Translation from Chinese (David)
 
 
-# Economic data retrieval (Eyayaw)
+## Economic data retrieval (Eyayaw)
+
 - Where, what and how did we get it.
+
 - This can be very short.
 
 
-# Exploratory statistics, visualisation, and text mining (Eyayaw)
--- Start with simplest descriptives and plots, e.g.:
+## Exploratory statistics, visualisation, and text mining (Eyayaw)
+Start with simplest descriptives and plots, e.g.:
+
 - most common non-stop words with frequencies
+
 - compare pre- and post-corona common words
+
 - pre-post word clouds with translated words
+
 - two-word correlation
+
 - time-series frequency plots (very important)
 
--- Optional:
+
+Optional:
+
 - bigram graph
+
 - two-word correlation with phi-coefficient
+
 - lda/topic model (very optional)
 
--- Do not:
+Do not:
+
 - sentiment analysis
 
 
-# Shiny user interface
+## Shiny user interface (David)
 
 
 
-## Results
+# Results
 
 Here we should show some of the results of our application. As discussed before COVID-19 will be most likely the centre of our examples but maybe we can show here the mentioned theory of the shadow page as well
 
 
 
-## Discussion
+# Discussion
 
 How could we improve the app? Extend the archive? Add more economic data? Implement some other statistical information?
 
@@ -103,13 +126,13 @@ Encrypted server version
 
 
 
-## Conclusion
+# Conclusion
 
 Summary of our application and our results. Do we have plans to expand and update the app further in the near future?
 
 
 
---> Just an idea, because they want it scientific, let's include a bunch of references to the data mining book, etc., just if you find some that would make sense.
+Just an idea, because they want it scientific, let's include a bunch of references to the data mining book, etc., just if you find some that would make sense.
 
 \newpage
 
