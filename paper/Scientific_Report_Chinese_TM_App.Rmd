@@ -1,0 +1,123 @@
+---
+title: 'Whats driving chinese news'
+author: 'David Schulze, Eyayaw Teka Beze, Nils Paffen'
+subtitle: "How news correlates with the economy "
+type: "Scientifc Report"
+discipline: "Phd Programm RWI, VWL M.Sc.,"
+date: "today"
+studid: "3071594, ID David, ID Eyayaw"
+supervisors: "Martin Christopher Arnold and Alexander Gerber"
+ssemester: "3"
+estdegree_emester: "Winter Term 2020"
+deadline: "Apr. 7th 2020"
+output:
+  pdf_document:
+    keep_tex: yes
+    template: template.tex
+    fig_caption: yes
+    citation_package: biblatex
+    number_sections: true
+toc: true
+lot: true
+lof: true
+graphics: true
+biblio-title: References
+fontsize: 12pt
+geometry: lmargin = 3 cm,rmargin = 2.5cm,tmargin=2.5cm,bmargin=2.5cm
+biblio-files: references.bib
+classoption: a4paper
+---
+
+
+## Introduction (David)
+
+- short intro
+- motivation: historic impact of news
+- intro to structure of People's Daily
+- motivation: People's Daily is the governing Chinese Communist Party's Major Outlet
+
+
+# Current Situation in China (David)
+
+- End of 2019: Trade war with the US
+- 2020: Covid-19
+
+
+
+## Data Sources 
+
+# Text Data (Nils)
+- short and general info
+About one year and three month of data. Scraped from the free archive of [Peoples Daily](http://paper.people.com.cn/rmrb). A more detailed explanation of the scraping process is added in the method section \ref{sec:Methods} The app includes an automated updating routine that expands the database scraping directly from paper.people.com.cn.
+
+# Economic Data (Eyayaw)
+
+
+
+## Construction of the Application
+
+# Scraping process for original database (Nils)
+- idea, process and issues we encountered
+
+
+# Translation from Chinese (David)
+
+
+# Economic data retrieval (Eyayaw)
+- Where, what and how did we get it.
+- This can be very short.
+
+
+# Exploratory statistics, visualisation, and text mining (Eyayaw)
+-- Start with simplest descriptives and plots, e.g.:
+- most common non-stop words with frequencies
+- compare pre- and post-corona common words
+- pre-post word clouds with translated words
+- two-word correlation
+- time-series frequency plots (very important)
+
+-- Optional:
+- bigram graph
+- two-word correlation with phi-coefficient
+- lda/topic model (very optional)
+
+-- Do not:
+- sentiment analysis
+
+
+# Shiny user interface
+
+
+
+## Results
+
+Here we should show some of the results of our application. As discussed before COVID-19 will be most likely the centre of our examples but maybe we can show here the mentioned theory of the shadow page as well
+
+
+
+## Discussion
+
+How could we improve the app? Extend the archive? Add more economic data? Implement some other statistical information?
+
+
+
+## Conclusion
+
+Summary of our application and our results. Do we have plans to expand and update the app further in the near future?
+
+
+
+--> Just an idea, because they want it scientific, let's include a bunch of references to the data mining book, etc., just if you find some that would make sense.
+
+\newpage
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,71 @@
+---
+title: "Text Mining"
+author: "Eyayaw Teka Beze"
+date: "`r format(Sys.Date())`"
+output:
+  pdf_document: 
+      latex_engine: xelatex
+  html_document: default
+header-includes:
+  - \usepackage{ctex}
+subtitle: 'Text analysis of Chinese Paper Daily news article '
+fontsize: 12pt
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(tidytext)
+library(showtext)
+```
+
+```{r, fig.cap="The most common words in the past three months of 2020 China Daily News Articles", fig.showtext=TRUE}
+article_2020 <- read_rds("data/article_data_ok_2020.rds")
+
+article_2020_subset <- article_2020 %>%
+  select(id, content, date, num_paragraph, column_num) %>%
+  mutate(line = str_split(content, "\\|\\|")) %>%
+  unnest(cols = line) %>%
+  group_by(id) %>%
+  mutate(para_id = row_number()) %>%
+  ungroup()
+
+tidy_2020 <- article_2020_subset %>%
+  select(id, date, para_id, line) %>%
+  tidytext::unnest_tokens(word, line)
+
+chinese_stop_words <- tibble(word = stopwords::stopwords("zh", "misc"))
+
+tidy_2020 <- tidy_2020 %>%
+  anti_join(chinese_stop_words, by = "word") %>%
+  dplyr::filter(!str_detect(word, "\\d+")) %>%  # remove any digit
+mutate(month=lubridate::month(date, label=TRUE, abbr=FALSE))
+
+tidy_2020 %>% 
+  count(month, word, sort = TRUE) %>% 
+  head() %>% knitr::kable()
+
+# plotting -----
+# showtext_auto()
+
+tidy_2020 %>% 
+  group_by(month) %>% 
+  count(word, sort = TRUE) %>%
+  mutate(word = reorder(word, n)) %>%
+  top_n(15) %>% 
+  ggplot(aes(reorder_within(word, n, month), n, fill=month)) +
+  geom_col() +
+  labs(x=NULL) +
+  facet_wrap(~month, scales = "free") +
+  coord_flip() +
+  scale_x_reordered() + 
+  theme(legend.position = "none")
+
+
+```
+
+## A document term-matrix
+

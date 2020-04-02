@@ -84,8 +84,10 @@ get_article_data <- function(article_urls) {
     mutate(
       date = ymd(str_extract(id, "\\d{8}")),
       column_num = str_extract(id, "(_\\d-)"),
-      column_num = str_extract(column_num, "\\d")
+      column_num = str_extract(column_num, "\\d"),
+      id = str_replace(str_extract(id, "_[\\d_-]+"), "-", "_")
     )
+
   list(
     dat_ok = dat_ok,
     dat_notok = dat_notok

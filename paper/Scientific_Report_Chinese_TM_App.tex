@@ -1,0 +1,294 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{lmodern}
+
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+    \usepackage{xltxtra,xunicode}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
+  \newcommand{\euro}{€}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[lmargin = 3 cm,rmargin = 2.5cm,tmargin=2.5cm,bmargin=2.5cm]{geometry}
+
+% Figure Placement:
+\usepackage{float}
+\let\origfigure\figure
+\let\endorigfigure\endfigure
+\renewenvironment{figure}[1][2] {
+    \expandafter\origfigure\expandafter[H]
+} {
+    \endorigfigure
+}
+
+%% citation setup
+
+\usepackage{csquotes}
+
+\usepackage[backend=biber, maxbibnames = 99, style = apa]{biblatex}
+\setlength\bibitemsep{1.5\itemsep}
+\bibliography{references.bib}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\ifxetex
+  \usepackage[setpagesize=false, % page size defined by xetex
+              unicode=false, % unicode breaks when used with xetex
+              xetex]{hyperref}
+\else
+  \usepackage[unicode=true]{hyperref}
+\fi
+\hypersetup{breaklinks=true,
+            bookmarks=true,
+            pdfauthor={David Schulze,Eyayaw Beze, Nils Paffen},
+            pdftitle={Whats driving chinese news},
+            colorlinks=true,
+            citecolor=blue,
+            urlcolor=blue,
+            linkcolor=magenta,
+            pdfborder={0 0 0}}
+\urlstyle{same}  % don't use monospace font for urls
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\setcounter{secnumdepth}{5}
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+  \title{Whats driving chinese news}
+  \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+\subtitle{How news correlates with the economy}
+  \author{David Schulze,Eyayaw Beze, Nils Paffen}
+  \preauthor{\centering\large\emph}
+  \postauthor{\par}
+  \predate{\centering\large\emph}
+  \postdate{\par}
+  \date{today}
+
+
+%% linespread settings
+
+\usepackage{setspace}
+
+\onehalfspacing
+
+% Language Setup
+
+\usepackage{ifthen}
+\usepackage{iflang}
+\usepackage[super]{nth}
+\usepackage[ngerman, english]{babel}
+
+\begin{document}
+
+\selectlanguage{english}
+
+
+%\maketitle
+
+\newgeometry{left=2cm,right=1cm,bottom=2cm,top=2cm}
+
+\begin{titlepage}
+  \noindent\begin{minipage}{0.6\textwidth}
+	  \IfLanguageName{english}{University of Duisburg-Essen}{Universität Duisburg-Essen}\\
+	  \IfLanguageName{english}{Faculty of Business Administration and Economics}{Fakultät für Wirtschaftswissensschaften}\\
+	  \IfLanguageName{english}{Chair of Econometrics}{Lehrstuhl für Ökonometrie}\\
+  \end{minipage}
+	\begin{minipage}{0.4\textwidth}
+	  \begin{flushright}
+  	  \vspace{-0.5cm}
+      \IfLanguageName{english}{\includegraphics*[width=5cm]{Includes/duelogo_en.png}}{\includegraphics*[width=5cm]{Includes/duelogo_de.png}}
+	  \end{flushright}
+	\end{minipage}
+  \\
+  \vspace{1.5cm}
+  \begin{center}
+  \huge{Whats driving chinese news}\\
+  \vspace{.25cm}
+  \Large{How news correlates with the economy}\\
+  \vspace{0.5cm}
+  \large{Scientifc Report}\\
+  \vspace{1cm}
+  \large{
+  \IfLanguageName{english}{Submitted to the Faculty of \\ Business Administration and Economics \\at the \\University of Duisburg-Essen}{Vorgelegt der \\Fakultät für Wirtschaftswissenschaften der \\ Universität Duisburg-Essen}\\}
+  \vspace{0.75cm}
+  \large{\IfLanguageName{english}{from:}{von:}}\\
+  \vspace{0.5cm}
+  David Schulze,Eyayaw Beze, Nils Paffen\\
+  \end{center}
+  \vspace{4cm}
+
+  \noindent\begin{minipage}[t]{0.5\textwidth}
+  \IfLanguageName{english}{Matriculation Number:}{Matrikelnummer}
+  \end{minipage}
+  \begin{minipage}[t]{0.7\textwidth}
+  \hspace{1cm}3071594, ID David, ID Eyayaw
+  \end{minipage}
+
+  \noindent\begin{minipage}[t]{0.5\textwidth}
+  \IfLanguageName{english}{Study Path:}{Studienfach:}
+  \end{minipage}
+  \begin{minipage}[t]{0.7\textwidth}
+  \hspace{1cm}Phd Programm RWI, VWL M.Sc.,
+  \end{minipage}
+
+  \noindent\begin{minipage}[t]{0.5\textwidth}
+  \IfLanguageName{english}{Reviewer:}{Erstgutachter:}
+  \end{minipage}
+  \begin{minipage}[t]{0.7\textwidth}
+  \hspace{1cm}M.Sc. Martin Schulz
+  \end{minipage}
+
+  \noindent\begin{minipage}[t]{0.5\textwidth}
+  \IfLanguageName{english}{Secondary Reviewer:}{Zweitgutachter}
+  \end{minipage}
+  \begin{minipage}[t]{0.7\textwidth}
+  \hspace{1cm}M. Sc. Alexander Gerber
+  \end{minipage}
+
+  \noindent\begin{minipage}[t]{0.5\textwidth}
+  Semester:
+  \end{minipage}
+  \begin{minipage}[t]{0.7\textwidth}
+  \hspace{1cm}\IfLanguageName{english}{\nth{3} Semester}{3. Fachsemester}
+  \end{minipage}
+
+  \noindent\begin{minipage}[t]{0.5\textwidth}
+  \IfLanguageName{english}{Graduation (est.):}{Vsl. Studienabschluss:}
+  \end{minipage}
+  \begin{minipage}[t]{0.7\textwidth}
+  \hspace{1cm}Winter Term 2020
+  \end{minipage}
+
+  \noindent\begin{minipage}[t]{0.5\textwidth}
+  \IfLanguageName{english}{Deadline:}{Abgabefrist:}
+  \end{minipage}
+  \begin{minipage}[t]{0.7\textwidth}
+  \hspace{1cm}Apr.~7th 2020
+  \end{minipage}
+
+\end{titlepage}
+
+% Ends the declared geometry for the titlepage
+\restoregeometry
+
+
+\pagenumbering{Roman} 
+{
+\hypersetup{linkcolor=black}
+\setcounter{tocdepth}{3}
+\tableofcontents
+}
+\newpage
+\listoftables
+\newpage
+\listoffigures
+\newpage
+\pagenumbering{arabic} 
+\hypertarget{introduction}{%
+\section{Introduction}\label{introduction}}
+
+This will be a short introduction into the topic. Maybe cite some big
+historic impact of news on the economy- (Maybe watergate affiar or some
+other disclosure repots of a news paper). Then a introduction into the
+structure of the chinese newspaper we looked into. Maybe notice that it
+is highly swayed be the government of the People's Republic of China.
+
+\hypertarget{curent-economic-situation-in-china}{%
+\section{Curent (economic?) situation in
+China}\label{curent-economic-situation-in-china}}
+
+Here we might add some background information about the current
+situation in china and the effect of the COVID-19 outbreak.
+
+\hypertarget{data-description}{%
+\section{Data Description}\label{data-description}}
+
+About one year and three month of data. Scraped from the free archive of
+\href{http://paper.people.com.cn/rmrb/html/2020-04/01/nbs.D110000renmrb_01.htm}{Peoples
+Daily}. A more detailed explanation of the scraping process is added in
+the method section \ref{sec:Methods} The database will be updated daily
+with the newest paper issue.
+
+\hypertarget{structure-of-the-application}{%
+\subsection{Structure of the
+Application}\label{structure-of-the-application}}
+
+\hypertarget{scraping-process}{%
+\section{Scraping process}\label{scraping-process}}
+
+\hypertarget{text-mining-exploratory-statistics-and-visualisation}{%
+\section{Text Mining, exploratory statistics and
+visualisation}\label{text-mining-exploratory-statistics-and-visualisation}}
+
+\hypertarget{shiny-application}{%
+\section{Shiny application}\label{shiny-application}}
+
+\#Results Here we should show some of the results of our application. As
+discussed before COVID-19 will be most likely the centre of our examples
+but maybe we can show here the mentioned theory of the shadow page
+aswell \#Discussion How could we improve the app? Extend the archive?
+Add more economic data? Implement some other statistical information?
+
+\hypertarget{conclusion}{%
+\section{Conclusion}\label{conclusion}}
+
+Summary of our application and our results. Do we have plans to expand
+and update the app further in the near future?
+
+\newpage
+\renewcommand*{\mkbibnamefamily}[1]{\textbf{#1}}
+\renewcommand*{\mkbibnamegiven}[1]{\textbf{#1}}
+\renewcommand*{\mkbibnameprefix}[1]{\textbf{#1}}
+\renewcommand*{\mkbibnamesuffix}[1]{\textbf{#1}}
+\printbibliography[title=References]
+
+\newpage
+\textbf{Eidesstattliche Versicherung}
+
+\bigskip
+
+Ich versichere an Eides statt durch meine Unterschrift, dass ich die vorstehende Arbeit selbständig und ohne fremde Hilfe angefertigt und alle Stellen, die ich wörtlich oder annähernd wörtlich aus Veröffentlichungen entnommen habe, als solche kenntlich gemacht habe, mich auch keiner anderen als der angegebenen Literatur oder sonstiger Hilfsmittel bedient habe. Die Arbeit hat in dieser oder ähnlicher Form noch keiner anderen Prüfungsbehörde vorgelegen.
+
+\vspace{1cm}
+\rule{0pt}{2\baselineskip} %
+\par\noindent\makebox[2.25in]{\indent Essen, den \hrulefill} \hfill\makebox[2.25in]{\hrulefill}%
+\par\noindent\makebox[2.25in][l]{} \hfill\makebox[2.25in][c]{David Schulze,Eyayaw Beze, Nils Paffen}%
+
+
+\end{document}
