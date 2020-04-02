@@ -85,7 +85,12 @@ get_article_data <- function(article_urls) {
       date = ymd(str_extract(id, "\\d{8}")),
       column_num = str_extract(id, "(_\\d-)"),
       column_num = str_extract(column_num, "\\d"),
-      id = str_replace(str_extract(id, "_[\\d_-]+"), "-", "_")
+      id = str_replace(str_extract(id, "_[\\d_-]+"), "-", "_"),
+      page = str_extract(id, "\\d{2}$")
+    ) %>%
+    select(
+      id, page, date, column_num, title, subtitle,
+      content, everything()
     )
 
   list(
