@@ -1,4 +1,4 @@
-### Language Processing
+### Language Processing (legacy code for starting from scratch)
 ## Tasks
 # 1. Insert spaces to separate Chinese words for quant analysis
 # 2. Create dictionary of unique words in articles
