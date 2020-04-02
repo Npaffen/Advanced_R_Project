@@ -99,6 +99,8 @@ Here we should show some of the results of our application. As discussed before 
 
 How could we improve the app? Extend the archive? Add more economic data? Implement some other statistical information?
 
+Encrypted server version
+
 
 
 ## Conclusion
