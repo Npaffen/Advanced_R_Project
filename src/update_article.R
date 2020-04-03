@@ -2,6 +2,8 @@ library(tidyverse)
 library(lubridate)
 library(glue)
 # Updating data as new articles unfold every new day
+# page_num refers to the page that should be updated
+# "01" is the title page, "02" the second page, etc.
 
 update_article_data <- function(page_num,
                                 write_to_disk = FALSE) {
@@ -26,12 +28,12 @@ update_article_data <- function(page_num,
   last_updated <- keep(last_updated, ~ .x < today())
 
   if (!is_empty(last_updated)) {
-    dates_to_be_updated <- map(
+    dates_to_be_updated <- map( ## this throws "non-numeric argument for binary operator
       last_updated,
       ~ seq.Date(.x + 1, today(), by = 1)
     )
 
-    source("src/scrape_article.R")
+    source("src/scrape_article.R") ## dirty git merge in that file :( 
 
     dat <- map2(
       page_num, dates_to_be_updated,
