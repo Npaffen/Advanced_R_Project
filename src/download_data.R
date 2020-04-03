@@ -44,21 +44,3 @@ article_data_2020 <- map(
 #         "data/article_data_2020_page_02.rds" )
 
 
-# Updating data as new articles unfold every new day
-nms <- 
-  list.files("data/", pattern = ".data_2020_page_\\d{2}.")
-
-paths <- paste0("data/", nms)
-
-# map2(paths, nms, function(x, y) assign(read_rds(x), y))
-
-recent_dates_page_01 <- 
-  seq.Date(max(article_data_2020_page01$date) + 1, today(), by=1)
-
-recent_dates_page_02 <- 
-  seq.Date(
-    max(article_data_2020_page02$date) + 1, 
-    today(), 
-    by=1)
-
-

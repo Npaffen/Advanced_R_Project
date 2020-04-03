@@ -22,17 +22,16 @@ scrape_article <- function(page_num, dates, ...) {
   # Article urls for the given year -----------------------------
 
   # ================================= -----------------------------
-  article_urls <- map_df(dates, ~generate_urls(.x, page_num))
+  article_urls <- suppressWarnings(map_df(dates, ~generate_urls(.x, page_num)))
   # Download content ----------------------------------------------
 
   source("src/get_article_contents.R")
+  
   article_data <- get_article_data(article_urls)
 
-  # successful ones
-  article_data_ok <- article_data$dat_ok
-
+  # returns only the successful ones
   # final output of the function
   
-  article_data_ok
+  article_data
   
 }
