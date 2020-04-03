@@ -1,4 +1,4 @@
-cs_captcha <- function(personal_2captcha_key) {
+ca_captcha <- function(personal_2captcha_key) {
   remDr$screenshot(file = str_c(here::here(),
                                 "captcha.png",
                                 sep = "/")) # screenshot of the full site with captcha

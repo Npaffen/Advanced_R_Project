@@ -66,3 +66,16 @@ plot(gdp_china$date, gdp_china$value,
 
 
 # saveRDS(china, 'data/Econ_China.Rds')
+
+
+library(Quandl)
+NASDAQ_CNY <- Quandl("NASDAQOMX/NQCN2000CNY", api_key="jsMbTodosyHDq3sWMuzo")
+
+EERI_mon_real <-Quandl("BIS/EM_MRNTW", api_key="jsMbTodosyHDq3sWMuzo") #Weighted averages of bilateral exchange rates, 
+#where the weights are based on manufacturing trade flows and capture direct bilateral trade as well as third-market competition.
+
+Imp_Exp_Price_Ind <- Quandl("BLSN/EIUCOCHNTOT", api_key="jsMbTodosyHDq3sWMuzo")
+#Series: China (Dec. 2003=100) - All commodities
+#Index Type: LOCALITY OF ORIGIN
+#Not Seasonally Adjusted
+#Additional references: BLS's Import/Export Price Indexes Overview page
