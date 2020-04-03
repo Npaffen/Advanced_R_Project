@@ -16,6 +16,12 @@ length(unique(articles192$date)) # should be 356
 length(unique(articles201$date)) # should be around 94
 length(unique(articles202$date)) # should be around 94
 
+# check for duplicates
+dim(unique(articles191))[1] - dim(articles191)[1] ## should be zero
+dim(unique(articles192))[1] - dim(articles192)[1]
+dim(unique(articles201))[1] - dim(articles201)[1] # is -7
+dim(unique(articles202))[1] - dim(articles202)[1]
+
 # count and plot articles per day
 count_art_day <- function(articles, plot = TRUE){
   art_per_day <- articles %>% group_by(date) %>% count()
