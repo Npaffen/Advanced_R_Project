@@ -59,8 +59,7 @@ get_article_data <- function(article_urls) {
         "iter", if (len > 1) "s", " left....."
       )
     }
-    safely(slowly(extract_content),
-      quiet = FALSE
+    safely(slowly(extract_content)
     )(x)
     # so that there is a short pause between consecutive requests.
   })
@@ -77,21 +76,24 @@ get_article_data <- function(article_urls) {
   dat_ok <- suppressWarnings(bind_rows(dat$result[is_ok], .id = "id"))
   dat_notok <- dat$error[!is_ok]
 
-  rm(dat)
-  rm(is_ok)
-
   dat_ok <- dat_ok %>%
     mutate(
       date = ymd(str_extract(id, "\\d{8}")),
       column_num = str_extract(id, "(_\\d-)"),
       column_num = str_extract(column_num, "\\d"),
+<<<<<<< HEAD
+      id = str_replace(str_extract(id, "_[\\d_-]+"), "-", "_"),
+      page_num = str_extract(id, "\\d{2}$")
+    ) %>%
+    select(
+      id, page_num, date, column_num, title, subtitle,
+      content, everything()
+=======
       id = str_replace(str_extract(id, "_[\\d_-]+"), "-", "_")
+>>>>>>> parent of e84f999... the second page articles scraped and wrote the data_download function
     )
 
-  list(
-    dat_ok = dat_ok,
-    dat_notok = dat_notok
-  )
+ dat_ok
 }
 
 

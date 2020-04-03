@@ -17,6 +17,14 @@ scrape_article <- function(version, year, ...) {
   # Article urls for the given year -----------------------------
 
   # ================================= -----------------------------
+<<<<<<< HEAD
+  article_urls <- suppressWarnings(map_df(dates, ~generate_urls(.x, page_num)))
+  # Download content ----------------------------------------------
+
+  source("src/get_article_contents.R")
+  
+  article_data <- get_article_data(article_urls)
+=======
 
   # status notifier
   len <- length(dates)
@@ -51,13 +59,18 @@ scrape_article <- function(version, year, ...) {
 
   source("src/get_article_contents.R")
   article_data <- get_article_data(article_urls_ok)
+>>>>>>> parent of e84f999... the second page articles scraped and wrote the data_download function
 
-  # successful ones
-  article_data_ok <- article_data$dat_ok
-
+  # returns only the successful ones
   # final output of the function
+<<<<<<< HEAD
+  
+  article_data
+  
+=======
   list(
     urls = article_urls,
     data = article_data_ok
   )
+>>>>>>> parent of e84f999... the second page articles scraped and wrote the data_download function
 }
