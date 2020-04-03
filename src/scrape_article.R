@@ -6,32 +6,71 @@ library(tidyverse)
 library(glue)
 
 # ---------------------------------------------------------------
-# if dates is not supplied, then ... passes args to the make_dates()  
-# function, which [ year, month, from_day, to_day, all_dates (logical), 
-# respectively ]. Please refer to `make_dates.R`. 
 
-scrape_article <- function(page_num, dates, ...) {
+scrape_article <- function(version, year, ...) {
   source("src/make_dates.R") # sources make_dates()
   source("src/generate_article_urls.R") # sources generate_urls()
 
-  if (missing(dates)) {
-  dates <- make_dates(...)
+  dates <- make_dates(year = year, ...)
   dates <- as.Date(unlist(unname(dates)), origin)
-  }
 
   # Article urls for the given year -----------------------------
 
   # ================================= -----------------------------
+<<<<<<< HEAD
   article_urls <- suppressWarnings(map_df(dates, ~generate_urls(.x, page_num)))
   # Download content ----------------------------------------------
 
   source("src/get_article_contents.R")
   
   article_data <- get_article_data(article_urls)
+=======
+
+  # status notifier
+  len <- length(dates)
+
+
+  # ================================= -----------------------------
+
+  article_urls <- map(
+    .x = dates,
+    .f = function(x) {
+      len <<- len - 1
+      if (len > 0 || len %% 50 == 0 || len < 10) {
+        message(
+          message("GETTING URLS", "--------"),
+          "Grab some coffee ", "<", len, "> ",
+          "iter", if (len > 1) "s", " left....."
+        )
+      }
+      #------------------------------------------
+      safely(slowly(generate_urls), quiet = FALSE)(date = x,
+        version = version) # will be returned
+    }
+  )
+  article_urls <- transpose(article_urls)
+  is_ok_urls <- article_urls$error %>% map_lgl(is_null)
+  article_urls_ok <- suppressWarnings(bind_rows(article_urls$result[is_ok_urls],
+    .id = "id"
+  ))
+  article_urls_notok <- article_urls$error[!is_ok_urls]
+
+  # Download content ----------------------------------------------
+
+  source("src/get_article_contents.R")
+  article_data <- get_article_data(article_urls_ok)
+>>>>>>> parent of e84f999... the second page articles scraped and wrote the data_download function
 
   # returns only the successful ones
   # final output of the function
+<<<<<<< HEAD
   
   article_data
   
+=======
+  list(
+    urls = article_urls,
+    data = article_data_ok
+  )
+>>>>>>> parent of e84f999... the second page articles scraped and wrote the data_download function
 }

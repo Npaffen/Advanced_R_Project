@@ -1,6 +1,10 @@
+library(tidyverse)
+library(lubridate)
+library(glue)
 # Updating data as new articles unfold every new day
+
 update_article_data <- function(page_num,
-                                write_to_the_disk = FALSE) {
+                                write_to_disk = FALSE) {
   stopifnot(page_num %in% c("01", "02"))
 
   path <- paste0("data/article_data_2020_page_", page_num, ".rds")
@@ -16,7 +20,7 @@ update_article_data <- function(page_num,
   # diff <- map(last_updated, ~ today() - .x)
 
   for (j in seq_along(last_updated)) {
-    message(glue::glue("Page {page_num[[j]]}, last updated on {as_date(unlist(last_updated[[j]]))}.\n"))
+    message(glue("Page {page_num[[j]]}, last updated on {last_updated[[j]]}.\n"))
   }
 
   last_updated <- keep(last_updated, ~ .x < today())
@@ -39,7 +43,7 @@ update_article_data <- function(page_num,
       df[[nm]] <- bind_rows(df[[nm]], dat[[nm]])
     }
     
-    if (write_to_the_disk) {
+    if (write_to_disk) {
       walk2(df, names(df), 
             ~ saveRDS(.x, paste0("data/", .y, ".rds")))
       }
@@ -56,6 +60,6 @@ update_article_data <- function(page_num,
     })
     df
   } else {
-    print("It seems the data set is up to date")
+    print("It seems that the data set is up-to-date")
   }
 }

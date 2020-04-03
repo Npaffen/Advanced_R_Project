@@ -81,12 +81,16 @@ get_article_data <- function(article_urls) {
       date = ymd(str_extract(id, "\\d{8}")),
       column_num = str_extract(id, "(_\\d-)"),
       column_num = str_extract(column_num, "\\d"),
+<<<<<<< HEAD
       id = str_replace(str_extract(id, "_[\\d_-]+"), "-", "_"),
       page_num = str_extract(id, "\\d{2}$")
     ) %>%
     select(
       id, page_num, date, column_num, title, subtitle,
       content, everything()
+=======
+      id = str_replace(str_extract(id, "_[\\d_-]+"), "-", "_")
+>>>>>>> parent of e84f999... the second page articles scraped and wrote the data_download function
     )
 
  dat_ok

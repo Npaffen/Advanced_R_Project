@@ -7,32 +7,29 @@ library(glue)
 
 
 # ---------------------------------------------------------------------
-# This function produces a url for the 1st and 2nd pages
-# of articles published on a specific date and extracts urls of columns on it.
+# This function produces a url for the 1st "edition/version"
+# article published on a specific date and extracts urls of columns on it.
 
-# As there're many contents on a page of an article, we need to extract links to all
-# of the contents (columns or sections on the article-per page). 
-# We can do that once we get the article's url and the date on 
-# which it was published--and then construct the urls of the sections on a page.
-
+# As there're many contents in an article, we'd to extract links to all
+# of the contents (columns or sections on the article). We can do that
+# once we get the article's url and the date on which it was published.
 # ----------------------------------------------------------------------
 
-# Steps: Article->pages(01&02)->sections/columns->paragraphs
-# pages = "01"  or "02" # meaning 1st or 01, 
-# and 2nd or 02 pages of articles from 2019 and after.
+# Article versions/editions
+# version = "865" # meaning 1st or 01 edition for 2018 and before.
+# version = "01" # meaning 1st or 01 edition for 2019 and after.
 
-
-generate_urls <- function(date, page_num) {
+generate_urls <- function(date, version) {
   if (!is.Date(date) && is.na(as_date(date, origin))) {
     stop("error: not a Date. Give a date, in this 'yyyy-mm-dd' form.")
   }
-pages <- c("01", "02")
-notin <- negate(`%in%`)
-  if (notin(page_num, pages)) {
-    stop("page_num should be either c(\"01\", \"02\").", call. = FALSE)
-  }
 
-  pp <- pages[match(page_num, pages)]
+  if (version == "865" && year(date) > 2018) {
+    stop("version = '865' is for 2018 and before. ")
+  }
+  if (version == "01" && year(date) < 2019) {
+    stop("version = '01' is for 2019 and after. ")
+  }
 
   date <- lubridate::ymd(date)
   yyyy <- lubridate::year(date)
@@ -43,21 +40,37 @@ notin <- negate(`%in%`)
 
   prefix <- "http://paper.people.com.cn/rmrb"
 
-  
+  if (version == "865") {
+    middle <- glue("{prefix}hwb/html/{yyyy}-{mm}/{dd}")
+
+    # article link
+    article_url <- glue("{middle}/node_{version}.htm")
+
+    # scrape columns or sections in the article.
+    # suffix for columns url
+    cols <- read_html(article_url) %>%
+      html_nodes('a[href*="content_"]') %>%
+      html_attr("href") %>%
+      unique()
+
+    column_url <- glue::glue("{middle}/{cols}")
+  } else if (version == "01") {
     middle <- glue("{prefix}/html/{yyyy}-{mm}/{dd}")
 
     # article link
-    article_url <- glue("{middle}/nbs.D110000renmrb_{pp}.htm")
+    article_url <- glue("{middle}/nbs.D110000renmrb_{version}.htm")
 
     max_cols <- 9 # check the note below as to why we chose 9.
 
     yyyymmdd <- paste0(yyyy, mm, dd)
 
     # suffix for columns url
-    cols <- glue("nw.D110000renmrb_{yyyymmdd}_{1:max_cols}-{pp}.htm")
+    cols <- glue("nw.D110000renmrb_{yyyymmdd}_{1:max_cols}-{version}.htm")
 
     column_url <- glue("{middle}/{cols}")
-   
+  } else {
+    stop("wrong input: version should be either of c('865', '01').")
+  }
 
   tibble(
     article_url = article_url,
@@ -72,12 +85,12 @@ notin <- negate(`%in%`)
 
 
 
-#### Note: why do we take 9 cols as default number of cols? ####
+#### Note: why we take 9 cols as default number of cols? ####
 
 # Using the following code (which is bound to cols*), we found out that
-# the maximum number of columns on a page of an article is 9.
+# the maximum number of columns in a single article is 9.
 # We do not have to send requests to scrape just the number of columns
-# on/in an article. For that matter, we make the number of columns or sections in any
+# on/in an article. As a result, we make the number of columns or sections in any
 # article default to 9. Anyway, the use of safely(), during the request
 # (see `get_article_data()` below), captures the error if the actual
 # column counts are below or above 9---Will be flagged as **Not Found (HTTP 404)**.
