@@ -72,6 +72,13 @@ About one year and three month of data. Scraped from the free archive of [People
 
 
 ## Translation from Chinese (David)
+To make the app basically usable for non-Chinese speakers, a translation feature was introduced. Because Chinese has no spaces, we needed to use a NLP algorithm ((quote: jiebaR)), so that in the article texts, spaces could be placed between words to separate them. Unique words were added to a Chinese dictionary. Each word was in turn passed on to the translation API from Yandex. This yields in most cases a reliable one-word translation. Alternative translations were beyond the scope of this app, and for in depth analysis, a knowledge of Chinese or at least use of more translation tools is necessary. This dictionary is exported in .rds and .csv files for further use. The articles are then translated word for word. This will speed up using the app for text mining with English words, even if it does not give a useful translation of the complete texts.
+
+###Some additional remarks:
+
+To reduce use of the Yandex translation API (which has limited free bandwith) in each update, only new words are translated and added. This allowed an approximation of the range of unique words used. For illustration: Translating all the unique words (words includes here names, idioms, technological terms, etc.) yielded at least 50150 unique words for the first pages of all of 2019. The second pages of 2019 added 16393 new words. For the first three months, we found still 3228 new words for page 1 and 2350 new words for page 2. Even when allowing for misclassification by the NLP algorithm (sometimes words might be recorded as separately and again as a compound), this suggests that the news needs plenty of new words to adapt to current developments, e.g. "Covid-19".
+
+Another aspect of the dictionary: While all Chinese words are unique, the English translation yielded around 25000 duplicated entries. This means that users searching for example for "satellite" will find hits for 卫星，颗卫星 and 人造卫星，which all carry that meaning, improving the accuracy of text mining.
 
 
 ## Economic data retrieval (Eyayaw)
@@ -83,6 +90,8 @@ About one year and three month of data. Scraped from the free archive of [People
 
 ## Exploratory statistics, visualisation, and text mining (Eyayaw)
 Start with simplest descriptives and plots, e.g.:
+
+- descriptive plots for the data: article frequencies etc.
 
 - most common non-stop words with frequencies
 

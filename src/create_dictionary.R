@@ -108,9 +108,13 @@ for(i in files){
               fileEncoding = "UTF-16LE")
     Sys.setlocale() # restore default locale
   } # this part took several attempts, due to server time-out, connection errors, etc.
+  # if it fails definitively, make sure Yandex bandwith is still open and
   # get the last step from "i" and repeated with "start = i-1" until finished
   
-
+  if(exists("old_dict")){
+    cat("Appended new unique words and translations. \n")
+  }
+  cat("Dictionary created. \n")
   
 }
 
