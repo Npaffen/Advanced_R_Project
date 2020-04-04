@@ -71,6 +71,11 @@ About one year and three month of data. Scraped from the free archive of [People
 
 # Construction of the Application
 
+## Concept (David)
+- introduce file structure
+- intruduce app concept in detail, maybe use ((Scrivner, Olga & Davis, Jefferson. (2017). Interactive Text Mining Suite: Data Visualization for Literary Studies)) available at http://ceur-ws.org/Vol-1786/scrivner.pdf for cool info on shiny text mining.
+
+
 ## Scraping process for original database (Nils)
 
 - idea, process and issues we encountered
@@ -109,6 +114,8 @@ For both 2019 and 2020, the first page has several outliers with over 10 article
 - two-word correlation
 
 - time-series frequency plots (very important)
+
+- n-grams (possiblly useful packages: JSTORr, ngram, NSP, WordStat)
 
 
 Optional:
