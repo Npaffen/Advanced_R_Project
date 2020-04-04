@@ -10,6 +10,21 @@
 # words_cn_to_en(), translate a title, subtitle, or content chunk
 
 
+### required packages
+require("stringr") #install.packages("stringr")
+require("dplyr") #install.packages("dplyr")
+require("Rwordseg") # devtools::install_github("lijian13/Rwordseg")
+if(0){ # if using coreNLP
+  require("coreNLP") # install.packages("coreNLP") 
+  require(rJava) # install.packages("rJava")
+  coreNLP::downloadCoreNLP()
+}
+require("jiebaR")
+require(purrr) # install.packages("purrr")
+require(tibble) # install.packages("tibble")
+require("RYandexTranslate") #devtools::install_github("mukul13/RYandexTranslate")
+
+
 ### delete_numbers(), takes a char vector and deletes all numbers
 delete_numbers <- function(strings){
   return(str_subset(strings, "^[^[:digit:]]+$"))

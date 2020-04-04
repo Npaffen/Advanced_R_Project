@@ -102,7 +102,7 @@ for(i in files){
     Sys.setlocale() # restore default locale
   }
   
-  
+  cat("finished translating files:", files, sep = "\n")
 }
 
 

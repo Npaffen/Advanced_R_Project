@@ -23,13 +23,13 @@ require(purrr) # install.packages("purrr")
 # "Rwordseg" by Jian Li (2019) (https://github.com/lijian13/Rwordseg)
 # "coreNLP" by Arnold Taylor and Lauren Tilton (2016)
 require("Rwordseg") # devtools::install_github("lijian13/Rwordseg")
-if(0){ # if using coreNLP
+if(0){ # if using coreNLP, HMM
   require("coreNLP") # install.packages("coreNLP") 
   require(rJava) # install.packages("rJava")
   coreNLP::downloadCoreNLP()
+  require("HMM") # install.packages("HMM")
 }
 require("jiebaR") # install.packages("jiebaR")
-require("HMM") # install.packages("HMM")
 
 # install/load packages for translating with the dictionary
 require("stringr") #install.packages("stringr")
