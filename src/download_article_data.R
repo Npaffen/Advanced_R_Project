@@ -13,7 +13,8 @@ months_2020 <- 1:4
 article_data_2019 <- map(
   pages,
   ~ scrape_article(
-    page_num  = .x,
+    page_num = .x,
+    dates = NULL, # dates not supplied, will be rather created by make_dates().
     year = years[[1]],
     month = months_2019,
     all_dates = TRUE
@@ -25,9 +26,9 @@ article_data_2019 <- map(
 article_data_2020 <- map(
   pages, ~ scrape_article(
     page_num = .x,
-    , # dates = not supplied
+    dates = NULL, # dates not supplied, will be rather created by make_dates().
     year = years[[2]],
-    month = months_2020[[4]],
+    month = months_2020,
     all_dates = TRUE
   )
 )

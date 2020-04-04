@@ -5,13 +5,13 @@ library(tidyverse)
 library(glue)
 # ---------------------------------------------------------------
 # if dates is not supplied, then ... passes args to the make_dates()
-# function, which [ year, month, from_day, to_day, all_dates (logical),
+# function, which are [ year, month, from_day, to_day, all_dates (logical),
 # respectively ]. Please refer to `make_dates.R`.
-scrape_article <- function(page_num, dates, ...) {
+scrape_article <- function(page_num, dates = NULL, ...) {
   source("src/make_dates.R") # sources make_dates()
   source("src/generate_article_urls.R") # sources generate_urls()
 
-  if (missing(dates)) {
+  if (is_null(dates)) {
     dates <- make_dates(...)
     dates <- as.Date(unlist(unname(dates)), origin)
   }

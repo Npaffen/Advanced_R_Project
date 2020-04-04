@@ -9,13 +9,13 @@ library(glue)
 # of articles published on a specific date and extracts urls of columns on it.
 
 # As there're many contents on a page of an article, we need to extract links to all
-# of the contents (columns or sections on the article-per page). 
-# We can do that once we get the article's url and the date on 
+# of the contents (columns or sections on the article-per page).
+# We can do that once we get the article's url and the date on
 # which it was published--and then construct the urls of the sections on a page.
 
 # ----------------------------------------------------------------------
 # Steps: Article->pages(01&02)->sections/columns->paragraphs
-# pages = "01"  or "02" # meaning 1st or 01, 
+# pages = "01"  or "02" # meaning 1st or 01,
 # and 2nd or 02 pages of articles from 2019 and after.
 
 generate_urls <- function(date, page_num) {
@@ -27,28 +27,28 @@ generate_urls <- function(date, page_num) {
   if (notin(page_num, pages)) {
     stop("page_num should be either c(\"01\", \"02\").", call. = FALSE)
   }
-  
+
   pp <- pages[match(page_num, pages)]
-  
+
   date <- lubridate::ymd(date)
   yyyy <- lubridate::year(date)
   mm <- lubridate::month(date)
   mm <- if_else(mm < 10, paste0(0, mm), as.character(mm))
   dd <- lubridate::day(date)
   dd <- if_else(dd < 10, paste0(0, dd), as.character(dd))
-  
+
   prefix <- "http://paper.people.com.cn/rmrb"
   middle <- glue("{prefix}/html/{yyyy}-{mm}/{dd}")
-  
+
   # article link
   article_url <- glue("{middle}/nbs.D110000renmrb_{pp}.htm")
   max_cols <- 9 # check the note below as to why we chose 9.
   yyyymmdd <- paste0(yyyy, mm, dd)
-  
+
   # suffix for columns url
   cols <- glue("nw.D110000renmrb_{yyyymmdd}_{1:max_cols}-{pp}.htm")
   column_url <- glue("{middle}/{cols}")
-  
+
   tibble(
     article_url = article_url,
     column_url = column_url,
