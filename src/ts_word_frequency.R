@@ -1,4 +1,4 @@
-ts_word_frequency <- function(page = 1, start_date = as.Date("2019-01-01"), end_date = today(), eng_word   )
+ts_word_frequency <- function(page_num = 1, start_date = as.Date("2019-01-01"), end_date = today(), eng_word   )
 
 library(dplyr)
 library(purrr)
@@ -42,7 +42,7 @@ all_articles_p_1 <- article_2019_p_1_td %>% full_join(article_2020_p_1_td)
 all_articles_p_2 <- article_2019_p_2_td %>% full_join(article_2020_p_2_td)
   
   
-  if (page == 1) {database = all_articles_p_1} else {database = all_articles_p_2}
+  if (page_num == 1) {database = all_articles_p_1} else {database = all_articles_p_2}
 
 #translate the english word into chinese
 transl <- read_rds(str_c(here::here(),
@@ -60,7 +60,7 @@ transl <- read_rds(str_c(here::here(),
                             )
   ) %>%
   select(chinese)
-         
+  transl   
 
 db_filter <- database %>%
   filter(between(.$date, start_date, end_date)) %>%
@@ -78,16 +78,15 @@ words_by_newspaper_date_page <- db_filter %>%
 tf_idf <- words_by_newspaper_date_page %>%
   bind_tf_idf(word, date, n) %>%
   arrange(desc(tf_idf))%>%
-  rename( eng_word = n)#or by date with %>% arrange(date)
+  rename (eng_word = n)#or by date with %>% arrange(date)
 tf_idf
 
 #time-series
 tf_idf %>%
-  ggplot(aes(x= date,y = eng_word))+
+  ggplot(aes(x= date,y = n, ))+
   geom_line(color = "#00AFBB", size = 1)+
   stat_smooth(
     color = "#FC4E07",
     fill = "#FC4E07",
     method = "loess")+
   scale_x_date(date_labels = "%d%b/%Y")
-
