@@ -22,19 +22,22 @@ dim(unique(articles192))[1] - dim(articles192)[1]
 dim(unique(articles201))[1] - dim(articles201)[1] # is -7
 dim(unique(articles202))[1] - dim(articles202)[1]
 
-# count and plot articles per day
-count_art_day <- function(articles, plot = TRUE){
+# count and plot articles per day, print outliers
+count_art_day <- function(articles, plot = TRUE, min_art_outliers = 10){
   art_per_day <- articles %>% group_by(date) %>% count()
-  ggplot(art_per_day,aes(date, n)) +
+  out <- ggplot(art_per_day,aes(date, n)) +
     geom_point() +
     geom_smooth()
+  outliers <- art_per_day[art_per_day$n > min_art_outliers,]
+  print(outliers)
+  View(filter(articles, date %in% outliers$date))
+  return(out)
 }
 
-count_art_day(articles201) ## cool: first and second pages are quite different
-count_art_day(articles191) ## check what's up with outliers with n>10 in the first pages
-count_art_day(articles192)
-count_art_day(articles202)
-
+count_art_day(articles201, min_art_outliers = 9) ## cool: first and second pages are quite different
+count_art_day(articles191, min_art_outliers = 9) ## check what's up with outliers with n>10 in the first pages
+count_art_day(articles192, min_art_outliers = 8)
+count_art_day(articles202, min_art_outliers = 9)
 
 
 
