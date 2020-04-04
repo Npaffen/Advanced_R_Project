@@ -10,6 +10,21 @@
 # words_cn_to_en(), translate a title, subtitle, or content chunk
 
 
+### required packages
+require("stringr") #install.packages("stringr")
+require("dplyr") #install.packages("dplyr")
+require("Rwordseg") # devtools::install_github("lijian13/Rwordseg")
+if(0){ # if using coreNLP
+  require("coreNLP") # install.packages("coreNLP") 
+  require(rJava) # install.packages("rJava")
+  coreNLP::downloadCoreNLP()
+}
+require("jiebaR")
+require(purrr) # install.packages("purrr")
+require(tibble) # install.packages("tibble")
+require("RYandexTranslate") #devtools::install_github("mukul13/RYandexTranslate")
+
+
 ### delete_numbers(), takes a char vector and deletes all numbers
 delete_numbers <- function(strings){
   return(str_subset(strings, "^[^[:digit:]]+$"))
@@ -93,9 +108,11 @@ translate_articles <- function(vec_articles){
                                           ~ words_cn_to_en(.x))
       if(j %% 50 == 0){cat(i, j, " out of ", length(vec_articles[[i]]), "\n")}
     }
-    vec_articles_EN[[i]] <- modify(vec_articles_EN[[i]], ~ str_c(., collapse = " "))
     # collapse the vectors back to text chunks
+    vec_articles_EN[[i]] <- modify(vec_articles_EN[[i]], ~ str_c(., collapse = " "))
   }
+  # unnest tibble list Matryoshkas
+  vec_articles_EN <- vec_articles_EN %>% tidyr::unnest(subtitle) %>% tidyr::unnest(content)
   return(vec_articles_EN)
 }
 

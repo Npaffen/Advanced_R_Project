@@ -55,7 +55,7 @@ paste0(wdir, "/output/dictionary.rds") %>%
 for(i in files){
   # read article data and delete duplicates
   
-  cat("#### beginning processing of file:", i, "####\n")
+  cat("#### beginning translation of file:", i, "####\n")
   articles <- readRDS(paste0(wdir, "/data/", i))%>%
     remove_duplicates()
   
@@ -102,7 +102,7 @@ for(i in files){
     Sys.setlocale() # restore default locale
   }
   
-  
+  cat("finished translating files:", files, sep = "\n")
 }
 
 
