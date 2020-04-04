@@ -25,18 +25,17 @@ library(lubridate)
       select(id, date, month, para_id, word, everything())
   }
 
+article_2020_p_1_td <- read_rds(str_c(here::here(), "output", "processed_articles_2020_page_01_CN.rds", sep = "/")) %>%
+      tidy_text()
 
-article_2020_p_1_td <- read_rds("data/article_data_2020_page_01.rds") %>%
-  tidy_text()
+article_2020_p_2_td <- read_rds(str_c(here::here(), "output", "processed_articles_2020_page_02_CN.rds", sep = "/")) %>%
+      tidy_text()
 
-article_2020_p_2_td <- read_rds("data/article_data_2020_page_02.rds") %>%
-  tidy_text()
+article_2019_p_1_td <- read_rds(str_c(here::here(), "output", "processed_articles_2019_page_01_CN.rds", sep = "/")) %>%
+      tidy_text()
 
-article_2019_p_1_td <- read_rds("data/article_data_2019_page_01.rds") %>%
-  tidy_text()
-
-article_2019_p_2_td <- read_rds("data/article_data_2019_page_02.rds") %>%
-  tidy_text()
+article_2019_p_2_td <- read_rds(str_c(here::here(), "output", "processed_articles_2019_page_01_CN.rds", sep = "/")) %>%
+      tidy_text()
 
 all_articles_p_1 <- article_2019_p_1_td %>% full_join(article_2020_p_1_td)
 all_articles_p_2 <- article_2019_p_2_td %>% full_join(article_2020_p_2_td)
