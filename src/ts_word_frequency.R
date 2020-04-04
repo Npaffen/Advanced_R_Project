@@ -1,5 +1,9 @@
-ts_word_frequency <- function(page_num = 1, start_date = as.Date("2019-01-01"), end_date = today(), eng_word   )
+ts_word_frequency <- function(page_num = 1, start_date = as.Date("2019-01-01"),
+                              end_date = today(), eng_word)
 
+  ## please add a description, what is eng_word, etc.
+  ## adding a table of contents also makes sense at this length
+  
 library(dplyr)
 library(purrr)
 library(stringr)
