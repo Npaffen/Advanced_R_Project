@@ -1,9 +1,9 @@
-### All our functions alphabetically ordered
+### Most of our convenience functions alphabetically ordered
 
 ## CONTENT
 # delete_numbers(), takes a char vector and deletes all numbers
-# extract_dictionary() , extract dictionary of unique words from article words
-# insert_spaces(), takes the .rds database and inserts spaces into text
+# extract_dictionary(), extract dictionary of unique words from article words
+# insert_spaces(), into text from a .rds database
 # remove_duplicates(), from a tibble
 # request_translation(), contacts the Yandex API to translate the dictionary
 # translate_articles(), uses the dictionary to translate the articles
@@ -16,8 +16,9 @@ delete_numbers <- function(strings){
 }
 
 ### extract dictionary of unique words from article words
-extract_dictionary <- function(art_words){
-  dict_CN <- art_words[,2:4] %>% unlist %>% unique
+extract_dictionary <- function(vec_articles){
+  dict_CN <- vec_articles[,c("title","subtitle","content")] %>%
+    unlist %>% unique
   return(dict_CN[dict_CN != ""]) # remove empty strings
 }
 
@@ -31,9 +32,10 @@ insert_spaces <- function(articles,
                           nosymbol = TRUE, # eliminates symbols
                           returnType = "tm" # default is insert spaces
                           ) {
-  modify_if(
-    articles[, 1:dim(articles)[2]],
-    is.character, # check if is nonzero character
+  articles[,2:dim(articles)[2]] <- modify_if(
+    articles[,2:dim(articles)[2]],
+    is.character,
+    # check if is nonzero character
     ~ segmentCN(.,
       analyzer = analyzer,
       nature = nature,
@@ -41,6 +43,7 @@ insert_spaces <- function(articles,
       returnType = returnType
     )
   )
+  return(articles)
 }
 
 
@@ -58,13 +61,21 @@ request_translation <- function(dict_CN,
   dict_EN <- character(length = length(dict_CN)) # create empty English dictionary
   for(i in start:length(dict_CN)){ 
     # translate each single entry, to avoid "contamination" from using many at once
-    try(dict_EN[i] <- translate(api_key, text=dict_CN[i], lang="zh-en")$text)
-    if(length(dict_EN) == 0){
-      write(paste0("request failed at i = ", i,
+    timeout <- 0
+    repeat{
+      timeout <- timeout + 1
+      try(dict_EN[i] <- translate(api_key, text=dict_CN[i], lang="zh-en")$text)
+      if(length(dict_EN[i]) == 0){
+        write(paste0("request failed at i = ", i,
                    ", retry request_translation() with \"start = ", i, "-1\""),
-            stderr())
-      }
-    if(i %% 100 == 0){cat(i, " out of ", length(dict_CN), "\n")}
+              stderr())
+      } else{ break }
+      if(timeout == 10){
+        stop(paste0("request failed at i = ", i,
+                    " after 10 tries."))
+        }
+    }
+    if(i %% 50 == 0){cat(i, " out of ", length(dict_CN), "\n")}
   }
   return(data.frame(chinese = dict_CN, english = dict_EN, stringsAsFactors = FALSE))
 }
@@ -73,19 +84,19 @@ request_translation <- function(dict_CN,
 
 
 ### uses the dictionary to translate the articles
-translate_articles <- function(art_words){
-  art_words_EN <- art_words # translation target
+translate_articles <- function(vec_articles){
+  vec_articles_EN <- vec_articles # translation target
   str_not_zero <- function(x){nchar(x) !=0} # nonempty character condition
-  for(i in names(art_words)[-1]){ 
-    for(j in 1:length(art_words[[i]])){
-      art_words_EN[[i]][[j]] <- modify_if(art_words[[i]][[j]], str_not_zero,
+  for(i in c("title","subtitle","content")){ 
+    for(j in 1:length(vec_articles[[i]])){
+      vec_articles_EN[[i]][[j]] <- modify_if(vec_articles[[i]][[j]], str_not_zero,
                                           ~ words_cn_to_en(.x))
-      if(j %% 50 == 0){cat(i, j, " out of ", length(art_words[[i]]), "\n")}
+      if(j %% 50 == 0){cat(i, j, " out of ", length(vec_articles[[i]]), "\n")}
     }
-    art_words_EN[[i]] <- modify(art_words_EN[[i]], ~ str_c(., collapse = " "))
+    vec_articles_EN[[i]] <- modify(vec_articles_EN[[i]], ~ str_c(., collapse = " "))
     # collapse the vectors back to text chunks
-    return(art_words_EN)
   }
+  return(vec_articles_EN)
 }
 
 

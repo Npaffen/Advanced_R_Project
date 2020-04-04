@@ -1,29 +1,81 @@
 ### Updating Translation (for use in the app, requires existing translations)
 ## Tasks
+# 0. Preparation
 # 1. Identify new articles
 # 2. Insert spaces with NLP tool
 # 3. Find new words not in dictionary
 # 4. Translate new words with API, articles with dictionary
 # 5. Update databases 
 
-testing <- FALSE # activate if testing
-run_update <- TRUE # activate if updating
+TESTING <- FALSE # activate if testing
+RUN_UPDATE <- TRUE # activate if updating
+RUN_API <- FALSE # change only if you are really sure yandex API is available
+RUN_TRANSLATION <- FALSE # change only if you have several hours to translate everything
 
 #####################################################################
 # 0. Preparation
 
-# check if there is anything to update (without id, just comparing dates)
-new_articles <- readRDS("output/news_article_2020.rds") # load new articles
-articles_cn <- readRDS("output/news_article_2020_sep.rds") # load old articles
-if(!testing){
+# check if relevant files are present
+
+# check article data
+wdir <- here::here()
+files <- list.files(paste0(wdir,"/data"))
+if(length(grep("article_data_",files)) == 0){
+  ans <- readline(prompt="Article data missing in folder '/data',
+                  type 'run' to recompile, press [Enter] to abort.")
+  if(ans == "run"){print("download articles")}
+} else {
+  cat("article_data files found in '/data' \n", files, sep = "\t")
+}
+
+# check processed articles
+processed_files <- list.files(paste0(wdir,"/output/"))
+processed_files <- processed_files[  grep("processed_article", processed_files)]
+if(length(processed_files) == 0){
+  ans <- readline(prompt="Processed article data missing in folder '/output',
+                  enter 'run' to reprocess,
+                  press [Enter] to abort. ")
+  if(ans == "run"){
+    print("processing articles")
+    source("src/process_articles.R")
+  }
+} else {
+  cat("article_data files found in '/data'. \n", files, sep = "\t")
+}
+
+# dictionary
+if(!file.exists(paste0(wdir,"/output/dictionary.rds"))){
+  ans <- readline(prompt="Dictionary data missing in folder '/output',
+                  type 'run' to recompile, press [Enter] to abort. ")
+  if(ans == "run"){
+    print("processing articles")
+    source("src/create_dictionary.R")
+    }
+} else {
+  cat("dictionary data found in '/outout'. \n")
+}
+
+# load data
+new_articles_1 <- readRDS(
+  paste0(wdir,"/data/article_data_2019_page_01.rds")) # new articles p1
+new_articles_2 <- readRDS(
+  paste0(wdir, "/data/article_data_2019_page_02.rds")) # new articles p2
+articles_cn_1 <- readRDS(
+  "output/processed_article_data_2020_page_01_CN.rds") # old articles p1
+articles_cn_2 <- readRDS(
+  "output/processed_article_data_2020_page_02_CN.rds") # old articles p2
+
+# check if update required
+if(!TESTING){
   if(suppressWarnings(all(sort(new_articles$Date) == sort(articles_cn$Date)))){
-    run_update <- FALSE
+    RUN_UPDATE <- FALSE
     stop("no new articles to update")
   }
 }
 
 
-if(run_update) {
+
+if(RUN_UPDATE) {
   
   # source self-written functions
   source("src/functions.R")
@@ -53,7 +105,7 @@ if(run_update) {
   
   
   #load other data
-  articles_en <- readRDS("output/news_article_2020_sep_EN.rds")
+  articles_en <- readRDS("output/processed_articles_2020_EN.rds")
   dictionary <- readRDS("output/dictionary.rds")
   
   # remove duplicates from articles
@@ -62,7 +114,7 @@ if(run_update) {
   articles_en <- remove_duplicates(articles_en)
   
   # for testing with subsample
-  if(testing){ 
+  if(TESTING){ 
     articles_cn <- articles_cn[1:800,]
     articles_en <- articles_en[1:800,]
     dictionary <- dictionary[1:20000,]
@@ -130,7 +182,7 @@ if(run_update) {
   
   #####################################################################
   # 4. Translate new words with API, articles with dictionary
-  if(0){ # use sparingly! character limit: 1,000,000/day, 10,000,000 month
+  if(RUN_API){ # use sparingly! character limit: 1,000,000/day, 10,000,000 month
     Sys.setlocale(locale = "Chinese") # fix character encoding
     new_dict_CN_EN <- request_translation(dict_CN,
                                       # free keys can be generated here:
@@ -149,11 +201,11 @@ if(run_update) {
   
   #####################################################################
   # 5. Update databases 
-  if(0){ # takes around 45 min.
+  if(RUN_TRANSLATION){ # takes around 45 min.
     Sys.setlocale(locale = "Chinese") # fix character encoding
     art_words_EN <- translate_articles(art_words)
     art_words_EN <- bind_rows(articles_en, art_words_EN)
-    saveRDS(art_words_EN, "output/news_article_2020_sep_EN.rds")
+    saveRDS(art_words_EN, "output/processed_articles_2020_EN.rds")
     Sys.setlocale() # restore default locale
   }
   
