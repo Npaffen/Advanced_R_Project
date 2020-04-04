@@ -93,9 +93,11 @@ translate_articles <- function(vec_articles){
                                           ~ words_cn_to_en(.x))
       if(j %% 50 == 0){cat(i, j, " out of ", length(vec_articles[[i]]), "\n")}
     }
-    vec_articles_EN[[i]] <- modify(vec_articles_EN[[i]], ~ str_c(., collapse = " "))
     # collapse the vectors back to text chunks
+    vec_articles_EN[[i]] <- modify(vec_articles_EN[[i]], ~ str_c(., collapse = " "))
   }
+  # unnest tibble list Matryoshkas
+  vec_articles_EN <- vec_articles_EN %>% tidyr::unnest(subtitle) %>% tidyr::unnest(content)
   return(vec_articles_EN)
 }
 

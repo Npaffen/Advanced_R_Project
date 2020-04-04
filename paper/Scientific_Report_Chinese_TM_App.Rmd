@@ -10,6 +10,10 @@ supervisors: "Martin Christopher Arnold and Alexander Gerber"
 ssemester: "3"
 estdegree_emester: "Winter Term 2020"
 deadline: "Apr. 7th 2020"
+header-includes:
+   # fix for latex unicode error with Chinese characters
+   - \usepackage{CJKutf8}
+   - \usepackage[utf8]{inputenc}
 output:
   pdf_document:
     keep_tex: yes
@@ -32,10 +36,6 @@ classoption: a4paper
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 
-% fix for latex unicode error with Chinese characters
-```{r results = "hide"}
-# devtools::install_github("rstudio/rmarkdown")
-```
 
 
 # Introduction (David)
