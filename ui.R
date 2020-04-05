@@ -9,6 +9,7 @@
 #       - First Tab: Database Status
 #       - Second Tab: Loaded Data Files
 #       - Third Tab: Updating
+#       - Fourth Tab: Descriptives
 #     - Other
 # 2. join parts
 
@@ -32,7 +33,8 @@ sidebar <- dashboardSidebar(
     sidebarMenu(
       menuItem("Data Status", tabName = "data_status", icon = icon("dashboard")),
       menuItem("Loaded Files", tabName = "loadedfiles", icon = icon("dashboard")),
-      menuItem("Updating", tabName = "updating", icon = icon("dashboard"))
+      menuItem("Updating", tabName = "updating", icon = icon("dashboard")),
+      menuItem("Article Frequencies", tabName = "artfreq", icon = icon("dashboard"))
     )
   )
 
@@ -74,8 +76,15 @@ body <-   dashboardBody(
               h2("Updating Text and Economic Data"),
               fluidRow(
                 valueBoxOutput("updating_text")
-              ),
-      )
+              )
+      ),
+      
+      ##############################
+      # Fourth tab content
+      tabItem(tabName = "artfreq",
+              uiOutput("artfreqs")
+              )
+    
     )
   )
 

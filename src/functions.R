@@ -1,6 +1,8 @@
 ### Most of our convenience functions alphabetically ordered
 
 ## CONTENT
+# check_if_complete(), compares two lists, to see if anything is missing
+# count_art_day(), count and plot articles per day, print outliers
 # delete_numbers(), takes a char vector and deletes all numbers
 # extract_dictionary(), extract dictionary of unique words from article words
 # insert_spaces(), into text from a .rds database
@@ -9,6 +11,9 @@
 # request_translation(), contacts the Yandex API to translate the dictionary
 # translate_articles(), uses the dictionary to translate the articles
 # words_cn_to_en(), translate a title, subtitle, or content chunk
+
+## RENDER FUNCTIONS FOR APP
+# render_frequency(), creates an article frequency plot to be rendered
 
 
 ### required packages
@@ -26,6 +31,34 @@ require(tibble) # install.packages("tibble")
 require("RYandexTranslate") #devtools::install_github("mukul13/RYandexTranslate")
 
 
+### check_if_complete(), compares two lists A and B, to see if anything is missing from B
+# not used at the moment
+# check_if_complete <- function(A, B){
+#   if(length(setdiff(A, B)) == 0){
+#     set_id <- TRUE
+#   } else {set_id <- FALSE}
+#   if(length(B)<length(A)){
+#     length_id <- FALSE
+#   } else {length_id <- TRUE}
+#   return(list("set_id" = set_id,
+#               "length_id" = length_id))
+# }
+
+
+### count and plot articles per day, print outliers
+count_art_day <- function(articles, plot = TRUE, min_art_outliers = 10){
+  art_per_day <- articles %>% group_by(date) %>% count()
+  out <- ggplot(art_per_day,aes(date, n)) +
+    geom_point() +
+    geom_smooth()
+  outliers <- art_per_day[art_per_day$n > min_art_outliers,]
+  #print(outliers)
+  #View(filter(articles, date %in% outliers$date))
+  return(list("out" = out,
+              "outliers" = outliers))
+}
+
+
 ### delete_numbers(), takes a char vector and deletes all numbers
 delete_numbers <- function(strings){
   return(str_subset(strings, "^[^[:digit:]]+$"))
@@ -37,7 +70,6 @@ extract_dictionary <- function(vec_articles){
     unlist %>% unique
   return(dict_CN[dict_CN != ""]) # remove empty strings
 }
-
 
 ### takes the .rds database and inserts spaces into text
 insert_spaces <- function(articles,
@@ -143,3 +175,22 @@ words_cn_to_en <- function(words_cn){
     }})
   if(words_en != "") return(words_en) else return(words_cn)
 }
+
+
+
+
+#######################################################################
+
+## RENDER FUNCTIONS FOR APP
+## render_frequency(), creates an article frequency plot to be rendered
+render_frequency <- function(file, file_name){
+  count_art_day(file, plot = TRUE)$out +
+    ylab("articles per day") +
+    ggtitle(file_name)
+}
+
+
+
+
+
+
