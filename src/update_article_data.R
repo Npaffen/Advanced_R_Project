@@ -58,7 +58,7 @@ update_article_data <- function(page_num,
         saveRDS(df[[i]], paste0("data/", names(df)[[i]], ".rds"))
       }
     } else {
-      stop("failed be updated!", call. = FALSE)
+      stop("Data contains articles from the future! (°□°)", call. = FALSE)
     }
   }
   

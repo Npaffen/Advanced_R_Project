@@ -12,7 +12,7 @@
 # translate_articles(), uses the dictionary to translate the articles
 # words_cn_to_en(), translate a title, subtitle, or content chunk
 
-## RENDER FUNCTIONS FOR APP
+## FUNCTIONS FOR APP
 # render_frequency(), creates an article frequency plot to be rendered
 
 
@@ -66,6 +66,7 @@ delete_numbers <- function(strings){
 
 ### extract dictionary of unique words from article words
 extract_dictionary <- function(vec_articles){
+  message("Extracting unique words from Chinese text for dictionary...")
   dict_CN <- vec_articles[,c("title","subtitle","content")] %>%
     unlist %>% unique
   return(dict_CN[dict_CN != ""]) # remove empty strings
@@ -80,6 +81,7 @@ insert_spaces <- function(articles,
                           nosymbol = TRUE, # eliminates symbols
                           returnType = "tm" # default is insert spaces
                           ) {
+  message("Inserting spaces into Chinese text...")
   articles[,2:dim(articles)[2]] <- modify_if(
     articles[,2:dim(articles)[2]],
     is.character,
@@ -119,6 +121,7 @@ request_translation <- function(dict_CN,
                                 api_key,
                                 start = 1 # replace 1 here with last step "i" if time-out
                                 ){
+  message("Requesting translating from Yandex translation API, please wait...")
   dict_EN <- character(length = length(dict_CN)) # create empty English dictionary
   for(i in start:length(dict_CN)){ 
     # translate each single entry, to avoid "contamination" from using many at once
@@ -136,7 +139,9 @@ request_translation <- function(dict_CN,
                     " after 10 tries."))
         }
     }
-    if(i %% 50 == 0){cat(i, " out of ", length(dict_CN), "\n")}
+    if(i %% 50 == 0){
+      message(cat("translate", i, " out of ", length(dict_CN), "\n"))
+      }
   }
   return(data.frame(chinese = dict_CN, english = dict_EN, stringsAsFactors = FALSE))
 }
@@ -152,7 +157,9 @@ translate_articles <- function(vec_articles){
     for(j in 1:length(vec_articles[[i]])){
       vec_articles_EN[[i]][[j]] <- modify_if(vec_articles[[i]][[j]], str_not_zero,
                                           ~ words_cn_to_en(.x))
-      if(j %% 50 == 0){cat(i, j, " out of ", length(vec_articles[[i]]), "\n")}
+      if(j %% 50 == 0){
+        message(cat(i, j, " out of ", length(vec_articles[[i]]), "\n"))
+        }
     }
     # collapse the vectors back to text chunks
     vec_articles_EN[[i]] <- modify(vec_articles_EN[[i]], ~ str_c(., collapse = " "))
@@ -181,7 +188,8 @@ words_cn_to_en <- function(words_cn){
 
 #######################################################################
 
-## RENDER FUNCTIONS FOR APP
+## FUNCTIONS FOR APP
+
 ## render_frequency(), creates an article frequency plot to be rendered
 render_frequency <- function(file, file_name){
   count_art_day(file, plot = TRUE)$out +

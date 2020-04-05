@@ -70,15 +70,25 @@ body <-   dashboardBody(
               )
       ),
       
+      
       ##############################
       # Third tab content
+      
       tabItem(tabName = "updating",
               h2("Updating Text and Economic Data"),
               fluidRow(
                 valueBoxOutput("updating_text")
+              ),
+              fluidRow(
+                textInput("request_page_num","","page number, e.g. '01'"),
+                actionButton("run_update","run update")
+              ),
+              fluidRow(
+                uiOutput("update_report")
               )
       ),
       
+          
       ##############################
       # Fourth tab content
       tabItem(tabName = "artfreq",

@@ -7,8 +7,9 @@
 #       - First Tab: Database Status
 #       - Second Tab: Loaded Data Files
 #       - Third Tab: Updating
-#       - Fourth Tab: Simple Descriptives
+#       - Fourth Tab: Plot article frequency  per days
 #     - Other
+# 2. Try Updating
 
 
 #################################################################
@@ -16,7 +17,7 @@
 library(shiny)
 require(ggplot2)
 source("src/functions.R")
-
+source("src/updating_articles_app.R")
 
 function(input, output, session){
   
@@ -62,17 +63,79 @@ function(input, output, session){
   
   output$updating_text <- renderValueBox({
     valueBox(
-      paste(Sys.Date() - max(processed_articles_2020_page_01_EN$date)),
-      "daily edition(s) can be updated ",
+      paste(Sys.Date() - max(article_data_2020_page_01$date)),
+      "days can be updated ",
       icon = icon("list"),
       color = "blue"
     )
   })
   
-  ############################
-  # Fourth Tab: Simple Descriptives
+  vals <- reactiveValues() # stored values
+  vals <- update_is_long <- FALSE
   
-  # article frequency  per day
+  confirm_update <- function() { # Confirmation pop-up
+    modalDialog(
+      span('A long update is pending, do you have time?'),
+      footer = tagList(
+        modalButton("No"),
+        actionButton("button_long_update", "Yes")
+      )
+    )
+  }
+  
+  observeEvent(input$run_update,{ # if button update is pressed
+    output$update_report <- renderUI({
+      HTML( # output capture borrowed from https://stackoverflow.com/a/40711365
+        paste(capture.output(type = "message", expr = { 
+          message(capture.output(type = "output", expr = {
+            request <- eval(as.name(paste0(
+              "article_data_2020_page_",
+              input$request_page_num)))
+            if((Sys.Date() - max(request$date)) == 0){
+              message("Data is up to date!")
+            } else if(Sys.Date() - max(request$date) > 7){
+              message("Data is older than 1 week! Long update?")
+              update_is_long <<- TRUE
+              showModal(confirm_update()) 
+            } else{
+              message("Data is recent, will be updated.")
+            }
+            #update_article_data(page_num = input$request_page_num,
+            #                    write_to_disk = TRUE)
+            #if(Sys.Date() - max(processed_articles_2020_page_01_EN$date) > 0){
+            #  process_articles()
+            #}
+          }))
+        }), collapse="<br>")
+      )})
+  })
+  
+  observeEvent(input$button_long_update, {
+    output$update_report <- renderUI({
+      HTML( # output capture borrowed from https://stackoverflow.com/a/40711365
+        paste(capture.output(type = "message", expr = { 
+          message(capture.output(type = "output", expr = {
+            message("Starting long update...")
+            #update_article_data(page_num = input$request_page_num,
+            #                    write_to_disk = TRUE)
+            #if(Sys.Date() - max(processed_articles_2020_page_01_EN$date) > 0){
+            #  process_articles()
+            #}
+          }))
+        }), collapse="<br>")
+      )})
+    removeModal()
+  })
+  
+  
+  
+
+
+
+  
+  ############################
+  # Fourth Tab: Plot article frequency  per day
+  
   output$art_freq191 <- renderPlot(
     render_frequency(file = processed_articles_2019_page_01_CN,
                      file_name = "processed_articles_2019_page_01_CN"))
@@ -98,7 +161,7 @@ function(input, output, session){
   
   
   
-  ###############################################################
+  ###########################
   # other
   
   if (!interactive()) {
@@ -109,3 +172,7 @@ function(input, output, session){
   }
   
 }
+
+#################################################################
+# 1. Try Updating
+
