@@ -1,7 +1,7 @@
 ### Language Processing (legacy code for processing the raw articles)
 
-## loads raw scraping output files
-## creates copies with spaces inserted for further analysis
+## loads raw scraping output files "article_data"
+## creates copies with spaces inserted for further analysis "processed_articles"
 
 ## Tasks (repeat for each article file)
 # 0. Preparation
@@ -48,7 +48,7 @@ for(i in files){
   # read article data and delete duplicates
   
   cat("#### beginning processing of file:", i, "####\n")
-  articles <- readRDS(paste0(wdir, "/data/", i))%>%
+  articles <- readRDS(paste0(wdir, "/data/", i)) %>%
     remove_duplicates()
   
   #####################################################################
