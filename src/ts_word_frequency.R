@@ -12,10 +12,11 @@ library(readr)
 library(stopwords)
 library(tidyr)
 library(lubridate)
+library(quanteda)
 
     tidy_text <- function(data) {
-    chinese_stop_words <- tibble(word = stopwords("zh", "misc"))
     
+      
     select(data, id, date, content) %>%
       mutate(content = str_split(content, "\\|\\|")) %>%
       unnest(cols = content) %>%
@@ -23,7 +24,6 @@ library(lubridate)
       mutate(para_id = row_number()) %>%
       ungroup() %>%
       tidytext::unnest_tokens(word, content) %>%
-      anti_join(chinese_stop_words, by = "word") %>%
       dplyr::filter(!str_detect(word, "\\d+")) %>% # remove any digit
       mutate(month = lubridate::month(date, label = TRUE, abbr = FALSE)) %>%
       select(id, date, month, para_id, word, everything())
@@ -67,7 +67,7 @@ transl <- read_rds(str_c(here::here(),
 
 db_filter <- database %>%
   filter(between(.$date, start_date, end_date)) %>%
-  filter(word %in% transl$chinese)
+  filter( .$word  %in% "outbreak")
   
 #most common words in the dataset  
 newspaper_words <- db_filter %>% count(word, sort = T)
@@ -93,3 +93,12 @@ tf_idf %>%
     fill = "#FC4E07",
     method = "loess")+
   scale_x_date(date_labels = "%d%b/%Y")
+
+
+
+
+
+####
+#Try quantada
+article_2020_p_1_td <- read_rds(str_c(here::here(), "output", "processed_articles_2020_page_01_CN.rds", sep = "/")) %>%
+  corpus(docid_field = "id", text_field = "content") %>% dfm(remove = stopwords(language = "zh", source = "misc"))
