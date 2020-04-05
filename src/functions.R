@@ -4,6 +4,7 @@
 # delete_numbers(), takes a char vector and deletes all numbers
 # extract_dictionary(), extract dictionary of unique words from article words
 # insert_spaces(), into text from a .rds database
+# load_rds(), loads files based on their filename and folder
 # remove_duplicates(), from a tibble
 # request_translation(), contacts the Yandex API to translate the dictionary
 # translate_articles(), uses the dictionary to translate the articles
@@ -60,6 +61,19 @@ insert_spaces <- function(articles,
   )
   return(articles)
 }
+
+
+### load_rds(), loads files based on their filename and folder
+load_rds <- function(filenames, folder, wdir){
+  for(i in filenames){
+    assign(
+      substr(i, 1, stop = str_length(i)-4),
+      readRDS(paste0(wdir,"/", folder, "/",i)),
+      envir = .GlobalEnv
+    )
+  }
+}
+
 
 
 ### remove_duplicates(), from the articles tibble

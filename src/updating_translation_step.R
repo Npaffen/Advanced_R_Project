@@ -8,7 +8,7 @@
 # 5. Update databases 
 
 TESTING <- FALSE # activate if testing
-RUN_UPDATE <- TRUE # activate if updating
+RUN_UPDATE <- FALSE # will self-activate if updating
 RUN_API <- FALSE # change only if you are really sure yandex API is available
 RUN_TRANSLATION <- FALSE # change only if you have several hours to translate everything
 
@@ -25,7 +25,8 @@ if(length(grep("article_data_",files)) == 0){
                   type 'run' to recompile, press [Enter] to abort.")
   if(ans == "run"){print("download articles")}
 } else {
-  cat("article_data files found in '/data' \n", files, sep = "\t")
+  cat("article_data files found in '/data' \n",
+      files[grep("article_data_",files)], sep = "\n")
 }
 
 # check processed articles
@@ -40,7 +41,7 @@ if(length(processed_files) == 0){
     source("src/process_articles.R")
   }
 } else {
-  cat("article_data files found in '/data'. \n", files, sep = "\t")
+  cat("processed files found in '/output'. \n", processed_files, sep = "\n")
 }
 
 # dictionary
@@ -52,7 +53,8 @@ if(!file.exists(paste0(wdir,"/output/dictionary.rds"))){
     source("src/create_dictionary.R")
     }
 } else {
-  cat("dictionary data found in '/outout'. \n")
+  cat("dictionary data found in '/output'. \n",
+      "entries: ", dim(readRDS("output/dictionary.rds"))[1])
 }
 
 # load data
@@ -60,15 +62,16 @@ new_articles_1 <- readRDS(
   paste0(wdir,"/data/article_data_2019_page_01.rds")) # new articles p1
 new_articles_2 <- readRDS(
   paste0(wdir, "/data/article_data_2019_page_02.rds")) # new articles p2
-articles_cn_1 <- readRDS(
-  "output/processed_article_data_2020_page_01_CN.rds") # old articles p1
-articles_cn_2 <- readRDS(
-  "output/processed_article_data_2020_page_02_CN.rds") # old articles p2
+articles_en_1 <- readRDS(
+  paste0(wdir,"/output/processed_articles_2020_page_01_EN.rds")) # old articles p1
+articles_en_2 <- readRDS(
+  paste0(wdir,"/output/processed_articles_2020_page_02_EN.rds")) # old articles p2
 
 # check if update required
 if(!TESTING){
-  if(suppressWarnings(all(sort(new_articles$Date) == sort(articles_cn$Date)))){
-    RUN_UPDATE <- FALSE
+  if(setdiff(new_articles_2$Date, articles_en_2$Date)
+    suppressWarnings(all(sort(new_articles_1$Date) == sort(articles_en_1$Date)))){
+    RUN_UPDATE <- TRUE
     stop("no new articles to update")
   }
 }
