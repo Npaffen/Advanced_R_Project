@@ -37,13 +37,15 @@ econ_indicators <- c(ex_rate_daily = 'DEXCHUS',
 # Normalised for China (CHNLORSGPNOSTSAM)
 # [CHNLORSGPNOSTSAM](https://fred.stlouisfed.org/series/CHNLORSGPNOSTSAM)
 
-normalized_gdp <- econ_indicators[['normalized_gdp']]
 
-gdp_china <- fredr(
-  series_id = normalized_gdp,
+current_key <- Sys.getenv("FRED_API_KEY")
+fredr_set_key("c66bdbc4919216612f5cb63ec4994a81")
+
+dollar_yuan_exch <- fredr(
+  series_id = "DEXCHUS",
   observation_start = as.Date("2019-01-01"),
-  observation_end = as.Date("2020-03-15"),
-  frequency = "m"
+  observation_end = as.Date(today()),
+  frequency = "d"
 )
 
 plot(gdp_china$date, gdp_china$value,
