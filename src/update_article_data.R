@@ -7,6 +7,7 @@ library(glue)
 update_article_data <- function(page_num,
                                 write_to_disk = FALSE) {
   stopifnot(page_num %in% c("01", "02"))
+  message("Updating raw articles from People's Daily website...")
   
   path <- paste0("data/article_data_2020_page_", page_num, ".rds")
   nms <- str_sub(path, 6, -5)

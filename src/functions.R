@@ -13,7 +13,8 @@
 # words_cn_to_en(), translate a title, subtitle, or content chunk
 
 ## FUNCTIONS FOR APP
-# render_frequency(), creates an article frequency plot to be rendered
+# render_frequency(), creates an article frequency plot to be rendered in server.R
+# update_in_app(), initiates update in server.R
 
 
 ### required packages
@@ -130,17 +131,18 @@ request_translation <- function(dict_CN,
       timeout <- timeout + 1
       try(dict_EN[i] <- translate(api_key, text=dict_CN[i], lang="zh-en")$text)
       if(length(dict_EN[i]) == 0){
-        write(paste0("request failed at i = ", i,
+        message(paste0("request failed at i = ", i,
                    ", retry request_translation() with \"start = ", i, "-1\""),
               stderr())
       } else{ break }
       if(timeout == 10){
-        stop(paste0("request failed at i = ", i,
+        message(paste0("request failed at i = ", i,
                     " after 10 tries."))
+        stop()
         }
     }
-    if(i %% 50 == 0){
-      message(cat("translate", i, " out of ", length(dict_CN), "\n"))
+    if(i %% 10 == 0){
+      message(cat("translated ", i, " out of ", length(dict_CN), "\n"))
       }
   }
   return(data.frame(chinese = dict_CN, english = dict_EN, stringsAsFactors = FALSE))
@@ -151,14 +153,15 @@ request_translation <- function(dict_CN,
 
 ### uses the dictionary to translate the articles
 translate_articles <- function(vec_articles){
+  message("Beginning translation of articles, please wait...")
   vec_articles_EN <- vec_articles # translation target
   str_not_zero <- function(x){nchar(x) !=0} # nonempty character condition
   for(i in c("title","subtitle","content")){ 
     for(j in 1:length(vec_articles[[i]])){
       vec_articles_EN[[i]][[j]] <- modify_if(vec_articles[[i]][[j]], str_not_zero,
                                           ~ words_cn_to_en(.x))
-      if(j %% 50 == 0){
-        message(cat(i, j, " out of ", length(vec_articles[[i]]), "\n"))
+      if(j %% 10 == 0){
+        message(cat("translated ", i, j, " out of ", length(vec_articles[[i]]), "\n"))
         }
     }
     # collapse the vectors back to text chunks
@@ -196,9 +199,6 @@ render_frequency <- function(file, file_name){
     ylab("articles per day") +
     ggtitle(file_name)
 }
-
-
-
 
 
 

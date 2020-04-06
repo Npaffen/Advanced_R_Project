@@ -20,7 +20,7 @@
 
 library(shinydashboard)
 library(shiny)
-
+library(shinyjs)
 
 
 #################################################################
@@ -80,10 +80,10 @@ body <-   dashboardBody(
                 valueBoxOutput("updating_text")
               ),
               fluidRow(
-                textInput("request_page_num","","page number, e.g. '01'"),
-                actionButton("run_update","run update")
-              ),
-              fluidRow(
+                shinyjs::useShinyjs(),
+                textOutput("updating_description"),
+                textInput("request_year_page","","year and page, e.g. '2020-01'"),
+                actionButton("run_update","run update"),
                 uiOutput("update_report")
               )
       ),

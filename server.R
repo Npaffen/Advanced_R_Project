@@ -15,9 +15,13 @@
 #################################################################
 # 0. Preparation
 library(shiny)
+require(shinyjs)
 require(ggplot2)
 source("src/functions.R")
-source("src/updating_articles_app.R")
+source("src/updating_text_data_app.R")
+source("src/update_article_data.R")
+source("src/process_articles.R")
+source("src/create_dictionary.R")
 
 function(input, output, session){
   
@@ -64,14 +68,15 @@ function(input, output, session){
   output$updating_text <- renderValueBox({
     valueBox(
       paste(Sys.Date() - max(article_data_2020_page_01$date)),
-      "days can be updated ",
+      "days ready for update",
       icon = icon("list"),
       color = "blue"
     )
   })
   
-  vals <- reactiveValues() # stored values
-  vals <- update_is_long <- FALSE
+  output$updating_description <- renderText(
+    "Type out the year and page number you wish to update and press the button."
+  )
   
   confirm_update <- function() { # Confirmation pop-up
     modalDialog(
@@ -83,55 +88,65 @@ function(input, output, session){
     )
   }
   
-  observeEvent(input$run_update,{ # if button update is pressed
-    output$update_report <- renderUI({
-      HTML( # output capture borrowed from https://stackoverflow.com/a/40711365
-        paste(capture.output(type = "message", expr = { 
-          message(capture.output(type = "output", expr = {
-            request <- eval(as.name(paste0(
-              "article_data_2020_page_",
-              input$request_page_num)))
-            if((Sys.Date() - max(request$date)) == 0){
-              message("Data is up to date!")
-            } else if(Sys.Date() - max(request$date) > 7){
-              message("Data is older than 1 week! Long update?")
-              update_is_long <<- TRUE
-              showModal(confirm_update()) 
-            } else{
-              message("Data is recent, will be updated.")
-            }
-            #update_article_data(page_num = input$request_page_num,
-            #                    write_to_disk = TRUE)
-            #if(Sys.Date() - max(processed_articles_2020_page_01_EN$date) > 0){
-            #  process_articles()
-            #}
-          }))
-        }), collapse="<br>")
-      )})
-  })
+  update_in_app <- function(request_year_page){ # initiates update
+    year <- substr(request_year_page, 1, 4)
+    page <- substr(request_year_page, 6, 7)
+    request <- eval(as.name(paste0(
+      "article_data_", year,
+      "_page_", page)))
+    if((Sys.Date() - max(request$date)) == 0){
+      message("Data is up to date!")
+    } else if(Sys.Date() - max(request$date) > 7){
+      message("Data is older than 1 week! Perform long update?")
+      showModal(confirm_update())
+    } else{
+      message("Data is recent, will be updated.")
+      withCallingHandlers({
+        shinyjs::html("html", "")
+        updating_text_data_app(
+          target = input$request_year_page,
+          api_key ="trnsl.1.1.20200315T225616Z.880e92d51073d977.c51f6e74be74a3598a6cc312d721303abb5e846a",
+          TESTING = FALSE,
+          RUN_API = TRUE,
+          RUN_TRANSLATION = TRUE
+        )
+      },
+      message = function(m) {
+        shinyjs::html(id = "update_report", html = m$message, add = TRUE)
+        shinyjs::html(id = "update_report", html = "<br/>", add = TRUE)
+      })
+    }
+  }
   
   observeEvent(input$button_long_update, {
-    output$update_report <- renderUI({
-      HTML( # output capture borrowed from https://stackoverflow.com/a/40711365
-        paste(capture.output(type = "message", expr = { 
-          message(capture.output(type = "output", expr = {
-            message("Starting long update...")
-            #update_article_data(page_num = input$request_page_num,
-            #                    write_to_disk = TRUE)
-            #if(Sys.Date() - max(processed_articles_2020_page_01_EN$date) > 0){
-            #  process_articles()
-            #}
-          }))
-        }), collapse="<br>")
-      )})
     removeModal()
+    withCallingHandlers({
+      shinyjs::html("html", "")
+      updating_text_data_app(
+        target = input$request_year_page,
+        api_key ="trnsl.1.1.20200315T225616Z.880e92d51073d977.c51f6e74be74a3598a6cc312d721303abb5e846a",
+        TESTING = FALSE,
+        RUN_API = TRUE,
+        RUN_TRANSLATION = TRUE
+      )
+    },
+    message = function(m) {
+      shinyjs::html(id = "update_report", html = m$message, add = TRUE)
+      shinyjs::html(id = "update_report", html = "<br/>", add = TRUE)
+    })
   })
   
+  observeEvent(input$run_update, { # if button update is pressed
+    withCallingHandlers({ # redirect messages to output_report
+      shinyjs::html("update_report", "")
+      update_in_app(request_year_page = input$request_year_page)
+    },
+    message = function(m) {
+      shinyjs::html(id = "update_report", html = m$message, add = TRUE)
+      shinyjs::html(id = "update_report", html = "<br/>", add = TRUE)
+    })
+  })
   
-  
-
-
-
   
   ############################
   # Fourth Tab: Plot article frequency  per day
@@ -173,6 +188,8 @@ function(input, output, session){
   
 }
 
-#################################################################
-# 1. Try Updating
 
+  
+  
+  
+  

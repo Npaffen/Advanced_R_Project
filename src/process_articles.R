@@ -8,7 +8,7 @@
 # 1. Insert spaces to separate Chinese words for quant analysis
 
 
-process_articles <- function(){
+process_articles <- function(year = 2020, page_num = "01"){
   
   #####################################################################
   # 0. Preparation
@@ -19,7 +19,6 @@ process_articles <- function(){
   # load/install required packages
   require(purrr) # install.packages("purrr")
   # require(devtools) # install.packages("devtools") # for installing packages
-  
   # install/load packages for separating Chinese words
   # "Rwordseg" by Jian Li (2019) (https://github.com/lijian13/Rwordseg)
   # "coreNLP" by Arnold Taylor and Lauren Tilton (2016)
@@ -31,48 +30,40 @@ process_articles <- function(){
     require("HMM") # install.packages("HMM")
   }
   require("jiebaR") # install.packages("jiebaR")
-  
   # install/load packages for translating with the dictionary
   require("stringr") #install.packages("stringr")
   
   #####################################################################
   
-  # find list of article files
-  #wdir <- here::here()
-  #files <- list.files(paste0(wdir, "/data"))
-  #files <- files[grep("article_data", files)] 
+
+  # define target raw article data file
+  file <- paste0("article_data_", year, "_page_",page_num, ".rds")
   
+  # read article data and delete duplicates
   
-  ### repeat for each article file
+  message("#### beginning processing of file: ", file, " ####\n")
+  articles <- readRDS(paste0(wdir, "/data/", file)) %>%
+    remove_duplicates()
   
-  for(i in files){
-    # read article data and delete duplicates
-    
-    message("#### beginning processing of file:", i, "####\n")
-    articles <- readRDS(paste0(wdir, "/data/", i)) %>%
-      remove_duplicates()
-    
-    #####################################################################
-    ## 1. Insert spaces to separate Chinese words
-    
-    # use the separation algorithm on each element
-    # make a list that inserts spaces
-    
-    sep_articles <- insert_spaces(articles,
-                                  analyzer = "jiebaR",
-                                  # different options for "analyzer" : "default",
-                                  # "hmm", "jiebaR", "fmm","coreNLP"
-                                  nature = TRUE, # recognizes word nature
-                                  nosymbol = TRUE, # eliminates symbols
-                                  returnType = "tm" # default is insert spaces
-    )
-    saveRDS(sep_articles, paste0("output/processed_articles",
-                                 str_sub(i, start = 13, end=25),
-                                 "_CN.rds"))
-    message("sucessfully processed", i, "\n")
-    
-    
-  }
+  #####################################################################
+  ## 1. Insert spaces to separate Chinese words
+  
+  # use the separation algorithm on each element
+  # make a list that inserts spaces
+  
+  sep_articles <- insert_spaces(articles,
+                                analyzer = "jiebaR",
+                                # different options for "analyzer" : "default",
+                                # "hmm", "jiebaR", "fmm","coreNLP"
+                                nature = TRUE, # recognizes word nature
+                                nosymbol = TRUE, # eliminates symbols
+                                returnType = "tm" # default is insert spaces
+  )
+  saveRDS(sep_articles, paste0("output/processed_articles",
+                               str_sub(file, start = 13, end=25),
+                               "_CN.rds"))
+  message("successfully processed ", file, "\n")
   
   
 }
+
