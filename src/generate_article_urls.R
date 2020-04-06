@@ -42,7 +42,7 @@ generate_urls <- function(date, page_num) {
 
   # article link
   article_url <- glue("{middle}/nbs.D110000renmrb_{pp}.htm")
-  max_cols <- 9 # check the note below as to why we chose 9.
+  max_cols <- 15 # check the note below as to why we chose 15.
   yyyymmdd <- paste0(yyyy, mm, dd)
 
   # suffix for columns url
@@ -58,15 +58,15 @@ generate_urls <- function(date, page_num) {
 }
 
 
-#### Note: why do we take 9 cols as default number of cols? ####
+#### Note: why do we take 15 cols as default number of cols? ####
 
 # Using the following code (which is bound to cols*), we found out that
-# the maximum number of columns on a page of an article is 9.
+# the maximum number of columns on a page of an article is 15.
 # We do not have to send requests to scrape just the number of columns
 # on/in an article. For that matter, we make the number of columns or sections in any
-# article default to 9. Anyway, the use of safely(), during the request
-# (see `get_article_data()` below), captures the error if the actual
-# column counts are below or above 9---Will be flagged as **Not Found (HTTP 404)**.
+# article default to 15. Anyway, the use of safely(), during the request
+# (see `get_article_contents()` in src/), captures the error if the actual
+# column counts are below or above 15---Will be flagged as **Not Found (HTTP 404)**.
 
 # checker -------------------------------------------------------
 # cols <- read_html(article_url) %>%
