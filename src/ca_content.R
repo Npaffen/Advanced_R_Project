@@ -113,7 +113,8 @@ ca_content <- function(url_articles) {
     date = df_l$date,
     PageNumber = df_l$PageNumber,
     content = paste0(df_l$content, collapse = ""),
-    num_paragraph = length(df_l$content)
+    num_paragraph = length(df_l$content),
+    id = url_articles
   ) # grab the article content
   
   df
