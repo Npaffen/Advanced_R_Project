@@ -40,20 +40,28 @@ classoption: a4paper
 
 # Introduction (David)
 
-- short intro
 
-- motivation: historic impact of news
+## Motivation
 
-- intro to structure of People's Daily
+Ever since it's establishment in 1948 as the Chinese Communist Party's (CPC) officially designated publication organ, and especially since it announced the foundation of the People's Republic by Mao Zedong on October 1st, 1949, the People's Daily newspaper (also known as Renmin Ribao or RMRB) has been an object of the highest interest for anyone interested in modern China. It is safe to say that it's front page is that of the most widely published newspapers in Chinese and it's the most widely read. This amount of attention and it's clear designation as voice of the CPC have made it an invaluable source for information on China's ruling elite's communication with the masses. In times of crisis, even tiny changes in placing, formatting or wording are chosen and interpreted with extreme scrutiny \citep{tan1990}. The reason for this is on the one hand the need for some form of discussion involving the government and the educated citizenry \citep{kuhn2002}, but also the sensitivity of certain topics, also called censorship.
 
-- motivation: People's Daily is the governing Chinese Communist Party's Major Outlet
+In the past, close reading and an intimate knowledge of the Chinese language were the only tools available to researchers interested in this publication. Even the most well-read scholars of modern China will have to admit that reading the paper daily and in it's entirety, even just the front page, will be a thankless undertaking. Most articles are official statements and collections of facts about the activites of leaders, or plain positive messages about some aspect about the nation, also called, by the CPC themselves, propaganda. The nuances that to detect require years of study are difficult to check against factual evidence, short of spending hours of reading yourself. Only rarely are messages communicated as clearly, as back on the founding day of the People's Republic.
 
+This presents in our view a very urgent opportunity for automated data mining. Unlike historic literary corpora like the works of Shakespeare that can be analysed by generations of scholars, news is by its nature fleeting and often needs to be analysed in a hurry and theories tested as events unfold.
 
-## Current Situation in China (David)
+To test our idea for an automated evaluation of People's Daily articles themselves and in context of economic data, we proposed the development of an app, that would automate the task of updating the news corpora and economic data, as well as some descriptive and basic analytical steps used in quantitative text analysis. To make these results available to non-Chinese speakers, we include a simple translation routine, that gives the most common word for word translation, even if not the meaning of entire articles or sentences.
 
-- End of 2019: Trade war with the US
+We stress that this will in no way substitute any qualitative reading, knowledge of Chinese politics, expertise in Chinese language or even text mining of the news in general. But to be able to quickly develop and test quantitative hypotheses about Chinese news and its relation to economic data, might be a useful tool on the way to further research and in-depth text mining.
 
-- 2020: Covid-19
+## Newspaper Structure
+
+For the app we focus on the first two pages, because the first is arguably one of the most important daily publications in China, and the second might offer interesting contrasts, because it is aimed at a different audience, while significance diminishes rapidly with increasing page count: The latter pages of this leading CPC publications are actually full-page advertisements for private company's products, among others.
+
+The first page's layout is different every day, according to the needs of the editors: The documentory function implies that a lot of information is squeezed into a tight space. Articles may be reduced, truncated or pushed to the side of the page to make room for symbolic pictures ^[See for example the pictures displaying national remembrance of the "martyrs sacrificed in the struggle against Covid-19" with bowing national leaders and the lowered flag in black and white [front page from 2020-04-05](http://paper.people.com.cn/rmrb/html/2020-04/05/nw.D110000renmrb_20200405_1-01.htm)] and voluminous leading articles. On the other end of the spectrum are crowded front pages with up to 15 tiny articles commemorating each meeting of a tightly packed international summit schedule, with 15 headlines reading: "Xi Jinping meets (insert name of foreign national head of state)" ^[[front page from 2020-04-26](http://paper.people.com.cn/rmrb/html/2019-04/26/nbs.D110000renmrb_01.htm)].
+
+How can we ever expect to extract useful information from such a data source? Well, for nuances in reporting to have any impact, they have to be special or deviating in some way from an established norm. By gathering data over hundreds of days, we hope that these patterns and deviations will become visible. Also, comparing subsets of data such as front and second page, reporting before and after a certain date, commonalities will be filtered out and differences highlighted. Since our data cover the year 2019 and the first months of the Covid-19 outbreak that was first documented officially by authorities in Wuhan, Hubei Province China on 2020-01-05 ^["Wuhan Health Commission report on the situation concerning a viral lung disease with unknown origins", [wjw.wuhan.gov.cn](http://wjw.wuhan.gov.cn/front/web/showDetail/2020010509020)], this constitutes an opportunity to evaluate how this major shock is covered and news compare before and after the outbreak was acknowledged.
+
+While text mining and natural language processing algorithms have matured extremely in the contexts of machine learning and applications for example in online search, the technology barrier has limited it's adoption in the social sciences. To make basic results accessible and reproducible, is finally a large motivation for the creation of this app.
 
 
 
@@ -88,7 +96,7 @@ To make the app basically usable for non-Chinese speakers, a translation feature
 
 To reduce use of the Yandex translation API (which has limited free bandwith) in each update, only new words are translated and added. This allowed an approximation of the range of unique words used. For illustration: Translating all the unique words (words includes here names, idioms, technological terms, etc.) yielded at least 50150 unique words for the first pages of all of 2019. The second pages of 2019 added 16393 new words. For the first three months, we found still 3228 new words for page 1 and 2350 new words for page 2. Even when allowing for misclassification by the NLP algorithm (sometimes words might be recorded as separately and again as a compound), this suggests that the news needs plenty of new words to adapt to current developments, e.g. "Covid-19".
 
-Another aspect of the dictionary: While all Chinese words are unique, the English translation yielded around 25000 duplicated entries. This means that users searching for example for "satellite" will find hits for 卫星, 颗卫星 and 人造卫星, which all carry that meaning, improving the accuracy of text mining.
+Another aspect of the dictionary: While all Chinese words are unique, the English translation yielded around 25000 duplicated entries. This means that users searching for example for "satellite" will find hits for "Wei Xing", "Ke Weixing" and "Renzao Wei Xing", which all carry that meaning, improving the accuracy of text mining.
 
 
 ## Economic data retrieval (Eyayaw)
@@ -141,7 +149,7 @@ Here we should show some of the results of our application. As discussed before 
 
 
 
-# Discussion
+# Discussion (David)
 
 How could we improve the app? Extend the archive? Add more economic data? Implement some other statistical information?
 
@@ -149,7 +157,7 @@ Encrypted server version
 
 
 
-# Conclusion
+# Conclusion (David)
 
 Summary of our application and our results. Do we have plans to expand and update the app further in the near future?
 
