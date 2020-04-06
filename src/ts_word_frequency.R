@@ -22,6 +22,7 @@ library(stringr)
 library(timetk)
 library(Quandl)
 library(standardize)
+library(fredr)
 #### function to convert monthly econ data to daily econ data
 monthly_to_daily  <- function(ts_monthly) {
   df.xts <- xts(ts_monthly$Value,order.by = ts_monthly$Date)
@@ -47,7 +48,7 @@ current_key <- Sys.getenv("FRED_API_KEY")
 fredr_set_key("c66bdbc4919216612f5cb63ec4994a81")
 
 
-if(econ_data == dollar_yuan_exch) {
+if(econ_data == "dollar_yuan_exch") {
 dollar_yuan_exch <- fredr(
   series_id = "DEXCHUS",
   observation_start = start_date,
@@ -56,7 +57,7 @@ dollar_yuan_exch <- fredr(
   mutate(value = ifelse(is.na(value) == T, value[is.na(value)+1], value)) %>% 
   #there is a missing value at 1st of Jan 2019, correct it by setting it to the value of 2nd Jan
   select(date, value_norm )
-} else if (econ_data == NASDAQ_CNY){
+} else if (econ_data == "NASDAQ_CNY"){
 #
 NASDAQ_CNY <- Quandl("NASDAQOMX/NQCN2000CNY",
                      api_key="jsMbTodosyHDq3sWMuzo",
@@ -118,7 +119,7 @@ article_2020_p_1_td <- read_rds(str_c(here::here(),
                                       "output",
                                       "processed_articles_2020_page_01_EN.rds",
                                       sep = "/")) %>%
-  tidy_text() %>%
+  tidy_text() 
 
 article_2020_p_2_td <- read_rds(str_c(here::here(),
                                       "output",
@@ -180,7 +181,7 @@ tf_idf <- words_by_newspaper_date_page %>%
   bind_tf_idf(word, date, n)  %>%
   arrange(date) 
 ####produce the ggplots
-if (econ_data == dollar_yuan_exch){
+if (econ_data == "dollar_yuan_exch"){
   tf_idf_yuan <- tf_idf %>%
     rename(eng_word = n) %>%
     right_join(dollar_yuan_exch, by = "date") %>%
@@ -192,7 +193,7 @@ if (econ_data == dollar_yuan_exch){
     ggplot(aes(x = date, y = value)) + 
     geom_line(aes(color = variable), size = 1)+
     theme_minimal()
-  } else if (econ_data == NASDAQ_CNY){
+  } else if (econ_data == "NASDAQ_CNY"){
    tf_idf_NAS <- tf_idf %>%
     mutate(eng_word = normalization_to_x(n, 100)) %>%
   right_join(NASDAQ_CNY, by = "date")%>%
