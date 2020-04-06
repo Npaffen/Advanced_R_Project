@@ -58,7 +58,7 @@ create_dictionary <- function(
   for(i in files){
     # read article data and delete duplicates
     
-    message(cat("#### beginning processing of file: ", i, " ####\n"))
+    message(paste("#### beginning processing of file: ", i, " ####\n"))
     articles <- readRDS(paste0(wdir, "/data/", i))%>%
       remove_duplicates()
     
@@ -87,6 +87,11 @@ create_dictionary <- function(
       dict_CN <- anti_join(enframe(dict_CN),
                            enframe(old_dict$chinese),
                            by = "value") %>% deframe %>% unname
+      if(length(dict_CN)==0){
+        message("No new words found for dictionary, aborting creation....")
+        RUN_API <- FALSE
+        dict_CN_EN <- old_dict # call old dictionary
+        }
     }
     
     
@@ -116,7 +121,7 @@ create_dictionary <- function(
     if(exists("old_dict")){
       message("Appended new unique words and translations. \n")
     }
-    message("Dictionary created. \n")
+    message("Dictionary creation completed. \n")
     
   }
   

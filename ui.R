@@ -84,7 +84,7 @@ body <-   dashboardBody(
                 textOutput("updating_description"),
                 textInput("request_year_page","","year and page, e.g. '2020-01'"),
                 actionButton("run_update","run update"),
-                uiOutput("update_report")
+                verbatimTextOutput("update_report")
               )
       ),
       

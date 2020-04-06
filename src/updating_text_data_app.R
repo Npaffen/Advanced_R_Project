@@ -80,7 +80,7 @@ updating_text_data_app <- function(
       api_key = "trnsl.1.1.20200315T225616Z.880e92d51073d977.c51f6e74be74a3598a6cc312d721303abb5e846a"
       )
   } else {
-    message(cat("dictionary data found in '/output'. \n",
+    message(paste("dictionary data found in '/output'. \n",
                 "entries: ", dim(readRDS("output/dictionary.rds"))[1]))
     dictionary <- readRDS("output/dictionary.rds")
   }
@@ -93,7 +93,7 @@ updating_text_data_app <- function(
   
   # remove some articles when testing
   if(TESTING){
-    articles_en <- articles_en[1:(length(articles_en$id)-20),]
+    en_articles <- en_articles[1:(length(en_articles$id)-10),]
   }
   
   # check if updates required
@@ -101,10 +101,10 @@ updating_text_data_app <- function(
 
   if(sum(missing) == 0){
     RUN_UPDATE <- FALSE
-    stop("Target file is up-to-date, aborting...")
+    return("Target file is up-to-date, aborting...")
   } else{
     RUN_UPDATE <- TRUE
-    message(cat("Missing articles: ",
+    message(paste("Missing articles: ",
                 sum(missing),
                 "\n Running update...")
     )
@@ -149,7 +149,7 @@ updating_text_data_app <- function(
     new <- anti_join(new_articles,
                      en_articles,
                      by="id")
-    message(cat("Identified new articles: \n",
+    message(paste("Identified new articles: \n",
                 as.character(new$date), sep = "        "))
     
     
@@ -177,12 +177,16 @@ updating_text_data_app <- function(
     dict_CN <- anti_join(enframe(dict_CN),
                          enframe(dictionary$chinese),
                          by = "value") %>% deframe %>% unname
-    message(cat("Found ", length(dict_CN), " new words."))
-    
+    message(paste("Found ", length(dict_CN), " new words."))
+    if(length(dict_CN) == 0){
+      dict_CN_EN <- dictionary # call old dictionary
+      RUN_API <- FALSE
+      message("No new words found for dictionary, aborting creation....")
+    }
     
     #####################################################################
     # 4. Translate new words with API, articles with dictionary
-    if(1){ # use sparingly! character limit: 1,000,000/day, 10,000,000 month
+    if(RUN_API){ # use sparingly! character limit: 1,000,000/day, 10,000,000 month
       Sys.setlocale(locale = "Chinese") # fix character encoding
       new_dict_CN_EN <- request_translation(dict_CN,
                                             # free keys can be generated here:
@@ -201,7 +205,7 @@ updating_text_data_app <- function(
     
     #####################################################################
     # 5. Update databases 
-    if(1){ # takes around 45 min.
+    if(RUN_API){ # can take some time
       Sys.setlocale(locale = "Chinese") # fix character encoding
       art_words_EN <- translate_articles(art_words)
       art_words_EN <- bind_rows(en_articles, art_words_EN)
@@ -212,5 +216,5 @@ updating_text_data_app <- function(
       Sys.setlocale() # restore default locale
     }
   }
-
+  message("******* updating text data completed *******")
 }

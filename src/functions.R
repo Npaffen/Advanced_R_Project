@@ -136,13 +136,12 @@ request_translation <- function(dict_CN,
               stderr())
       } else{ break }
       if(timeout == 10){
-        message(paste0("request failed at i = ", i,
+        return(paste0("request failed at i = ", i,
                     " after 10 tries."))
-        stop()
         }
     }
     if(i %% 10 == 0){
-      message(cat("translated ", i, " out of ", length(dict_CN), "\n"))
+      message(paste("translated ", i, " out of ", length(dict_CN), "\n"))
       }
   }
   return(data.frame(chinese = dict_CN, english = dict_EN, stringsAsFactors = FALSE))
@@ -154,6 +153,7 @@ request_translation <- function(dict_CN,
 ### uses the dictionary to translate the articles
 translate_articles <- function(vec_articles){
   message("Beginning translation of articles, please wait...")
+  dict_CN_EN <- readRDS(paste0(here::here(),"/output/dictionary.rds"))
   vec_articles_EN <- vec_articles # translation target
   str_not_zero <- function(x){nchar(x) !=0} # nonempty character condition
   for(i in c("title","subtitle","content")){ 
@@ -161,7 +161,7 @@ translate_articles <- function(vec_articles){
       vec_articles_EN[[i]][[j]] <- modify_if(vec_articles[[i]][[j]], str_not_zero,
                                           ~ words_cn_to_en(.x))
       if(j %% 10 == 0){
-        message(cat("translated ", i, j, " out of ", length(vec_articles[[i]]), "\n"))
+        message(paste("translated ", i, j, " out of ", length(vec_articles[[i]]), "\n"))
         }
     }
     # collapse the vectors back to text chunks

@@ -106,7 +106,7 @@ function(input, output, session){
         updating_text_data_app(
           target = input$request_year_page,
           api_key ="trnsl.1.1.20200315T225616Z.880e92d51073d977.c51f6e74be74a3598a6cc312d721303abb5e846a",
-          TESTING = FALSE,
+          TESTING = TRUE,
           RUN_API = TRUE,
           RUN_TRANSLATION = TRUE
         )
@@ -137,14 +137,7 @@ function(input, output, session){
   })
   
   observeEvent(input$run_update, { # if button update is pressed
-    withCallingHandlers({ # redirect messages to output_report
-      shinyjs::html("update_report", "")
-      update_in_app(request_year_page = input$request_year_page)
-    },
-    message = function(m) {
-      shinyjs::html(id = "update_report", html = m$message, add = TRUE)
-      shinyjs::html(id = "update_report", html = "<br/>", add = TRUE)
-    })
+    update_in_app(request_year_page = input$request_year_page)
   })
   
   

@@ -59,7 +59,7 @@ update_article_data <- function(page_num,
         saveRDS(df[[i]], paste0("data/", names(df)[[i]], ".rds"))
       }
     } else {
-      stop("Data contains articles from the future! (°□°)", call. = FALSE)
+      return("Data contains articles from the future! (°o°)", call. = FALSE)
     }
   }
   
@@ -67,12 +67,12 @@ update_article_data <- function(page_num,
   # If a data set (here df) is not updated, the nrows stays the same.
   pwalk(list(df, dat, names(df)), function(.x, .y, .z) {
     message("successfully updated!!")
-    cat(
+    message(paste(
       "nrows of ", "<<", .z, ">>: ",
       "<<", (nrow(.x) - nrow(.y)), ">> ",
       "--> ",
       "<<", nrow(.x), ">>", ".", "\n"
-    )
+    ))
   })
   # ---
   dat
