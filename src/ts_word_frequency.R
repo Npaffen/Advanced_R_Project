@@ -3,7 +3,7 @@
 #econ_data can either be "NASDAQ_CNY" or "dollar_yuan_exch" to plot the eng_word frequency against
 # this economic indicator
 ts_word_frequency <- function(page_num = 1, start_date = as.Date("2019-01-01"),
-                              end_date = today(), eng_word, econ_data ) {
+                              end_date = today(), eng_word = "outbreak", econ_data = "NASDAQ_CNY") {
 
   ## please add a description, what is eng_word, etc.
   ## adding a table of contents also makes sense at this length
@@ -23,6 +23,8 @@ library(timetk)
 library(Quandl)
 library(standardize)
 library(fredr)
+library(ggplot2)  
+  
 #### function to convert monthly econ data to daily econ data
 monthly_to_daily  <- function(ts_monthly) {
   df.xts <- xts(ts_monthly$Value,order.by = ts_monthly$Date)
@@ -219,3 +221,4 @@ if (econ_data == "dollar_yuan_exch"){
 
 
 }
+
