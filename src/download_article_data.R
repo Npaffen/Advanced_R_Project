@@ -1,5 +1,13 @@
-# Scraping begins here
+# load packages -------------------------------------------------
+library(lubridate)
+library(rvest)
+library(tidyverse)
+library(glue)
+
+# load scrape_article() function ------------
 source("src/scrape_article.R")
+
+# Scraping begins here ----------------------------------------
 
 pages <- c(page_01 = "01", page_02 = "02")
 years <- c(year_2019 = 2019, year_2020 = 2020)
@@ -8,7 +16,7 @@ months_2020 <- 1:4
 # all_dates <- TRUE
 
 
-# Year 2019 -----------------------------------------------------
+# Scrape for Year 2019 -----------------------------------------------------
 
 article_data_2019 <- map(
   pages,
@@ -21,7 +29,7 @@ article_data_2019 <- map(
   )
 )
 
-# Year 2020 -----------------------------------------------------
+# Scrape for Year 2020 -----------------------------------------------------
 
 article_data_2020 <- map(
   pages, ~ scrape_article(

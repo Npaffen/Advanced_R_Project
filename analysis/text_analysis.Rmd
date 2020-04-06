@@ -3,70 +3,289 @@ title: "Text Mining"
 author: "Eyayaw Teka Beze"
 date: "`r format(Sys.Date())`"
 output:
-  pdf_document: 
+  bookdown::pdf_document2: 
       latex_engine: xelatex
-  html_document: default
-header-includes:
-  - \usepackage{ctex}
+      fig_caption: yes
 subtitle: 'Text analysis of Chinese Paper Daily news article '
 fontsize: 12pt
+colorlinks: true
+linkcolor: teal
+link-citations: yes
+urlcolor: blue
+citecolor: #0174DF
+header_includes:
+  -- \usepackage{float}
 ---
 
 ```{r setup, include = FALSE}
-knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+knitr::opts_chunk$set(echo = FALSE, cache = TRUE, message = FALSE, warning = FALSE)
 ```
 
 ```{r}
+
 library(tidyverse)
 library(tidytext)
-library(showtext)
+library(knitr)
+library(lubridate)
+library(here)
+library(kableExtra)
+theme_set(theme_light()) # set a general theme for ggplot2 plots.
 ```
 
-```{r, fig.cap="The most common words in the past three months of 2020 China Daily News Articles", fig.showtext=TRUE}
-path <- paste0(here::here(), "/data/article_data_ok_2020.rds")
-article_2020 <- read_rds(path)
 
-article_2020_subset <- article_2020 %>%
-  select(id, content, date, num_paragraph, column_num) %>%
-  mutate(line = str_split(content, "\\|\\|")) %>%
-  unnest(cols = line) %>%
-  group_by(id) %>%
-  mutate(para_id = row_number()) %>%
+```{r, helper-functions}
+
+
+rounded_mean <- function(x, na.rm = TRUE, digits = 2) {
+  round(mean(x, na.rm = na.rm), digits = digits)
+}
+
+# convert into tidy text format--a table with **one-token-per-row**,
+# token == a word.
+tidy_text <- function(data) {
+  data %>%
+    select(id, page_num, date, content) %>%
+    unnest_tokens(word, content) %>%
+    anti_join(stop_words, by = "word") %>%
+    dplyr::filter(!str_detect(word, "\\d+")) %>% # remove any digit
+    mutate(month = month(date, label = TRUE)) %>%
+    select(id, page_num, date, month, everything())
+}
+```
+
+
+```{r, reading-in-data-sets}
+
+article_df <-
+  map_df(list.files("output/", pattern = "EN.rds$", full.names = TRUE), read_rds) %>%
+  mutate_if(is.list, unlist) %>%
+  mutate(
+    year = year(date),
+    page_num = case_when(
+      page_num == "01" ~ "1st",
+      page_num == "02" ~ "2nd"
+    )
+  )
+```
+
+
+```{r, tidying:-one-token-per-row}
+
+articles_2020_tidy <-
+  article_df %>%
+  dplyr::filter(year == 2020) %>%
+  tidy_text()
+
+articles_2019_tidy <-
+  article_df %>%
+  dplyr::filter(year == 2019) %>%
+  tidy_text()
+```
+
+
+```{r, data-wrangling}
+
+# How bulky or packed a daily article is?  -------------------
+# interms of number of paragraphs, sections and words per day,
+bulkiness <- article_df %>%
+  group_by(date, page_num) %>%
+  summarise(
+    num_of_paragraphs = sum(num_paragraph),
+    num_of_sections = n(),
+    paragraph_per_section = num_of_paragraphs/num_of_sections
+  ) %>%
   ungroup()
 
-tidy_2020 <- article_2020_subset %>%
-  select(id, date, para_id, line) %>%
-  tidytext::unnest_tokens(word, line)
+# total word counts per article per page and day ---------------
+total_words_2019 <- articles_2019_tidy %>%
+  group_by(page_num, date) %>%
+  summarise(total = sum(n())) %>% 
+  ungroup()
 
-chinese_stop_words <- tibble(word = stopwords::stopwords("zh", "misc"))
+total_words_2020 <- articles_2020_tidy %>%
+  group_by(page_num, date) %>%
+  summarise(total = sum(n())) %>% 
+  ungroup()
 
-tidy_2020 <- tidy_2020 %>%
-  anti_join(chinese_stop_words, by = "word") %>%
-  dplyr::filter(!str_detect(word, "\\d+")) %>%  # remove any digit
-mutate(month=lubridate::month(date, label=TRUE, abbr=FALSE))
+# word frequency per article -----------------------------------------
+# 2019
+article_words_2019 <- articles_2019_tidy %>%
+  count(page_num, date, word, sort = TRUE) # tf per day for each term
 
-tidy_2020 %>% 
-  count(month, word, sort = TRUE) %>% 
-  head() %>% knitr::kable()
+# 2020
+article_words_2020 <- articles_2020_tidy %>%
+  count(page_num, date, word, sort = TRUE) # tf per day for each term
 
-# plotting -----
-# showtext_auto()
+# joining -------------------------------------
+bulkiness <- bulkiness %>%
+  full_join(bind_rows(total_words_2019, total_words_2020),
+            by = c("date", "page_num")) %>%
+  mutate(year = year(date),
+         month = month(date, label = TRUE))
 
-tidy_2020 %>% 
-  group_by(month) %>% 
-  count(word, sort = TRUE) %>%
-  mutate(word = reorder(word, n)) %>%
-  top_n(15) %>% 
-  ggplot(aes(reorder_within(word, n, month), n, fill=month)) +
-  geom_col() +
-  labs(x=NULL) +
-  facet_wrap(~month, scales = "free") +
-  coord_flip() +
-  scale_x_reordered() + 
-  theme(legend.position = "none")
+article_words_2019 <-
+  full_join(article_words_2019, total_words_2019)
+
+article_words_2020 <-
+  full_join(article_words_2020, total_words_2020)
+```
+
+
+# Description of Data
+
+The data are collected from the Chinese [People's Daily](https://en.wikipedia.org/wiki/People%27s_Daily) newspaper for year 2019 and 2020. The daily newspapers are published on a consistent structure (we give the details of the structure below) online on the newspaper's [website](paper.people.com.cn). Despite the slow loading speed of the website, We tapped into its structure and have scraped the **first two pages** of the daily newspapers. 
+
+For instance, the 1st page of the newspaper published on *2020-03-22* can be accessed [here](http://paper.people.com.cn/rmrb/html/2020-03/22/nbs.D110000renmrb_01.htm). 
+
+ 
+```{r, example-newspaper, results="H", out.width="49%", out.height="20%",fig.show='hold', fig.align='center', fig.cap="Example newspaper page published on 2020-03-22 (left), and Section or column 1 of it enlarged (right)."}
+
+include_graphics(c(
+  here("figs/example_newspaper_page.pdf"),
+  here("figs/section1_enlarged.pdf")
+), dpi = NA)
+```
+
+
+We dissect the different characteristics of this particular article as follows and these properties apply to all other articles. 
+
+First of all, the main link to the article is this one: (http://paper.people.com.cn/rmrb/html/2020-03/22/nbs.D110000renmrb_01.htm). This takes us to the page of the newspaper, i.e., to the 1st page of the newspaper in this particular example. However, a lot load of content is packed on this single page. There are 10 different sections or columns on this article (see Figure \@ref(fig:example-newspaper) for this example newspaper page published on 2020-03-22). 
+
+* The prefix of the URL, i.e.,
+**(http://paper.people.com.cn/rmrb/html)** is the same for every article, regardless of page number or edition.
+
+* Date on which it was published: **2020-03/22**
+* Page number of the newspaper: **01**
+* Section id prefix: **nbs.D110000renmrb**.
+
+As we can see in Figure (\@ref(fig:example-newspaper)) there are several different sections crammed or squeezed into the single page of the newspaper and these parts (sections) are clickable, and each has a unique id. A click on each section will redirect to a link where one can access the full content of the section in an enlarged view. For example, the first section out of the 10 sections on this example article is [section 1](http://paper.people.com.cn/rmrb/html/2020-03/22/nw.D110000renmrb_20200322_1-01.htm) or (see Figure \@ref(fig:example-newspaper) --right). The section id for this first section is **nw.D110000renmrb_20200322_1-01**. 
+
+Accordingly, the id of each section on an article is of this form: **nw.D110000renmrb_yyyymmdd_section#-page#**. Each section of the single page newspaper has the following additional characteristics. 
+
+* Title (**h1 tag**)
+* Subtitle (**h3 tag**)
+* Number of paragraphs on each page, and
+* Content or body of the news article section.
+
+The maximum number of sections on a page of a newspaper is `r max(bulkiness$num_of_sections)`, in [an article published on 2019-04-26](http://paper.people.com.cn/rmrb/html/2019-04/26/nbs.D110000renmrb_01.htm), and the minimum is `r min(bulkiness$num_of_sections)`. On average, there were `r rounded_mean(bulkiness$num_of_sections)` sections per a page of an article, for the newspapers published since January 1st, 2019 regardless of the page number.
+
+Therefore, the contents of all the sections together--on the page of the news article-- make up the contents of the entire (single) page--which are compactly placed in a single page of the article. Particularly, we scraped the sections of the newspapers--through their unique ids. The date and the page number of the newspaper uniquely identify a newspaper, where the combination of which forms the ids of the sections--prefixed with **nbs.D110000renmrb**.
+
+Moreover, most of the news articles are bulky in terms of number of paragraphs and text volume.  There are `r rounded_mean(bulkiness$num_of_paragraphs)` number of paragraphs per page, and `r rounded_mean(bulkiness$paragraph_per_section)`
+
+
+# Descriptive Statistics
+
+
+```{r, desc-stat-table}
+
+desc.funs <- 
+  list(median = median, mean = mean, sd = sd, max = max, min = min)
+
+bulkiness %>%
+  group_by(year, page_num) %>%
+  summarise_at(
+    vars(
+      num_of_paragraphs,
+      num_of_sections,
+      paragraph_per_section,
+      words = total
+    ),
+    desc.funs
+  ) %>%
+  ungroup() %>%
+  pivot_longer(
+    -c(year, page_num),
+    names_to = c("var", "stats"),
+    names_pattern = "(\\w+)_(mean|median|max|min|sd)",
+    values_to = "value"
+  ) %>%
+  pivot_wider(c(year, var), c(page_num, stats), values_from = value) %>%
+  select(-year) %>%
+  knitr::kable(
+    caption = "Descriptive Statistics: How bulky is the daily newspaper?",
+    digits = 1,
+    col.names = c("Variable", rep(names(desc.funs), 2)),
+    booktabs = TRUE,
+    linesep = ""
+  ) %>%
+  kable_styling(latex_options = c("scale_down", "Hold_position", "striped")) %>%
+  add_header_above(c("", "Page 1" = 5, "Page 2" = 5), bold = TRUE, italic = TRUE, line = TRUE) %>%
+  pack_rows(
+    group_label = "2019",
+    start_row = 1,
+    end_row = 4,
+    bold = TRUE,
+    italic = TRUE
+  ) %>%
+  pack_rows(
+    group_label = "2020",
+    start_row = 5,
+    end_row = 8,
+    bold = TRUE,
+    italic = TRUE
+  )
+```
+
+
+```{r, plotting, fig.cap = c("Term Freq. Dist. in Daily Articles Published since 2019, by month", "Dist. of sections in a newpaper page", "Dist. of number of paragraphs in a newspaper page.", "time series plot of term frequency")}
+
+
+# How many sections on a page of the article?
+
+bulkiness %>%
+  ggplot(aes(num_of_sections, fill = page_num)) +
+  geom_bar(show.legend = FALSE, position = "dodge") +
+  facet_wrap( ~ year, scales = "free_y")
+
+
+#  How packed is an article in terms of paragraph counts?
+
+bulkiness %>%
+  ggplot(aes(num_of_paragraphs, fill = page_num)) +
+  geom_histogram(show.legend = FALSE) +
+  facet_wrap( ~ page_num)
+
+
+# timeseries plot of term frequency
+
+bulkiness %>%
+  ggplot(aes(date, total, col = page_num)) +
+  geom_line() +
+  xlab(NULL) +
+  scale_y_continuous(labels = scales::label_number(scale = 1 / 1000, suffix = "k")) +
+  facet_wrap( ~ year, scales = "free") +
+  theme(legend.position = "bottom")
+
+# dist of total words
+
+bulkiness %>%
+  ggplot(aes(total, fill = page_num)) +
+  geom_histogram() +
+  facet_grid(page_num ~ year, scales = "free", space = "free") +
+  theme(legend.position = "bottom")
+```
+
+
+```{r, fig.cap="term frequency common words"}
+# term frequency plot
+ggplot(article_words_2019, aes(n / total, fill = page_num)) +
+  geom_histogram(show.legend = TRUE) +
+  xlim(NA, 0.009) +
+  theme(legend.position = "bottom") +
+  facet_wrap( ~ month(date, label = TRUE), scales = "free_y")
+
 
 
 ```
 
-## A document term-matrix
 
+
+```{r, tf-by-month-2020, fig.cap = "The most common words, in the first **two pages** of the China Daily News Articles in 2020"}
+
+# plotting ----- by month
+lbl <- opts_current$get("label")
+fig.path <- fig_chunk(lbl, ".pdf", fig.path = "figs/")
+
+# p1 <-
+```
