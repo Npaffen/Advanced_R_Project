@@ -18,10 +18,7 @@ library(tidyr)
 library(lubridate)
 library(quanteda)
 library(readr)
-library(stringr)
-library(timetk)
 library(Quandl)
-library(standardize)
 library(fredr)
 library(ggplot2)  
   
@@ -75,32 +72,6 @@ NASDAQ_CNY <- Quandl("NASDAQOMX/NQCN2000CNY",
  
 
 
-
-'EERI_mon_real <-Quandl("BIS/EM_MRNTW",
-                       api_key="jsMbTodosyHDq3sWMuzo",
-                       transform = "normalize",
-                       order = "asc",
-                       collapse = "daily") %>% 
-  monthly_to_daily() %>%
-  filter(between(.$date, start_date, end_date)) %>%
-  rename("EERI_Value" = "Value") %>%
-  mutate("EERI_norm" = normalization_to_100(.$EERI_Value))
-#Weighted averages of bilateral exchange rates, 
-#where the weights are based on manufacturing trade flows and capture direct bilateral trade as well as third-market competition.
-
-Imp_Exp_Price_Ind <- Quandl("BLSN/EIUCOCHNTOT", api_key="jsMbTodosyHDq3sWMuzo") %>%
-  monthly_to_daily() %>%
-  arrange(date) %>%
-  rename("IEPI_Value" = "Value") %>%
-  mutate("IEPI_norm"= normalization_to_100(.$IEPI_Value))
-
-
-  
-#Series: China (Dec. 2003=100) - All commodities
-#Index Type: LOCALITY OF ORIGIN
-#Not Seasonally Adjusted
-#Additional references: BLS Import/Export Price Indexes Overview page
-'
 ##### function to process the articles into a document-token-tibble
     tidy_text <- function(data) {
     
@@ -165,7 +136,7 @@ transl <- read_rds(str_c(here::here(),
   select(chinese)
   transl   
 '
-#####look for the eng_word frequency in the specific time-span
+##### look for the eng_word frequency in the specific time-span
 db_filter <- database %>%
   filter(between(.$date, start_date, end_date)) %>%
   filter( .$word  %in% eng_word )
@@ -191,6 +162,10 @@ if (econ_data == "dollar_yuan_exch"){
   gather(key = "variable", value = "value", -date) %>%
     mutate(value = ifelse(is.na(value) == T, 0, value))
   
+  tf_idf_yuan$variable[
+    tf_idf_yuan$variable = "eng_word"
+    ] <- eng_word 
+    
   tf_idf_yuan %>%
     ggplot(aes(x = date, y = value)) + 
     geom_line(aes(color = variable), size = 1)+
@@ -203,6 +178,10 @@ if (econ_data == "dollar_yuan_exch"){
     gather(key = "variable", value = "value", -date) %>%
      mutate(value = ifelse(is.na(value) == T, 100, value))
    
+  tf_idf_NAS$variable[
+    tf_idf_NAS$variable = "eng_word"
+    ] <- eng_word 
+
    tf_idf_NAS %>%
      ggplot(aes(x = date, y = value)) + 
     geom_line(aes(color = variable), size = 1)+
