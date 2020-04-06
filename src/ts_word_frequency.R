@@ -18,6 +18,7 @@ library(readr)
 library(stringr)
 library(timetk)
 library(Quandl)
+library(standardize)
 
 monthly_to_daily  <- function(ts_monthly) {
   df.xts <- xts(ts_monthly$Value,order.by = ts_monthly$Date)
@@ -33,19 +34,38 @@ monthly_to_daily  <- function(ts_monthly) {
     arrange(desc(date))
 }
 
+normalization_to_100 <- function(dataset){
+  #factor_val <- solve(dataset[1],100)
+  #normalized <- dataset * factor_val
+  factor_val <- dataset[1] - 100
+  normalize <- dataset - factor_val
+}
 
-NASDAQ_CNY <- Quandl("NASDAQOMX/NQCN2000CNY", api_key="jsMbTodosyHDq3sWMuzo") %>% 
-  rename("date" = "Trade Date", "NASDAQ_Value" = "Index Value")
+NASDAQ_CNY <- Quandl("NASDAQOMX/NQCN2000CNY", api_key="jsMbTodosyHDq3sWMuzo") %>%
+  mutate("date" = .$`Trade Date`, "NASDAQ_Value" = .$`Index Value`) %>% 
+  arrange(date) %>%
+  filter(between(.$date, start_date, end_date)) %>%
+  mutate("NASDAQ_norm" = normalization_to_100(.$NASDAQ_Value)) %>%
+  select(date, NASDAQ_norm )
+  
+ 
+
+
 
 EERI_mon_real <-Quandl("BIS/EM_MRNTW", api_key="jsMbTodosyHDq3sWMuzo") %>% 
   monthly_to_daily() %>%
-  rename("EERI_Value" = "Value")
+  arrange(date) %>%
+  filter(between(.$date, start_date, end_date)) %>%
+  rename("EERI_Value" = "Value") %>%
+  mutate("EERI_norm" = normalization_to_100(.$EERI_Value))
 #Weighted averages of bilateral exchange rates, 
 #where the weights are based on manufacturing trade flows and capture direct bilateral trade as well as third-market competition.
 
 Imp_Exp_Price_Ind <- Quandl("BLSN/EIUCOCHNTOT", api_key="jsMbTodosyHDq3sWMuzo") %>%
   monthly_to_daily() %>%
-  rename("IEPI_Value" = "Value")
+  arrange(date) %>%
+  rename("IEPI_Value" = "Value") %>%
+  mutate("IEPI_norm"= normalization_to_100(.$IEPI_Value))
 
 
   
@@ -71,7 +91,7 @@ Imp_Exp_Price_Ind <- Quandl("BLSN/EIUCOCHNTOT", api_key="jsMbTodosyHDq3sWMuzo") 
   }
 
 article_2020_p_1_td <- read_rds(str_c(here::here(), "output", "processed_articles_2020_page_01_EN.rds", sep = "/")) %>%
-      tidy_text()
+      tidy_text() %>%
 
 article_2020_p_2_td <- read_rds(str_c(here::here(), "output", "processed_articles_2020_page_02_EN.rds", sep = "/")) %>%
       tidy_text()
@@ -108,7 +128,7 @@ article_2019_p_2_td <- read_rds(str_c(here::here(), "output", "processed_article
 
 db_filter <- database %>%
   filter(between(.$date, start_date, end_date)) %>%
-  filter( .$word  %in% "outbreak")
+  filter( .$word  %in% eng_word )
   
 #most common words in the dataset  
 newspaper_words <- db_filter %>% count(word, sort = T)
@@ -120,17 +140,15 @@ words_by_newspaper_date_page <- db_filter %>%
 
 #Finding tf-idf within  newspaper of page 1 
 tf_idf <- words_by_newspaper_date_page %>%
-  bind_tf_idf(word, date, n) %>%
-  arrange(desc(tf_idf))%>%
-  rename (eng_word = n) %>%#or by date with %>% arrange(date)
+  bind_tf_idf(word, date, n)  %>%
+  arrange(date) %>%
+  mutate("eng_word" = normalization_to_100(.$n)) %>%
+  #rename (eng_word = n) %>%#or by date with %>% arrange(date)
 inner_join(NASDAQ_CNY, by = "date") %>%
   inner_join(Imp_Exp_Price_Ind, by = "date") %>%
-  inner_join(EERI_mon_real, by = "date")  %>%
-  select(date, EERI_Value, IEPI_Value, NASDAQ_Value, eng_word ) %>%
+  inner_join(EERI_mon_real, by = "date") %>%
+  select(date, EERI_norm, IEPI_norm, NASDAQ_norm, eng_word ) %>%
   gather(key = "variable", value = "value", -date)
-
-tf_idf
-  
   
 library(ggplot2)
 #time-series
@@ -145,9 +163,10 @@ tf_idf %>%
 
 
 #have a look at this plot pls
-tf_idf %>% ggplot(df, aes(x = date, y = value)) + 
+tf_idf %>% ggplot(aes(x = date, y = value)) + 
   geom_line(aes(color = variable), size = 1) +
   scale_color_manual(values = c("#00AFBB", "#E7B800", "#FC4E07", "#E7B399" )) +
+
   theme_minimal()
 
 
