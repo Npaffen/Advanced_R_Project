@@ -102,20 +102,6 @@
 
 \usepackage{ctex}
 \usepackage[table]{xcolor}
-\usepackage{booktabs}
-\usepackage{longtable}
-\usepackage{array}
-\usepackage{multirow}
-\usepackage{wrapfig}
-\usepackage{float}
-\usepackage{colortbl}
-\usepackage{pdflscape}
-\usepackage{tabu}
-\usepackage{threeparttable}
-\usepackage{threeparttablex}
-\usepackage[normalem]{ulem}
-\usepackage{makecell}
-\usepackage{xcolor}
 
 %% linespread settings
 
@@ -304,21 +290,19 @@ In summary, as a proof of concept, this app should show a potentially useful app
 \hypertarget{webscraping-the-peoples-daily-archive-with-rselenium-and-docker}{%
 \subsection{Webscraping the People's Daily archive with Rselenium and Docker}\label{webscraping-the-peoples-daily-archive-with-rselenium-and-docker}}
 
-The platform CrossAsia.org is a service provided by the Staatsbibliothek zu Berlin and funded by the DFG. It collects and offers access to data for many kinds of Asia-related research. Through CrossAsia we have access to a database of issues of the People's Daily starting from 1946. The oldest edition is dated on May 15, 1946. The People's Daily website on the other hand offers issues since the beginning of 2019 and is offered directly to everyone on the internet.
+The platform \href{CrossAsia.org}{CrossAsia} is a service provided by the Staatsbibliothek zu Berlin and funded by the DFG. It collects and offers access to data for many kinds of Asia-related research. Through CrossAsia we have access to a database of issues of the People's Daily starting from 1946. The oldest edition is dated on May 15, 1946. The People's Daily website on the other hand offers issues since the beginning of 2019 and is offered directly to everyone on the internet.
 
 To combine the long archive and the easy access to the new issues, we had the idea to develop a webscraper that updates using the People's Daily website and adds the articles to our database based on the archive via CrossAsia.org.
 
 Since this archive is only accessable with an account and a memebership, for the scraping of the archive, a login for the scraping process is necessary. The best solution to send the login credentials, browse through the archive, and scrape the content, we came up with is an Firefox image in Docker accessed by the RSelenium package.
 
-Docker is a batch of so called platforms as a service (PaaS), which is a type of cloud computing service to manage and run application without any kind of infrastructure. For our purpose we used Docker to build a browser in a virtual machine and then connect these with R using the RSelenium package. For a detailed installation guideline we recommend to have a look at \url{https://docs.ropensci.org/RSelenium/articles/docker.html}. To interact with the virtual browser image in R, RSelenium uses a class called RSelenium::remoteDriver, which features several functions such as \emph{remDr\$navigate(``url'')} to browse to a specific website or more specific ones like \emph{remDr\$screenshot()} to display or save and screenshot of the actual webpage, or \emph{remDr\$sendKeysToElement()} which allows the user to send specific keys like ``Enter'' to the browser.
+Docker is a batch of so called platforms as a service (PaaS), which is a type of cloud computing service to manage and run application without any kind of infrastructure. For our purpose we used Docker to build a browser in a virtual machine and then connect these with R using the RSelenium package. For a detailed installation guideline we recommend to follow \href{https://docs.ropensci.org/RSelenium/articles/docker.html}{this}. To interact with the virtual browser image in R, RSelenium uses a class called RSelenium::remoteDriver, which features several functions such as \emph{remDr\$navigate(``url'')} to browse to a specific website or more specific ones like \emph{remDr\$screenshot()} to display or save and screenshot of the actual webpage, or \emph{remDr\$sendKeysToElement()} which allows the user to send specific keys like ``Enter'' to the browser.
 
 Before we can start to scrape the articles we need to start the Docker image as explained in the guideline. Then the first thin the scraper function \emph{ca\_scaper()} function calls is \emph{ca\_login()}. The latter connects the remoteDriver with Docker. When this is done it navigates to the login page of CrossAsia.org and hands over our account credentials.
 
-The article overview of each issue is uniformly displayed by the date that the issue page is reached.
+In this case, 19460515 for the date and 1 for page 1. The link structure of the archive differs significantly from that of the free archive. Besides a personal session token, in this case ``s894ib9c043f'', the link structure differs by the access points to the archive. In addition to CrossAsia.org, the Staatsbibliothek zu Berlin should be mentioned here in particular. This can be found in the suffix ``.erf.sbb.spk-berlin.de''. The article \href{http://data.people.com.cn.s894ib9c043f.erf.sbb.spk-berlin.de/rmrb/19460515/1/}{overview} of each issue is uniformly accessible via the date and page number.
 
-In this case, 19460515 for the date and 1 for page 1. The link structure of the archive differs significantly from that of the free archive. Besides a personal session token, in this case ``s894ib9c043f'', the link structure differs by the access points to the archive. In addition to CrossAsia.org, the Staatsbibliothek zu Berlin should be mentioned here in particular. This can be found in the suffix ``.erf.sbb.spk-berlin.de''. The article overview of each issue is uniformly accessible via the date and page number.
-LINK \url{http://data.people.com.cn.s894ib9c043f.erf.sbb.spk-berlin.de/rmrb/19460515/1/}
-In this case, 19460515 for the date and 1 for page 1. 32-character ID is used for article archiving. LINK : \url{http://data.people.com.cn.s894ib9c043f.erf.sbb.spk-berlin.de/rmrb/19460515/1/cae1d1ef94a74c8e99ad43189652fb40} shows the oldest article of the archive. Since the ID does not seem to follow a fixed pattern, it must be obtained from the article overview for the scraping process. A list of all article IDs can be retrieved on each overview page by using the HTML node ``li h3 a'' and the attribute ``href''. Now links can be generated from the date format and the IDs to call up the individual articles. To fullfill this task the scraper calls the function ca\_date\_urls. The so created url list is then passed to \emph{ca\_content()}.
+In this case, 19460515 for the date and 1 for page 1. 32-character ID is used for article \href{http://data.people.com.cn.s894ib9c043f.erf.sbb.spk-berlin.de/rmrb/19460515/1/cae1d1ef94a74c8e99ad43189652fb40}{archiving}. The latter shows the oldest article of the archive. Since the ID does not seem to follow a fixed pattern, it must be obtained from the article overview for the scraping process. A list of all article IDs can be retrieved on each overview page by using the HTML node ``li h3 a'' and the attribute ``href''. Now links can be generated from the date format and the IDs to call up the individual articles. To fullfill this task the scraper calls the function ca\_date\_urls. The so created url list is then passed to \emph{ca\_content()}.
 
 Afterwards the scraper maps over this list while calling the \emph{ca\_content()}-function.
 Almost all important information such as author, title, subtitle and article content can be retrieved via the html node ``\#detail\_pop\_content'' and the underlying nodes ``.title'', ``.subtitle'', ``.author'', and ``p''. After scraping the information all content is saved in a tibble.
@@ -328,7 +312,7 @@ Almost all important information such as author, title, subtitle and article con
 
 Since CrossAsia.org is paying the provider of the archive a fee for the content they give acces to, both they and the provider are oriented towards protecting the archive data from illegal downloads. Although the use for preview purposes is allowed, the user cannot always be distinguished from a ``data pirate'', i.e.~offering the articles on the Internet after downloading them. In addition, the provider wants to keep his server load as low as possible in order to grant as many users as possible quick access to the archive at the same time. If several users now send automated requests to the archive, this can affect the speed of the servers. By randomly generating sleep times in the code, the scraping behavior can be adapted to the usage behavior of a human being. CrossAsia.org asks the user to solve a simple captcha after a certain number of article calls. To solve these problems, our webscraper first checks for a location in the HTML code that is present on both the article page and the captcha page. If the site structure equals the one of a saved version of the captcha site the function \emph{ca\_captcha()} is called.
 
-First, a screenshot of the page is saved by the remoteDriver and cropped in a way that only the captcha image is left. The page \url{https://2captcha.com} LINK offers the possibility to solve captchas automatically for a small fee of less than 1\$ per 1000 captchas. For this purpose, the user is provided with an API key, which can be used to transmit the image information as a POST request with multipart-encoding. Afterwards, the user is assigned a ticket-ID, with which he can retrieve the solved captcha code as a string after about 5-10 seconds of waiting time. Since the operator may sometimes experience increased solving times, we check the content of the string. A waiting time of 5 seconds is added if the captcha has not been solved yet and an attempt to grab the code follows the additional waiting time. The captcha-code is now sent to the to the corresponding form of CrossAsia.com and will be forwarded automatically. After entering the captcha code, we check again if the forwarding was successful or if the entered captcha code was invalid and therefore another captcha must be solved. Even solving these captures codes and extensive waiting time of about 10 minutes after each page, we expierenced that the archive operator gives a time-out error to users additionally, if they try to look at too many articles in a given time. The time-out length and the length until a timeout is called differs from 30 minutes to a few hours. We tried to check for this site behavior but were not completly succesfull in providing a function to check for the time-out and wait until it disappears.
+First, a screenshot of the page is saved by the remoteDriver and cropped in a way that only the captcha image is left. The page \href{https://2captcha.com}{2captcha} offers the possibility to solve captchas automatically for a small fee of less than 1\$ per 1000 captchas. For this purpose, the user is provided with an API key, which can be used to transmit the image information as a POST request with multipart-encoding. Afterwards, the user is assigned a ticket-ID, with which he can retrieve the solved captcha code as a string after about 5-10 seconds of waiting time. Since the operator may sometimes experience increased solving times, we check the content of the string. A waiting time of 5 seconds is added if the captcha has not been solved yet and an attempt to grab the code follows the additional waiting time. The captcha-code is now sent to the to the corresponding form of CrossAsia.com and will be forwarded automatically. After entering the captcha code, we check again if the forwarding was successful or if the entered captcha code was invalid and therefore another captcha must be solved. Even solving these captures codes and extensive waiting time of about 10 minutes after each page, we expierenced that the archive operator gives a time-out error to users additionally, if they try to look at too many articles in a given time. The time-out length and the length until a timeout is called differs from 30 minutes to a few hours. We tried to check for this site behavior but were not completly succesfull in providing a function to check for the time-out and wait until it disappears.
 
 \hypertarget{output}{%
 \subsubsection{Output}\label{output}}
@@ -350,15 +334,10 @@ Another aspect of the dictionary: While all Chinese words are unique, the Englis
 \hypertarget{economic-data-retrieval-eyayaw}{%
 \subsection{Economic data retrieval (Eyayaw)}\label{economic-data-retrieval-eyayaw}}
 
-\begin{itemize}
-\item
-  Where, what and how did we get it.
-\item
-  This can be very short.
-\end{itemize}
+To give the user an impression how a term can impact the economy we decided to implement two indicators for chinese economy. The \href{https://www.quandl.com/data/NASDAQOMX/NQCN2000CNY-NASDAQ-China-Inds-CNY-Index-NQCN2000CNY}{NASDAQ CNY} is a daily stock market index of \href{https://indexes.nasdaqomx.com/Index/Weighting/NQCN2000CNY}{74} international chinese companys. The other on is the \href{https://fred.stlouisfed.org/series/DEXCHUS}{exchange rate of Chinese Yuan to one US Dollar}.
 
-\hypertarget{exploratory-statistics-visualisation-and-text-mining-eyayaw}{%
-\subsection{Exploratory statistics, visualisation, and text mining (Eyayaw)}\label{exploratory-statistics-visualisation-and-text-mining-eyayaw}}
+\hypertarget{exploratory-statistics-visualisation-and-text-mining}{%
+\subsection{Exploratory statistics, visualisation, and text mining}\label{exploratory-statistics-visualisation-and-text-mining}}
 
 \hypertarget{description-of-data}{%
 \section{Description of Data}\label{description-of-data}}
@@ -539,10 +518,8 @@ It is also possible to extend the frequency of time series from monthly to daily
 
 In the next step we load all articles of page 1 or 2 according to the number of pages requested by the user and tokenize them. A token can be described as a meaningful word, which is worth considering in the context of a later word frequency analysis. The function which performs this task is called \emph{tidy\_text()}. Now we have a database which can be filtered by the user's chosen word eng\_word, and the time period. Afterwards the values of the economic data are passed over the filtered database and the two time series are plotted. This plot is now transferred to the app and displayed to the user.
 
-Translated with www.DeepL.com/Translator (free version)
-
-Translated with www.DeepL.com/Translator (free version)
-\#\# Shiny user interface (David)
+\hypertarget{shiny-user-interface-david}{%
+\subsection{Shiny user interface (David)}\label{shiny-user-interface-david}}
 
 \hypertarget{results}{%
 \section{Results}\label{results}}
