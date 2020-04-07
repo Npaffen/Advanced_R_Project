@@ -14,24 +14,26 @@
 
 #################################################################
 # 0. Preparation
+
 library(shiny)
 require(shinyjs)
 require(ggplot2)
-source("src/app/functions.R")
-source("src/app/updating_text_data_app.R")
-source("src/update_article_data.R")
-source("src/app/process_articles.R")
-source("src/app/create_dictionary.R")
-source("src/ts_word_frequency.R")
+source("app/functions.R")
+source("app/updating_text_data_app.R")
+source("wrangling/update_article_data.R")
+source("app/process_articles.R")
+source("app/create_dictionary.R")
+source("scraping/ts_word_frequency.R")
+
 
 function(input, output, session){
-  
+
   ###############################################################
   # Sidebar
 
   ############################
   # First Tab: Database Status
-  
+
   # show earliest article info
   try(minart <- min(processed_articles_2019_page_01_EN$date))
   if(exists("minart")){
@@ -52,9 +54,9 @@ function(input, output, session){
         color = "purple"
       )
     })
-    
+
   }
-  
+
   # show newesta rticle info
   try(maxart <- max(processed_articles_2020_page_01_EN$date))
   if(exists("maxart")){
@@ -76,11 +78,11 @@ function(input, output, session){
       )
       })
     }
-    
 
-  
+
+
   output$database_status <- renderTable(database_status)
-  
+
 
   ############################
   # Second Tab: Loaded Data Files
@@ -91,10 +93,10 @@ function(input, output, session){
   output$text_loadedfiles <- renderText(
     " Restart app to reload files in the /output and /data folders."
   )
-  
+
   ############################
   # Third Tab: Updating
-  
+
   # infobox
   output$updating_text <- renderValueBox({
     valueBox(
@@ -104,7 +106,7 @@ function(input, output, session){
       color = "blue"
     )
   })
-  
+
   # instruction
   output$updating_description <- renderText(
     "Type out the year and page number you wish to update and press the button:
@@ -114,7 +116,7 @@ function(input, output, session){
     is limited. Best recommendation is re-downloading or reinstalling the app.
     For testing, remove a file and replace it with its .old equivalent."
   )
-  
+
   # confirmation popup
   confirm_update <- function() {
     modalDialog(
@@ -122,12 +124,13 @@ function(input, output, session){
       footer = tagList(
         modalButton("No"),
         actionButton("button_long_update", "Yes")
-      )
+      ),
+      easyClose = TRUE,
     )
   }
-  
+
   # runs update
-  update_in_app <- function(request_year_page){ 
+  update_in_app <- function(request_year_page){
       year <- substr(request_year_page, 1, 4)
       page <- substr(request_year_page, 6, 7)
       request <- paste0("article_data_", year,
@@ -170,7 +173,7 @@ function(input, output, session){
         message(paste("Dictionary file found."))
       }
       # check if processed files exists and need update
-      request <- paste0("processed_articles_", year, 
+      request <- paste0("processed_articles_", year,
                         "_page_", page)
       if(!exists(paste0(request, "_CN")) |
          !exists(paste0(request, "_EN"))){
@@ -186,9 +189,10 @@ function(input, output, session){
         message(paste0("Processed files found."))
       }
   }
-  
+
   # react to long update confirmation
   observeEvent(input$button_long_update, {
+    removeModal()
     withCallingHandlers({
       shinyjs::html("html", "")
       updating_text_data_app(
@@ -203,7 +207,7 @@ function(input, output, session){
       shinyjs::html(id = "update_report", html = "<br/>", add = TRUE)
     })
   })
-  
+
   # react to update button pressed
   observeEvent(input$run_update, {
     withCallingHandlers({
@@ -215,11 +219,11 @@ function(input, output, session){
         shinyjs::html(id = "update_report", html = "<br/>", add = TRUE)
       })
     })
-    
-  
+
+
   ############################
   # Fourth Tab: Plot article frequency  per day
-  
+
   output$art_freq191 <- renderPlot(
     render_frequency(file = processed_articles_2019_page_01_CN,
                      file_name = "processed_articles_2019_page_01_CN"))
@@ -232,7 +236,7 @@ function(input, output, session){
   output$art_freq202 <- renderPlot(
     render_frequency(file = processed_articles_2020_page_02_CN,
                      file_name = "processed_articles_2020_page_02_CN"))
-  
+
   # output plots in tabs
   output$artfreqs <- renderUI({
     tabBox(title = "Articles per Day",id= "artfreqtab",
@@ -242,44 +246,43 @@ function(input, output, session){
            tabPanel("20-2", plotOutput("art_freq202"))
     )
   })
-  
-  
+
+
   ############################
   # Fourth Tab: Plot article frequency  per day
-  
-  
+
+
   output$word_freq1 <- renderPlot(word_freq1)
   output$word_freq2 <- renderPlot(word_freq2)
   output$word_freq3 <- renderPlot(word_freq3)
-  
+
   output$wordfreqs <- renderUI({
     tabBox(title = "Words per Day",id= "wordfreqtab",
            tabPanel(freq_words[[1]], plotOutput("word_freq1")),
            tabPanel(freq_words[[2]], plotOutput("word_freq2")),
-           tabPanel(freq_words[[3]], plotOutput("word_freq2"))
+           tabPanel(freq_words[[3]], plotOutput("word_freq3"))
     )
   })
-  
-    
-  # output plots in tabs
-  
 
-  
-  
+
+  # output plots in tabs
+
+
+
+
   ###########################
   # other
-  
+
   if (!interactive()) {
     session$onSessionEnded(function() {
       stopApp()
       q("no")
     })
   }
-  
+
 }
 
 
-  
-  
-  
-  
+
+
+
