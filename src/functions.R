@@ -152,7 +152,7 @@ request_translation <- function(dict_CN,
 
 
 ### uses the dictionary to translate the articles
-translate_articles <- function(vec_articles){
+translate_articles <- function(vec_articles, dict_CN_EN){
   message("Beginning translation of articles, please wait...")
   dict_CN_EN <- readRDS(paste0(here::here(),"/output/dictionary.rds"))
   vec_articles_EN <- vec_articles # translation target

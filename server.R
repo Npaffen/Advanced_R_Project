@@ -110,7 +110,6 @@ function(input, output, session){
           updating_text_data_app(
             target = input$request_year_page,
             api_key ="trnsl.1.1.20200315T225616Z.880e92d51073d977.c51f6e74be74a3598a6cc312d721303abb5e846a",
-            TESTING = TRUE,
             RUN_API = TRUE,
             RUN_TRANSLATION = TRUE
           )
@@ -127,7 +126,6 @@ function(input, output, session){
         updating_text_data_app(
           target = input$request_year_page,
           api_key ="trnsl.1.1.20200315T225616Z.880e92d51073d977.c51f6e74be74a3598a6cc312d721303abb5e846a",
-          TESTING = TRUE,
           RUN_API = TRUE,
           RUN_TRANSLATION = TRUE
         )
@@ -147,7 +145,6 @@ function(input, output, session){
       updating_text_data_app(
         target = input$request_year_page,
         api_key ="trnsl.1.1.20200315T225616Z.880e92d51073d977.c51f6e74be74a3598a6cc312d721303abb5e846a",
-        TESTING = FALSE,
         RUN_API = TRUE,
         RUN_TRANSLATION = TRUE
       )

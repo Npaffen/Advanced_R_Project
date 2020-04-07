@@ -12,13 +12,11 @@
 updating_text_data_app <- function(
   target,
   api_key ="trnsl.1.1.20200315T225616Z.880e92d51073d977.c51f6e74be74a3598a6cc312d721303abb5e846a",
-  TESTING = FALSE,
-  # activate if testing
   RUN_API = TRUE,
   # might take very long only if
   # you are really sure that yandex
   # API is available
-  RUN_TRANSLATION = FALSE
+  RUN_TRANSLATION = TRUE
   # might take very long
   ){
   
@@ -37,7 +35,7 @@ updating_text_data_app <- function(
   
   # check if relevant files are present and create if necessary
   
-  # check article data
+  # check and make or update article data
   wdir <- here::here()
   raw_path <- paste0(wdir, "/data/", raw_file, ".rds")
   if(!file.exists(raw_path)){
@@ -54,8 +52,7 @@ updating_text_data_app <- function(
     }
 
   
-  # check processed articles
-  
+  # check and make or update processed articles
   path <- paste0(wdir, "/output/", processed_file, "_CN.rds")
   
   if(!file.exists(path)){
@@ -69,7 +66,7 @@ updating_text_data_app <- function(
     process_articles()
   }
   
-  # dictionary
+  # check and make dictionary if necessary
   if(!file.exists(paste0(wdir,"/output/dictionary.rds"))){
     message("Dictionary data missing in folder '/output',
             will start recompiling in 5 seconds from scratch,
@@ -82,36 +79,12 @@ updating_text_data_app <- function(
   } else {
     message(paste("dictionary data found in '/output'. \n",
                 "entries: ", dim(readRDS("output/dictionary.rds"))[1]))
-    dictionary <- readRDS("output/dictionary.rds")
   }
+  dictionary <- readRDS("output/dictionary.rds")
   
   
-  # load old translated and new raw article data for comparison 
-  new_articles <- readRDS(raw_path) # new articles 
-  en_articles <- readRDS(paste0(wdir, "/output/",
-                                processed_file, "_EN.rds")) # old translated articles 
-  
-  # remove some articles when testing
-  if(TESTING){
-    en_articles <- en_articles[1:(length(en_articles$id)-10),]
-  }
-  
-  # check if updates required
-  missing <- suppressWarnings(order(new_articles$id) != order(en_articles$id))
-
-  if(sum(missing) == 0){
-    RUN_UPDATE <- FALSE
-    return("Target file is up-to-date, aborting...")
-  } else{
-    RUN_UPDATE <- TRUE
-    message(paste("Missing articles: ",
-                sum(missing),
-                "\n Running update...")
-    )
-  }
-  
-  
-  
+ 
+ 
   
   if(RUN_UPDATE) {
     
@@ -140,17 +113,27 @@ updating_text_data_app <- function(
     require("stringr") #install.packages("stringr")
     
    
-    
+    message(paste("Running translation update..."))
     
     #####################################################################
     # 1. Identify new articles
     # compare with English, because it's the final output 
     
-    new <- anti_join(new_articles,
-                     en_articles,
-                     by="id")
-    message(paste("Identified new articles: \n"))
-    message(paste(as.character(new$date), collapse = "\n"))
+    if(file.exists(paste0(wdir, "/output/",processed_file, "_EN.rds"))){
+        # load old translated and new raw article data for comparison 
+        new_articles <- readRDS(raw_path) # new articles 
+        en_articles <- readRDS(paste0(wdir, "/output/",
+                                      processed_file, "_EN.rds")) # old translated articles 
+        new <- anti_join(new_articles,
+                       en_articles,
+                       by="id")
+        message(paste("Identified new articles: \n"))
+        message(paste(as.character(new$date), collapse = "\n"))
+    } else {
+      message(paste("Article translation missing, translating from scratch..."))
+      new <- readRDS(raw_path) # new articles 
+      en_articles <- new[0,]
+    }
     
     
     #####################################################################
@@ -173,15 +156,15 @@ updating_text_data_app <- function(
     
     
     #####################################################################
-    # 3. Find new words not in dictionary
+    # 3. Find new words not in dictionary or use old one
     dict_CN <- anti_join(enframe(dict_CN),
                          enframe(dictionary$chinese),
                          by = "value") %>% deframe %>% unname
     message(paste("Found ", length(dict_CN), " new words."))
     if(length(dict_CN) == 0){
-      dict_CN_EN <- dictionary # call old dictionary
+      dict_CN_EN <- dictionary # use old dictionary
       RUN_API <- FALSE
-      message("No new words found for dictionary, aborting creation....")
+      message("No new words found for dictionary, none translated or added.")
     }
     
     #####################################################################
@@ -204,10 +187,11 @@ updating_text_data_app <- function(
     
     
     #####################################################################
-    # 5. Update databases 
-    if(RUN_API){ # can take some time
+    # 5. Update databases
+    
+    if(RUN_TRANSLATION){ # can take some time
       Sys.setlocale(locale = "Chinese") # fix character encoding
-      art_words_EN <- translate_articles(art_words)
+      art_words_EN <- translate_articles(art_words, dict_CN_EN)
       art_words_EN <- bind_rows(en_articles, art_words_EN)
       saveRDS(art_words_EN,
               paste0("output/processed_articles_",
