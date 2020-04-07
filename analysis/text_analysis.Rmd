@@ -16,6 +16,7 @@ urlcolor: blue
 citecolor: #0174DF
 header_includes:
   -- \usepackage{float}
+  -- \usepackage{ctex}
 ---
 
 ```{r setup, include = FALSE}
@@ -30,7 +31,8 @@ library(knitr)
 library(lubridate)
 library(here)
 library(kableExtra)
-theme_set(theme_light()) # set a general theme for ggplot2 plots.
+library(showtext)
+
 ```
 
 
@@ -227,6 +229,8 @@ bulkiness %>%
 
 
 ```{r, num-of-section, fig.cap = "Distribution of **number of sections** in a page of a newspaper"}
+theme_set(theme_light()) # set a general theme for ggplot2 plots
+
 
 # distribution of number of sections in the page of the newspaper
 bulkiness %>%
@@ -280,10 +284,10 @@ bulkiness %>%
 # article_words %>%
 #   bind_tf_idf(word, date, n) %>%
 #   arrange(desc(tf_idf))
-
-ggplot(article_words, aes(n / total, fill = page_num)) +
+ggplot(article_words, aes(n/total, fill = page_num)) +
   geom_histogram(show.legend = TRUE) +
-  xlim(NA, 0.009, fill="Page") +
+  xlim(NA, 0.009) +
+  labs(fill="Page") +
   theme(legend.position = "bottom") +
   facet_wrap(~ year(date), scales = "free_y")
 ```
@@ -303,13 +307,28 @@ bigrams_filtered <- bigrams %>%
   dplyr::filter(!word2 %in% stop_words$word) %>%
   unite(bigram, word1, word2, sep = " ")
 
-bigrams_tf_idf <- bigrams_filtered %>%
-  mutate(year = year(date), month = month(date, label = TRUE)) %>%
-  count(year, month, bigram) %>%
+bigrams_tf_idf_2020 <- bigrams_filtered %>%
+  mutate(year = year(date), month = month(date, label = TRUE)) %>% dplyr::filter(year==2020) %>% 
+  count(page_num, month, bigram) %>%
   bind_tf_idf(bigram, month, n) %>%
   arrange(desc(tf_idf))
 
-trigrams <- articles %>%
+# top 3 bigrams by tf_idf per month in 2020
+bigrams_tf_idf_2020 %>%  
+    distinct(bigram, .keep_all = TRUE) %>% 
+  group_by(month) %>% 
+    top_n(3, tf_idf) %>% 
+  knitr::kable(caption = "The 12 bigrams with the highest tf_idf in 2020", booktabs=TRUE) %>% 
+  kable_styling()
+```
+
+
+
+```{r, trigrams}
+
+trigrams_tf_idf_2020 <- articles %>% 
+  mutate(year=year(date)) %>% 
+  dplyr::filter(year==2020) %>% 
   unnest_tokens(trigram, content, token = "ngrams", n = 3) %>%
   separate(trigram, c("word1", "word2", "word3"), sep = " ") %>%
   dplyr::filter(
@@ -317,8 +336,18 @@ trigrams <- articles %>%
     !word2 %in% stop_words$word,
     !word3 %in% stop_words$word
   ) %>%
-  mutate(year = year(date), month = month(date)) %>%
-  count(page_num, year, month, word1, word2, word3, sort = TRUE)
+  mutate(month = month(date, label = TRUE)) %>%
+   unite("trigram", c(word1, word2, word3),  sep = " ") %>%  count(month, trigram, sort = TRUE) %>% 
+  bind_tf_idf(trigram, month, n) %>%
+  arrange(desc(tf_idf))
+
+trigrams_tf_idf_2020 %>% 
+  distinct(trigram, .keep_all = TRUE) %>% 
+  group_by(month) %>% 
+    top_n(3, tf_idf) %>% 
+  knitr::kable(caption = "The 12 trigrams with the highest tf_idf in 2020", booktabs=TRUE) %>% 
+  kable_styling()
+
 ```
 
 
