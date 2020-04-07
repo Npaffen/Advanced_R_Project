@@ -1,11 +1,6 @@
-# load packages -------------------------------------------------
-library(lubridate)
-library(rvest)
-library(tidyverse)
-library(glue)
 
 # load scrape_article() function ------------
-source("src/scrape_article.R")
+source(str_c(here::here(), "R", "wrangling", "scrape_article.R", sep = "/"))
 
 # Scraping begins here ----------------------------------------
 

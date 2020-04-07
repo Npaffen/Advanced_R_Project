@@ -1,24 +1,4 @@
 
-# load packages -----------------------------------------------------------
-
-
-pkgs <- c(
-  "tidyr", "ggplot2", "dplyr", "purrr", "readr", "stringr",
-  "tibble", "lubridate", "here", "fs"
-)
-
-sshhh_library <- function(pkg) {
-  suppressWarnings(suppressPackageStartupMessages(
-    library(pkg, character.only = TRUE)
-  ))
-}
-
-
-invisible(sapply(pkgs, sshhh_library))
-
-
-rm(pkgs, sshhh_library)
-
 
 # write helper functions ------------------------------------------------------
 
@@ -79,8 +59,8 @@ tidy_it <- function(database) {
 
   df <- df %>%
     mutate(date_and_page_no = str_remove_all(date_and_page_no, "\\D*")) %>%
-    mutate(date = lubridate::ymd(str_sub(date_and_page_no, end = -3)), 
-           page_no = str_sub(date_and_page_no, -2, -1)) %>% 
+    mutate(date = lubridate::ymd(str_sub(date_and_page_no, end = -3)),
+           page_no = str_sub(date_and_page_no, -2, -1)) %>%
     select(date, subtitle, title, content, page_no, date_and_page_no, everything())
   return(df)
 }
@@ -119,9 +99,9 @@ read_and_tidy <- function(x, fun) {
   return(df)
 }
 
-paths_names <- c("database_m01", "database_m02", "database_m03", 
-           "database_m04", "database_m05", "database_m06", 
-           "database_m07", "database_m08", "database_m09", 
+paths_names <- c("database_m01", "database_m02", "database_m03",
+           "database_m04", "database_m05", "database_m06",
+           "database_m07", "database_m08", "database_m09",
            "database_m10", "database_m11", "database_m12")
 
 
@@ -188,12 +168,12 @@ write_rds(news_article_2020, "output/news_article_2020.rds")
 #   ),
 #   collapse = ""
 # )
-# 
+#
 # replacement <- paste0(
 #   c("yyyy-mm-dd" = "\\1-\\2-\\3",
 #   page_no = "|\\4"
 # ), collapse = "")
-# 
+#
 # str_remove_all(df[, 1], "\\D*") %>% str_sub(end = -3)
-# 
+#
 # str_replace(df[, 1], pattern, replacement)

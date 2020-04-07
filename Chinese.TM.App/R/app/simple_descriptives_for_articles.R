@@ -1,9 +1,5 @@
 # some simple descriptives for the raw article data
-
-require(dplyr)
-require(ggplot2)
-require(jiebaR)
-source("app/functions.R")
+source(str_c(here::here(),"R/app/functions.R", sep = "/"))
 
 # read data
 wdir <- here::here()

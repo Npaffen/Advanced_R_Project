@@ -22,7 +22,7 @@ require("stringr") #install.packages("stringr")
 require("dplyr") #install.packages("dplyr")
 require("Rwordseg") # devtools::install_github("lijian13/Rwordseg")
 if(0){ # if using coreNLP
-  require("coreNLP") # install.packages("coreNLP") 
+  require("coreNLP") # install.packages("coreNLP")
   require(rJava) # install.packages("rJava")
   coreNLP::downloadCoreNLP()
 }
@@ -31,7 +31,7 @@ require(purrr) # install.packages("purrr")
 require(tibble) # install.packages("tibble")
 require("RYandexTranslate") #devtools::install_github("mukul13/RYandexTranslate")
 
-source("scraping/ts_word_frequency.R")
+source(str_c(here::here(),"R/scraping/ts_word_frequency.R", sep = "/"))
 
 ### check_if_complete(), compares two lists A and B, to see if anything is missing from B
 # not used at the moment
@@ -50,7 +50,7 @@ source("scraping/ts_word_frequency.R")
 ### count and plot articles per day, print outliers
 count_art_day <- function(articles, plot = TRUE,
                           add2ggplot = # optional add to plot
-                            "ggtitle('Articles per day on page x')", 
+                            "ggtitle('Articles per day on page x')",
                           min_art_outliers = 10){
   art_per_day <- articles %>% group_by(date) %>% count()
   out <- eval(parse(text= paste0(
@@ -131,7 +131,7 @@ request_translation <- function(dict_CN,
                                 ){
   message(paste("Requesting translating from Yandex translation API, please wait..."))
   dict_EN <- character(length = length(dict_CN)) # create empty English dictionary
-  for(i in start:length(dict_CN)){ 
+  for(i in start:length(dict_CN)){
     # translate each single entry, to avoid "contamination" from using many at once
     timeout <- 0
     repeat{
@@ -163,7 +163,7 @@ translate_articles <- function(vec_articles, dict_CN_EN){
   dict_CN_EN <- readRDS(here::here("output/dictionary.rds"))
   vec_articles_EN <- vec_articles # translation target
   str_not_zero <- function(x){nchar(x) !=0} # nonempty character condition
-  for(i in c("title","subtitle","content")){ 
+  for(i in c("title","subtitle","content")){
     for(j in 1:length(vec_articles[[i]])){
       vec_articles_EN[[i]][[j]] <- modify_if(vec_articles[[i]][[j]], str_not_zero,
                                           ~ words_cn_to_en(.x, dict_CN_EN))

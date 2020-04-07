@@ -1,8 +1,3 @@
-# load packages -------------------------------------------------
-library(lubridate)
-library(rvest)
-library(tidyverse)
-library(glue)
 
 # ---------------------------------------------------------------------
 # This function produces a url for the 1st and 2nd pages

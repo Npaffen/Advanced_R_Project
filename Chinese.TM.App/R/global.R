@@ -12,12 +12,13 @@ message(paste("Welcome to the People's Daily Mining App. Please stand by for a f
 #####################################################################
 # 0. Preparation
 wdir <- here::here()
-source("app/functions.R")
+
 require(stringr)
 require(tibble)
 require(dplyr)
-source("scraping/ts_word_frequency.R")
-source("wrangling/update_article_data.R")
+source(str_c(here::here(), "R/app/functions.R", sep = "/"))
+source(str_c(here::here(), "R/scraping/ts_word_frequency.R", sep = "/"))
+source(str_c(here::here(), "R/wrangling/update_article_data.R", sep = "/"))
 
 
 
@@ -93,7 +94,7 @@ database_status <- database_status[with(database_status, order(file)), ]
 
 freq_words <- c( "outbreak", "development",
                  "inspection"
-                 
+
                 # "comrade", "committee"
                 # "corruption", "crown",
                 # , "supervision"
