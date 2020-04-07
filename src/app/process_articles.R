@@ -8,7 +8,7 @@
 # 1. Insert spaces to separate Chinese words for quant analysis
 
 
-process_articles <- function(year = 2020, page_num = "01"){
+process_articles <- function(year, page_num){
   
   #####################################################################
   # 0. Preparation
