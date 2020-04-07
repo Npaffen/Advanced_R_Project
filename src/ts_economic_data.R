@@ -1,5 +1,6 @@
 ts_economic_data <- function(start_date, end_date, econ_data){
-  
+  library(Quandl)
+  library(fredr)
   #### function to convert monthly econ data to daily econ data
   monthly_to_daily  <- function(ts_monthly) {
     df.xts <- xts(ts_monthly$Value,order.by = ts_monthly$Date)
@@ -37,7 +38,7 @@ ts_economic_data <- function(start_date, end_date, econ_data){
                             value[is.na(value)+1],
                             value)) %>% 
       #there is a missing value at 1st of Jan 2019, correct it by setting it to the value of 2nd Jan
-      select(date, value_norm )
+      select(date, value)
   } else if (econ_data == "NASDAQ_CNY"){
     #
     NASDAQ_CNY <- Quandl("NASDAQOMX/NQCN2000CNY",
