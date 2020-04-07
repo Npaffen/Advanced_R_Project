@@ -163,7 +163,10 @@ if (econ_data == "dollar_yuan_exch"){
     color = "#FC4E07",
     fill = "#FC4E07",
     method = "loess")+
-  scale_x_date(date_labels = "%d%b/%Y")
+       ggtitle(str_c("Time Series Word Frequency for", eng_word, sep = " " ))+
+       scale_x_date(date_labels = "%b/%Y", date_breaks = "3 month")+
+       theme_minimal()
+     
   }
 
 
