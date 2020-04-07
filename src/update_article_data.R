@@ -65,7 +65,8 @@ update_article_data <- function(page_num,
   
   # --- notification of changes;
   # If a data set (here df) is not updated, the nrows stays the same.
-  pwalk(list(df, dat, names(df)), function(.x, .y, .z) {
+  if (write_to_disk) {
+    pwalk(list(df, dat, names(df)), function(.x, .y, .z) {
     message("successfully updated!!")
     message(paste(
       "nrows of ", "<<", .z, ">>: ",
@@ -73,7 +74,8 @@ update_article_data <- function(page_num,
       "--> ",
       "<<", nrow(.x), ">>", ".", "\n"
     ))
-  })
+    })
+  } 
   # ---
   dat
 }

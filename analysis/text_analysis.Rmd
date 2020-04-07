@@ -6,6 +6,7 @@ output:
   bookdown::pdf_document2: 
       latex_engine: xelatex
       fig_caption: yes
+      keep_tex: yes
 subtitle: 'Text analysis of Chinese Paper Daily news article '
 fontsize: 12pt
 colorlinks: true
@@ -44,12 +45,11 @@ rounded_mean <- function(x, na.rm = TRUE, digits = 2) {
 # token == a word.
 tidy_text <- function(data) {
   data %>%
-    select(id, page_num, date, content) %>%
+    select(page_num, date, content) %>%
     unnest_tokens(word, content) %>%
     anti_join(stop_words, by = "word") %>%
     dplyr::filter(!str_detect(word, "\\d+")) %>% # remove any digit
-    mutate(month = month(date, label = TRUE)) %>%
-    select(id, page_num, date, month, everything())
+    select(page_num, date, everything())
 }
 ```
 
@@ -69,17 +69,19 @@ article_df <-
 ```
 
 
+
 ```{r, tidying:-one-token-per-row}
 
-articles_2020_tidy <-
-  article_df %>%
-  dplyr::filter(year == 2020) %>%
-  tidy_text()
+# article_df$id is for sections of a newspaper page, but we will work daily newspapers (pages, 1 and 2). Therefore, we need to paste sections together to form a page of the newspaper per day. We need to then group by "date and page_num" and then "paste" the sections together for each day.
 
-articles_2019_tidy <-
-  article_df %>%
-  dplyr::filter(year == 2019) %>%
-  tidy_text()
+articles <- article_df %>%
+  select(page_num, date, content) %>%
+  group_by(page_num, date) %>%
+  summarise(content = paste0(content, collapse = " "))
+
+
+# tidy the content by unnesting it into words, so we have "one-token-per-row" per a newspaper page.
+articles_tidy <- tidy_text(articles)
 ```
 
 
@@ -92,42 +94,33 @@ bulkiness <- article_df %>%
   summarise(
     num_of_paragraphs = sum(num_paragraph),
     num_of_sections = n(),
-    paragraph_per_section = num_of_paragraphs/num_of_sections
+    paragraph_per_section = num_of_paragraphs / num_of_sections
   ) %>%
   ungroup()
 
-# total word counts per article per page and day ---------------
-total_words_2019 <- articles_2019_tidy %>%
+# total word counts per newspaper page and day ---------------
+total_words <- articles_tidy %>%
   group_by(page_num, date) %>%
-  summarise(total = sum(n())) %>% 
-  ungroup()
-
-total_words_2020 <- articles_2020_tidy %>%
-  group_by(page_num, date) %>%
-  summarise(total = sum(n())) %>% 
+  summarise(total = sum(n())) %>%
   ungroup()
 
 # word frequency per article -----------------------------------------
-# 2019
-article_words_2019 <- articles_2019_tidy %>%
+
+article_words <- articles_tidy %>%
   count(page_num, date, word, sort = TRUE) # tf per day for each term
 
-# 2020
-article_words_2020 <- articles_2020_tidy %>%
-  count(page_num, date, word, sort = TRUE) # tf per day for each term
 
 # joining -------------------------------------
 bulkiness <- bulkiness %>%
-  full_join(bind_rows(total_words_2019, total_words_2020),
-            by = c("date", "page_num")) %>%
-  mutate(year = year(date),
-         month = month(date, label = TRUE))
+  full_join(total_words,
+    by = c("date", "page_num")
+  ) %>%
+  mutate(
+    year = year(date),
+    month = month(date, label = TRUE)
+  )
 
-article_words_2019 <-
-  full_join(article_words_2019, total_words_2019)
-
-article_words_2020 <-
-  full_join(article_words_2020, total_words_2020)
+article_words <- full_join(article_words, total_words)
 ```
 
 
@@ -140,10 +133,13 @@ For instance, the 1st page of the newspaper published on *2020-03-22* can be acc
  
 ```{r, example-newspaper, results="H", out.width="49%", out.height="20%",fig.show='hold', fig.align='center', fig.cap="Example newspaper page published on 2020-03-22 (left), and Section or column 1 of it enlarged (right)."}
 
-include_graphics(c(
-  here("figs/example_newspaper_page.pdf"),
-  here("figs/section1_enlarged.pdf")
-), dpi = NA)
+include_graphics(
+  c(
+    here("figs/example_newspaper_page.pdf"),
+    here("figs/section1_enlarged.pdf")
+  ),
+  dpi = NA
+)
 ```
 
 
@@ -169,7 +165,7 @@ Accordingly, the id of each section on an article is of this form: **nw.D110000r
 
 The maximum number of sections on a page of a newspaper is `r max(bulkiness$num_of_sections)`, in [an article published on 2019-04-26](http://paper.people.com.cn/rmrb/html/2019-04/26/nbs.D110000renmrb_01.htm), and the minimum is `r min(bulkiness$num_of_sections)`. On average, there were `r rounded_mean(bulkiness$num_of_sections)` sections per a page of an article, for the newspapers published since January 1st, 2019 regardless of the page number.
 
-Therefore, the contents of all the sections together--on the page of the news article-- make up the contents of the entire (single) page--which are compactly placed in a single page of the article. Particularly, we scraped the sections of the newspapers--through their unique ids. The date and the page number of the newspaper uniquely identify a newspaper, where the combination of which forms the ids of the sections--prefixed with **nbs.D110000renmrb**.
+Therefore, the contents of all the sections (**paragraph or p-tags**) together--on the page of the news article-- make up the contents of the entire (single) page--which are compactly placed in a single page of the article. Particularly, we scraped the sections of the newspapers--through their unique ids. The date and the page number of the newspaper uniquely identify a newspaper, where the combination of which forms the ids of the sections--prefixed with **nbs.D110000renmrb**.
 
 Moreover, most of the news articles are bulky in terms of number of paragraphs and text volume.  There are `r rounded_mean(bulkiness$num_of_paragraphs)` number of paragraphs per page, and `r rounded_mean(bulkiness$paragraph_per_section)`
 
@@ -179,7 +175,7 @@ Moreover, most of the news articles are bulky in terms of number of paragraphs a
 
 ```{r, desc-stat-table}
 
-desc.funs <- 
+desc.funs <-
   list(median = median, mean = mean, sd = sd, max = max, min = min)
 
 bulkiness %>%
@@ -228,40 +224,54 @@ bulkiness %>%
 ```
 
 
-```{r, plotting, fig.cap = c("Term Freq. Dist. in Daily Articles Published since 2019, by month", "Dist. of sections in a newpaper page", "Dist. of number of paragraphs in a newspaper page.", "time series plot of term frequency")}
+```{r, plotting, fig.cap = "Distribution of **number of sections** in a page of a newspaper"}
 
-
+# c("Term Freq. Dist. in Daily Articles Published since 2019, by month", "Dist. of sections in a newpaper page", "Dist. of number of paragraphs in a newspaper page.", "time series plot of term frequency")
 # How many sections on a page of the article?
 
 bulkiness %>%
-  ggplot(aes(num_of_sections, fill = page_num)) +
-  geom_bar(show.legend = FALSE, position = "dodge") +
-  facet_wrap( ~ year, scales = "free_y")
-
+  ggplot(aes(num_of_sections, col = page_num)) +
+  geom_density(show.legend = TRUE) +
+  labs(x = "Number of sections", col = "Page") +
+  theme(legend.position = "bottom") +
+  facet_wrap(~year, scales = "free")
 
 #  How packed is an article in terms of paragraph counts?
 
 bulkiness %>%
-  ggplot(aes(num_of_paragraphs, fill = page_num)) +
-  geom_histogram(show.legend = FALSE) +
-  facet_wrap( ~ page_num)
+  ggplot(aes(num_of_paragraphs, col = page_num)) +
+  geom_density(show.legend = TRUE) +
+  labs(x = "Number of paragraphs", col = "Page") +
+  theme(legend.position = "bottom") +
+  facet_wrap(~year, scales = "free")
 
+#  How packed is an article in terms of paragraph counts?
+
+bulkiness %>%
+  ggplot(aes(paragraph_per_section, fill = page_num)) +
+  geom_histogram(show.legend = TRUE) +
+  labs(x = "Paragraphs per section", fill = "Page") +
+  theme(legend.position = "bottom") +
+  facet_wrap(~year, scales = "free")
+```
+
+```{r,}
 
 # timeseries plot of term frequency
 
 bulkiness %>%
   ggplot(aes(date, total, col = page_num)) +
   geom_line() +
-  xlab(NULL) +
+  labs(x = NULL, y = "Words per page (total)", col = "Page") +
   scale_y_continuous(labels = scales::label_number(scale = 1 / 1000, suffix = "k")) +
-  facet_wrap( ~ year, scales = "free") +
+  facet_wrap(~year, scales = "free") +
   theme(legend.position = "bottom")
 
 # dist of total words
 
 bulkiness %>%
   ggplot(aes(total, fill = page_num)) +
-  geom_histogram() +
+  geom_histogram(bins = 10) +
   facet_grid(page_num ~ year, scales = "free", space = "free") +
   theme(legend.position = "bottom")
 ```
@@ -269,23 +279,125 @@ bulkiness %>%
 
 ```{r, fig.cap="term frequency common words"}
 # term frequency plot
-ggplot(article_words_2019, aes(n / total, fill = page_num)) +
+# article_words %>%
+#   bind_tf_idf(word, date, n) %>%
+#   arrange(desc(tf_idf))
+
+ggplot(article_words, aes(n / total, fill = page_num)) +
   geom_histogram(show.legend = TRUE) +
   xlim(NA, 0.009) +
   theme(legend.position = "bottom") +
-  facet_wrap( ~ month(date, label = TRUE), scales = "free_y")
+  facet_wrap(~ year(date), scales = "free_y")
+```
 
+
+
+```{r, bigrams}
+
+bigrams <- articles %>%
+  unnest_tokens(bigram, content, token = "ngrams", n = 2)
+
+# separate bigrams into two words and remove the obviously stop words and then unite them back to form a bigram.
+
+bigrams_filtered <- bigrams %>%
+  separate(bigram, c("word1", "word2"), sep = " ") %>%
+  dplyr::filter(!word1 %in% stop_words$word) %>%
+  dplyr::filter(!word2 %in% stop_words$word) %>%
+  unite(bigram, word1, word2, sep = " ")
+
+bigrams_tf_idf <- bigrams_filtered %>%
+  mutate(year = year(date), month = month(date, label = TRUE)) %>%
+  count(year, month, bigram) %>%
+  bind_tf_idf(bigram, month, n) %>%
+  arrange(desc(tf_idf))
+
+trigrams <- articles %>%
+  unnest_tokens(trigram, content, token = "ngrams", n = 3) %>%
+  separate(trigram, c("word1", "word2", "word3"), sep = " ") %>%
+  dplyr::filter(
+    !word1 %in% stop_words$word,
+    !word2 %in% stop_words$word,
+    !word3 %in% stop_words$word
+  ) %>%
+  mutate(year = year(date), month = month(date)) %>%
+  count(page_num, year, month, word1, word2, word3, sort = TRUE)
+```
+
+
+
+```{r, term-freq-plots, eval=FALSE}
+
+articles_tidy_tf <- articles_tidy %>%
+  mutate(
+    year = year(date),
+    month = month(date, label = TRUE)
+  ) %>% count(page_num, month, year, word, sort = TRUE) 
+
+
+articles_tidy_tf <- articles_tidy_tf %>% 
+  add_count(page_num, month, year, name = "total") %>% 
+  mutate(tf = n/total)
+
+vals <- list(
+  page = c("1st", "2nd", "1st", "2nd"),
+  year = c(2019, 2019, 2020, 2020)
+)
+
+map2(vals$year, vals$page, function(.x, .y) {
+  title <- paste0("Highest term-freq words in the ", .y, " page of People's Daily newspaper in ", .x)
+
+  path <- paste0("figs/word_per_month_freq_plot_", .y, "_page_", .x, ".pdf")
+
+  p <- articles_tidy_tf %>%
+    dplyr::filter(year == .x, page_num == .y) %>%
+    group_by(month) %>%
+    top_n(10) %>%
+    ungroup() %>%
+    mutate(word = reorder(word, tf)) %>%
+    ggplot(aes(reorder_within(word, tf, month), tf, fill = month)) +
+    geom_col() +
+    labs(
+      title = str_wrap(title),
+      x = NULL
+    ) +
+    facet_wrap(~month, scales = "free") +
+    coord_flip() +
+    scale_x_reordered() +
+    theme(legend.position = "none")
+
+  ggsave(path, p, width = 10.5)
+})
+```
+
+```{r}
+plots_paths <- list.files("figs", "word_per_month.", 
+                          full.names = TRUE)
+
+include_graphics(here(plots_paths[1]))
+include_graphics(here(plots_paths[2]))
+include_graphics(here(plots_paths[3]))
+include_graphics(here(plots_paths[4]))
 
 
 ```
 
 
 
-```{r, tf-by-month-2020, fig.cap = "The most common words, in the first **two pages** of the China Daily News Articles in 2020"}
 
-# plotting ----- by month
-lbl <- opts_current$get("label")
-fig.path <- fig_chunk(lbl, ".pdf", fig.path = "figs/")
+```{r, eval=FALSE}
+bigrams_tf_idf %>%
+  dplyr::filter(year == 2020) %>%
+  group_by(page_num, month) %>%
+  mutate(bigram = reorder(bigram, tf_idf)) %>%
+  top_n(10) %>%
+  ggplot(aes(reorder_within(bigram, tf_idf, month), tf_idf, fill = month)) +
+  geom_col() +
+  labs(x = NULL) +
+  facet_wrap(~month, scales = "free") +
+  coord_flip() +
+  scale_x_reordered() +
+  theme(legend.position = "none")
 
-# p1 <-
+
+
 ```
