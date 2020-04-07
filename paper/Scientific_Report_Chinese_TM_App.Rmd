@@ -1,7 +1,7 @@
 ---
-title: 'Whats driving chinese news'
+title: 'Whats is driving Chinese News?'
 author: 'David Schulze, Eyayaw Teka Beze, Nils Paffen'
-subtitle: "How news correlates with the economy "
+subtitle: "Linking Daily Text Data with Economic Data"
 type: "Scientifc Report"
 discipline: "Phd Programm RWI, VWL M.Sc.,"
 date: "today"
@@ -11,9 +11,6 @@ ssemester: "3"
 estdegree_emester: "Winter Term 2020"
 deadline: "Apr. 7th 2020"
 header-includes:
-   # fix for latex unicode error with Chinese characters
-   - \usepackage{CJKutf8}
-   - \usepackage[utf8]{inputenc}
 output:
   pdf_document:
     keep_tex: yes
@@ -73,11 +70,18 @@ In the next sections we will introduce the general concept behind the constructi
 ## General Concept (David)
 
 The functionality of the app has three major parts:
+
 - updating databases with text and economic data
 - handling translation and transformation of data
 - outputting descriptive and analytical information
 
-Formally, this puts our app in the toolbox of so called *distant reading* approaches in methods of text analysis, the use of which in social sciences in general and economics in particular is growing.. As discussed in this [workshop paper](http://ceur-ws.org/Vol-1786/scrivner.pdf) by @scrivner_davis2017´, this method is not designed to substitute or render *close reading* obsolete. It actually increases the value of such traditional methods involving a detailed analysis of single texts, by pointing out interesting texts and features in a growing sea of available texts. To think of an overly simple example, compare reading a list of references to reading every single article contained therein. The list does not give the same information, because it abstracts from the detailed texts. But with the list, we can find the texts we are looking for, saving time and leading to new insights, i.e. texts we might have missed.
+### Shiny user interface (David)
+
+This was implement using the R package *shiny*, especially *shinydashboard*, to create a layout with a tab menu on the left hand, and a space for content on the right. Large buttons convey key information quickly, and dynamic boxes can be filled with text, tables, buttons, drop-down menus, and others. Especially the feature to have tabs on top of the box to show for example several plots in one space, was very useful. 
+
+### The method
+
+Formally, the functionality puts our app in the toolbox of so called *distant reading* approaches in methods of text analysis, the use of which in social sciences in general and economics in particular is growing.. As discussed in this [workshop paper](http://ceur-ws.org/Vol-1786/scrivner.pdf) by @scrivner_davis2017´, this method is not designed to substitute or render *close reading* obsolete. It actually increases the value of such traditional methods involving a detailed analysis of single texts, by pointing out interesting texts and features in a growing sea of available texts. To think of an overly simple example, compare reading a list of references to reading every single article contained therein. The list does not give the same information, because it abstracts from the detailed texts. But with the list, we can find the texts we are looking for, saving time and leading to new insights, i.e. texts we might have missed.
 
 The **updating** gives the user the ability to gain instant insights in developments as they are unfolding, as soon as data are available. The People's Daily website is updated regularly and many other other series reachable via API are reliable sources for economic data new enough to make this a useful feature. It is possible to extend the app to include monthly and yearly economic data as well, but this would be more useful, if the text data would be extended longer into the past to match.
 
@@ -128,6 +132,7 @@ Since CrossAsia.org is paying the provider of the archive a fee for the content 
 First, a screenshot of the page is saved by the remoteDriver and cropped in a way that only the captcha image is left. The page https://2captcha.com LINK offers the possibility to solve captchas automatically for a small fee of less than 1$ per 1000 captchas. For this purpose, the user is provided with an API key, which can be used to transmit the image information as a POST request with multipart-encoding. Afterwards, the user is assigned a ticket-ID, with which he can retrieve the solved captcha code as a string after about 5-10 seconds of waiting time. Since the operator may sometimes experience increased solving times, we check the content of the string. A waiting time of 5 seconds is added if the captcha has not been solved yet and an attempt to grab the code follows the additional waiting time. The captcha-code is now sent to the to the corresponding form of CrossAsia.com and will be forwarded automatically. After entering the captcha code, we check again if the forwarding was successful or if the entered captcha code was invalid and therefore another captcha must be solved. Even solving these captures codes and extensive waiting time of about 10 minutes after each page, we expierenced that the archive operator gives a time-out error to users additionally, if they try to look at too many articles in a given time. The time-out length and the length until a timeout is called differs from 30 minutes to a few hours. We tried to check for this site behavior but were not completly succesfull in providing a function to check for the time-out and wait until it disappears. 
 
 ### Output
+
 In the end the intense timeout periods lead us to the decision that the webscraping of the archive is possible but extremely time consuming. The code will be able to scrape the content as described, but for the purpose of the app we decided to not integrate the archive content so far. 
 
 ## Translation from Chinese (David)
@@ -140,54 +145,54 @@ To reduce use of the Yandex translation API (which has limited free bandwith) in
 Another aspect of the dictionary: While all Chinese words are unique, the English translation yielded around 25000 duplicated entries. This means that users searching for example for "satellite" will find hits for "Wei Xing", "Ke Weixing" and "Renzao Wei Xing", which all carry that meaning, improving the accuracy of text mining.
 
 
-## Economic data retrieval (Eyayaw)
-
-- Where, what and how did we get it.
-
-- This can be very short.
-
-
-## Exploratory statistics, visualisation, and text mining (Eyayaw)
-Start with simplest descriptives and plots, e.g.:
-
-- descriptive plots for the data: article frequencies etc.
-The data reveal that there are systematic differences between the first and second pages. ((insert article frequency plots from descriptives))
-For both 2019 and 2020, the first page has several outliers with over 10 articles per page, while the second page has no more than 9 articles per page. This is mostly due to the coverage over important events which are covered in many small articles on the front page, e.g Xi Jinping's meetings with world leaders at international summits.
-
-- most common non-stop words with frequencies
-
-- compare pre- and post-corona common words
-
-- pre-post word clouds with translated words
-
-- two-word correlation
-
-- time-series frequency plots (very important)
-
-- n-grams (possiblly useful packages: JSTORr, ngram, NSP, WordStat)
-
-
-Optional:
-
-- bigram graph
-
-- two-word correlation with phi-coefficient
-
-- lda/topic model (very optional)
-
-Do not:
-
-- sentiment analysis
 ## Word frequency time series and economic data
-In order to gain an impression of the impact the frequency of a single word can have on the economy, we created a function to generate time series and visualize the results. The user first specifies whether he wants to search the articles on page 1 or page 2 (page_num) for a specific word (eng_word). In addition, the user can specify a time period in which the analysis is to be performed using start_date and end_date. In the parameter econ_data he also determines whether he wants to compare the word frequency of eng_word with the NASDAQ_CNY or dollar_yuan_exch, which have already been explained in the section on economic data.  We have integrated a function to download them from different sources and then adjust and, if necessary, normalize them according to the user's input time parameters. Furthermore there is the possibility to extend the frequency of time series from monthly to daily.
-It is also possible to extend the frequency of time series from monthly to daily. 
+
+In order to gain an impression of the impact the frequency of a single word can have on the economy, we created the function *ts_word_frequency()* to generate time series and visualize the results. The user first specifies whether he wants to search the articles on page 1 or page 2 (page_num) for a specific word (eng_word). In addition, the user can specify a time period in which the analysis is to be performed using start_date and end_date. In the parameter econ_data he also determines whether he wants to compare the word frequency of eng_word with the NASDAQ_CNY or dollar_yuan_exch, which have already been explained in the section on economic data.  We have integrated a function to download them from different sources and then adjust and, if necessary, normalize them according to the user's input time parameters. Furthermore there is the possibility to extend the frequency of time series from monthly to daily. It is also possible to extend the frequency of time series from monthly to daily.
+
 
 In the next step we load all articles of page 1 or 2 according to the number of pages requested by the user and tokenize them. A token can be described as a meaningful word, which is worth considering in the context of a later word frequency analysis.  The function which performs this task is called *tidy_text()*. Now we have a database which can be filtered by the user's chosen word eng_word, and the time period. Afterwards the values of the economic data are passed over the filtered database and the two time series are plotted. This plot is now transferred to the app and displayed to the user. 
 
-Translated with www.DeepL.com/Translator (free version)
 
-Translated with www.DeepL.com/Translator (free version)
-## Shiny user interface (David)
+## Exploratory statistics, visualisation, and text mining
+
+The goal for this project was to show that it is possible to create an interactive app with live data updates, analysis and output. While this is just an illustration to prove the concept, there are of course limitless possibilites to extend the dataset with more economic and text data. And all manner of econometric, natural language processing, machine learning or corpus linguistig tools could be implemented.
+
+In the app as it is now, we managed to implement the simplest descriptive statistics:
+- An overview of the dataset that indicates time and number of articles for page 1 and 2 respectively.
+- Plots of the frequency of articles per day.
+- The difference between the local data and the newest article online, and
+- plots of the frequency of certain keywords per day standardized around the starting date, in comparison to a NASDAQ index of Chinese industrial companies, also standardized the same way.
+
+These serve to give the user an overview and a little more understand of the data. The article frequency per day plots show, for example, that there are systematic differences between the first and second pages. For both 2019 and 2020, the first page has several outliers with over 10 articles per page, while the second page has no more than 9 articles per page. This is mostly due to the coverage over important events which are covered in many small articles on the front page, e.g Xi Jinping's meetings with world leaders at international summits.
+
+But especially the time series shows the advantage of quantitative text analysis: Now we can see for example the frequency of "Crown", the literal translation of Corona, or equivalently the term "outbreak", increasing dramatically around February as expected, coinciding with a drop in the industrial index.
+
+Another interesting result is the frequency of "development", a staple of positive economic reporting and policy reports. While always present, especially during upturns in the index, starting in February 2020 it get's remarkably displaced, most likely by reporting on the pandemic.
+
+Lastly this quick and large scale analysis can lead to surprising results that warrant furher investigation: The term "inspection", usually associated with political control and anti-corruption activities, has two extreme modes in the data, one during the outbreak and one last spring. This could be related to the spring festival, which is around February every year, or have some other reason. The results show that this approach has potential to be a highly useful tool for empirically testing hypothesis and developing new ones.
+
+```{r, example-newspaper, results="H", out.width="49%", out.height="20%",fig.show='hold', fig.align='center', fig.cap=""}
+
+knitr::include_graphics(
+  c(
+    here::here("ts_plots/outbreak.png"),
+    here::here("ts_plots/development.png"),
+    here::here("ts_plots/inspection.png")
+  ),
+  dpi = NA
+)
+```
+
+### Interesting extensions
+
+More classical text analysis output would have to include of course the most common words per article. This is a straighforward way of gaining a better understanding of a corpus. Even more interesting is comparing different parts of the same corpus, e.g. at different time points. This would show systematic deviations in use of vocabulary, e.g. before and after the crisis.
+
+Correlations are another way to reveal underlying structures of the text. Which two- or n-word groups are particularly common? How does their use vary over time? R packages including plots for these so-called "n-grams" include the aptly named "ngram","JSTORr", "NSP" and "WordStat".
+
+### Advanced options
+
+On the more technical and advanced side, lda/topic models can offer great insights, but are also more difficult to interpret. Sentiment analysis is another complex, but controversial topic, which could be implemented.
+
 
 
 
