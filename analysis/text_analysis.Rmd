@@ -166,15 +166,6 @@ Accordingly, the id of each section on an article is of this form:
 
 The maximum number of sections on a page is `r max(bulkiness$num_of_sections)`, in [an article published on 2019-04-26](http://paper.people.com.cn/rmrb/html/2019-04/26/nbs.D110000renmrb_01.htm), and the minimum is `r min(bulkiness$num_of_sections)`. On average, there were `r rounded_mean(bulkiness$num_of_sections)` sections per a page of an article, for the newspapers published since January 1st, 2019 regardless of the page number. Looking at the frequencies of articles individually, the tendency is for page 2 to have less issues with very high numbers of articles above around 9.
 
-![some caption 1](../figs/art_freq201.pdf) ![some caption 2](../figs/art_freq202.pdf)
-
-<!-- ```{r, art_frequencies, results="H", out.width="49%", out.height="20%",fig.show='hold', fig.align='center', fig.cap=""} -->
-
-<!-- include_graphics(c( -->
-<!--   here("figs/art_freq201.pdf"), -->
-<!--   here("figs/art_freq202.pdf") -->
-<!-- ), dpi = NA) -->
-<!-- ``` -->
 
 Therefore, the contents of all the sections (**paragraph or p-tags**) together--on the page of the news article-- make up the contents of the entire (single) page--which are compactly placed in a single page of the article. Particularly, we scraped the sections of the newspapers--through their unique ids. The date and the page number of the newspaper uniquely identify a newspaper, where the combination of which forms the ids of the sections--prefixed with **nbs.D110000renmrb**.
 
@@ -235,19 +226,19 @@ bulkiness %>%
 ```
 
 
-```{r, plotting, fig.cap = "Distribution of **number of sections** in a page of a newspaper"}
+```{r, num-of-section, fig.cap = "Distribution of **number of sections** in a page of a newspaper"}
 
-# c("Term Freq. Dist. in Daily Articles Published since 2019, by month", "Dist. of sections in a newpaper page", "Dist. of number of paragraphs in a newspaper page.", "time series plot of term frequency")
-# How many sections on a page of the article?
-
+# distribution of number of sections in the page of the newspaper
 bulkiness %>%
   ggplot(aes(num_of_sections, col = page_num)) +
   geom_density(show.legend = TRUE) +
   labs(x = "Number of sections", col = "Page") +
   theme(legend.position = "bottom") +
   facet_wrap(~year, scales = "free")
+```
 
-#  How packed is an article in terms of paragraph counts?
+```{r, num-of-paragraphs, fig.cap="Distribution of Number of Paragraphs in the Newspaper Page" }
+#  How packed is a newpaper page in terms of paragraph counts?
 
 bulkiness %>%
   ggplot(aes(num_of_paragraphs, col = page_num)) +
@@ -255,18 +246,10 @@ bulkiness %>%
   labs(x = "Number of paragraphs", col = "Page") +
   theme(legend.position = "bottom") +
   facet_wrap(~year, scales = "free")
-
-#  How packed is an article in terms of paragraph counts?
-
-bulkiness %>%
-  ggplot(aes(paragraph_per_section, fill = page_num)) +
-  geom_histogram(show.legend = TRUE) +
-  labs(x = "Paragraphs per section", fill = "Page") +
-  theme(legend.position = "bottom") +
-  facet_wrap(~year, scales = "free")
 ```
 
-```{r,}
+
+```{r,time-series, fig.cap="Word counts in the page of the newspaper per day"}
 
 # timeseries plot of term frequency
 
@@ -277,18 +260,22 @@ bulkiness %>%
   scale_y_continuous(labels = scales::label_number(scale = 1 / 1000, suffix = "k")) +
   facet_wrap(~year, scales = "free") +
   theme(legend.position = "bottom")
+```
 
+
+```{r, total-words-dist, fig.cap="How bulky is a page of a newspaper in terms of word counts?" }
 # dist of total words
 
 bulkiness %>%
   ggplot(aes(total, fill = page_num)) +
   geom_histogram(bins = 10) +
+  labs(x="total words", fill="Page") +
   facet_grid(page_num ~ year, scales = "free", space = "free") +
   theme(legend.position = "bottom")
 ```
 
 
-```{r, fig.cap="term frequency common words"}
+```{r, fig.cap="Term Frequency Distribution per page of the newpaper"}
 # term frequency plot
 # article_words %>%
 #   bind_tf_idf(word, date, n) %>%
@@ -296,7 +283,7 @@ bulkiness %>%
 
 ggplot(article_words, aes(n / total, fill = page_num)) +
   geom_histogram(show.legend = TRUE) +
-  xlim(NA, 0.009) +
+  xlim(NA, 0.009, fill="Page") +
   theme(legend.position = "bottom") +
   facet_wrap(~ year(date), scales = "free_y")
 ```
