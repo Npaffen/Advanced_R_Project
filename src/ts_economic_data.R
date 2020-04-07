@@ -1,4 +1,4 @@
-economic_data <- function(start_date, end_date, econ_data){
+ts_economic_data <- function(start_date, end_date, econ_data){
   
   #### function to convert monthly econ data to daily econ data
   monthly_to_daily  <- function(ts_monthly) {
@@ -13,10 +13,9 @@ economic_data <- function(start_date, end_date, econ_data){
       
       rename("date" = "index", "Value" = "df.xts" )
   }
+  
   #### function to standardize a time-series to a specific start value
   normalization_to_x <- function(dataset, x){
-    #factor_val <- solve(dataset[1],100)
-    #normalized <- dataset * factor_val
     factor_val <- dataset[1] - x
     normalize <- dataset - factor_val
   }

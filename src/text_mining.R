@@ -2,8 +2,9 @@ library(dplyr)
 library(purrr)
 library(stringr)
 library(tidytext)
+library(readr)
 library(stopwords)
-
+library(tidyr)
 
 # convert into tidy text format--a table with **one-token-per-row**,
 # token == a word.
@@ -40,16 +41,30 @@ cast_into_dtm <- function(tidy_data) {
 
 # 1. tidy it, one-token-per-row-per article
 
-article_2020_td <- read_rds("data/article_data_ok_2020.rds") %>%
+
+article_2020_p_1_td <- read_rds(str_c(here::here(), "output", "processed_articles_2020_page_01_CN.rds", sep = "/")) %>%
   tidy_text()
 
-article_2019_td <- read_rds("data/article_data_ok_2019.rds") %>%
+article_2020_p_2_td <- read_rds(str_c(here::here(), "output", "processed_articles_2020_page_02_CN.rds", sep = "/")) %>%
+  tidy_text()
+
+article_2019_p_1_td <- read_rds(str_c(here::here(), "output", "processed_articles_2019_page_01_CN.rds", sep = "/")) %>%
+  tidy_text()
+
+article_2019_p_2_td <- read_rds(str_c(here::here(), "output", "processed_articles_2019_page_01_CN.rds", sep = "/")) %>%
   tidy_text()
 
 # 2. document/article term matrix
 
-article_2020_dtm <- article_2020_td %>% cast_into_dtm()
-article_2019_dtm <- article_2019_td %>% cast_into_dtm()
+article_2020_p_1_dtm <- article_2020_p_1_td %>% cast_into_dtm()
+
+article_2020_p_2_dtm <- article_2020_p_2_td %>% cast_into_dtm()
+
+
+article_2019_p_1_dtm <- article_2019_p_1_td %>% cast_into_dtm()
+
+
+article_2019_p_1_dtm <- article_2019_p_2_td %>% cast_into_dtm()
 
 # 3. saving
 
@@ -63,7 +78,14 @@ article_2019_dtm <- article_2019_td %>% cast_into_dtm()
 # Analyzing word and document frequency: 
 # term frequency(tf) and/or inverse document frequency (idf)
 
-article_2019_td %>%
+article_2020_p_1_dtm %>%
   count(date, word) %>%
   bind_tf_idf(word, date, n) %>%
   arrange(desc(-tf_idf))
+
+
+
+
+
+
+
