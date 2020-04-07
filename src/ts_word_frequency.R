@@ -5,8 +5,6 @@
 ts_word_frequency <- function(page_num = 1, start_date = as.Date("2019-01-01"),
                               end_date = today()-1, eng_word = "outbreak", econ_data = "NASDAQ_CNY") {
   
-  ## please add a description, what is eng_word, etc.
-  ## adding a table of contents also makes sense at this length
   
 library(dplyr)
 library(purrr)
@@ -184,6 +182,6 @@ if (econ_data == "dollar_yuan_exch"){
 }
 
 
-#ts_word_frequency(start_date = as.Date("2019-01-01"),
-#                           end_date = today()-1, eng_word = "outbreak", econ_data = "dollar_yuan_exch")
+# ts_word_frequency(start_date = as.Date("2019-01-01"),
+#                          end_date = today()-1, eng_word = "outbreak", econ_data = "NASDAQ_CNY")
 #ggsave("outbreak.png")

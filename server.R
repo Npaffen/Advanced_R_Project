@@ -22,7 +22,7 @@ source("src/app/updating_text_data_app.R")
 source("src/update_article_data.R")
 source("src/app/process_articles.R")
 source("src/app/create_dictionary.R")
-source("src/ts_word_frequency.R")
+#source("src/ts_word_frequency.R")
 
 function(input, output, session){
   
