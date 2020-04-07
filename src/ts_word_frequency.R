@@ -1,12 +1,11 @@
-# page_num is the number of newspaper page either 1 or 2, start and end_date 
+  e# page_num is the number of newspaper page either 1 or 2, start and end_date 
 #define the time-span for the anlysis, eng_word is the english word a user is looking for,
 #econ_data can either be "NASDAQ_CNY" or "dollar_yuan_exch" to plot the eng_word frequency against
 # this economic indicator
 ts_word_frequency <- function(page_num = 1, start_date = as.Date("2019-01-01"),
                               end_date = today()-1, eng_word = "outbreak", econ_data = "NASDAQ_CNY") {
   
-  ## please add a description, what is eng_word, etc.
-  ## adding a table of contents also makes sense at this length
+
   
 library(dplyr)
 library(purrr)
@@ -94,18 +93,18 @@ db_filter <- database %>%
                        replacement = toupper(substr(eng_word,
                                                     start = 1,
                                                     stop = 1)
+                                             )
                        )
-            )
-            )| .$word  %in%
+                  )| .$word  %in%
             str_c(gsub(x = eng_word,
                        pattern = "^[a-zA-Z]{1}",
                        replacement = tolower(substr(eng_word,
                                                     start = 1,
                                                     stop = 1)
+                                             )
                        )
-            )
-            )
-  )
+                  )
+          )
   
 #####most common words in the dataset  
 newspaper_words <- db_filter %>% count(word, sort = T)
@@ -171,13 +170,9 @@ if (econ_data == "dollar_yuan_exch"){
                      as.character(start_date), "-", as.character(end_date), sep = " " ))+
        scale_x_date(date_labels = "%b/%Y", date_breaks = "3 month")+
        theme_minimal()
-     
-  }
+     }
 
 
 
 }
 
-ts_word_frequency(start_date = as.Date("2019-01-01"),
-                           end_date = today()-1, eng_word = "outbreak", econ_data = "dollar_yuan_exch")
-ggsave("outbreak.png")
