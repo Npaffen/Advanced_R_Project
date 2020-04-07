@@ -68,14 +68,15 @@ function(input, output, session){
   output$updating_text <- renderValueBox({
     valueBox(
       paste(Sys.Date() - max(article_data_2020_page_01$date)),
-      "days ready for update",
+      "days in 2020 ready for update",
       icon = icon("list"),
       color = "blue"
     )
   })
   
   output$updating_description <- renderText(
-    "Type out the year and page number you wish to update and press the button."
+    "Type out the year and page number you wish to update and press the button:
+    Year-Page, e.g. '2020-01' without quotes."
   )
   
   confirm_update <- function() { # Confirmation pop-up
@@ -91,22 +92,40 @@ function(input, output, session){
   update_in_app <- function(request_year_page){ # initiates update
     year <- substr(request_year_page, 1, 4)
     page <- substr(request_year_page, 6, 7)
-    request <- eval(as.name(paste0(
-      "article_data_", year,
-      "_page_", page)))
-    if((Sys.Date() - max(request$date)) == 0){
-      message("Data is up to date!")
-    } else if(Sys.Date() - max(request$date) > 7){
-      message("Data is older than 1 week! Perform long update?")
-      showModal(confirm_update())
-    } else{
-      message("Data is recent, will be updated.")
+    request <- paste0("article_data_", year,
+                      "_page_", page)
+    if(exists(request)){
+      request <- eval(as.name(request))
+      if((year == 2019 && max(request$date) == as.Date("2019-12-31")) |
+         (Sys.Date() - max(request$date) == 0)){
+        message("Data is up to date!")
+      } else if((year == 2019 && max(request$date) - as.Date("2019-12-31") > 7) |
+                (year == 2020 && Sys.Date() - max(request$date) > 7)){
+        message("Data is older than 1 week! Perform long update?")
+        showModal(confirm_update())
+      } else{
+        message("Data is recent, will be updated.")
+        withCallingHandlers({
+          shinyjs::html("html", "")
+          updating_text_data_app(
+            target = input$request_year_page,
+            api_key ="trnsl.1.1.20200315T225616Z.880e92d51073d977.c51f6e74be74a3598a6cc312d721303abb5e846a",
+            RUN_API = TRUE,
+            RUN_TRANSLATION = TRUE
+          )
+        },
+        message = function(m) {
+          shinyjs::html(id = "update_report", html = m$message, add = TRUE)
+          shinyjs::html(id = "update_report", html = "<br/>", add = TRUE)
+        })
+      }
+    } else {
       withCallingHandlers({
         shinyjs::html("html", "")
+        message("Data is missing, will be created.")
         updating_text_data_app(
           target = input$request_year_page,
           api_key ="trnsl.1.1.20200315T225616Z.880e92d51073d977.c51f6e74be74a3598a6cc312d721303abb5e846a",
-          TESTING = TRUE,
           RUN_API = TRUE,
           RUN_TRANSLATION = TRUE
         )
@@ -116,6 +135,7 @@ function(input, output, session){
         shinyjs::html(id = "update_report", html = "<br/>", add = TRUE)
       })
     }
+   
   }
   
   observeEvent(input$button_long_update, {
@@ -125,7 +145,6 @@ function(input, output, session){
       updating_text_data_app(
         target = input$request_year_page,
         api_key ="trnsl.1.1.20200315T225616Z.880e92d51073d977.c51f6e74be74a3598a6cc312d721303abb5e846a",
-        TESTING = FALSE,
         RUN_API = TRUE,
         RUN_TRANSLATION = TRUE
       )

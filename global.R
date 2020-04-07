@@ -29,6 +29,7 @@ raw_articles <- files_data[grep("article_data", files_data)]
 processed_articles <- files_output[grep("processed_articles", files_output)]
 dictionary <- files_output[grep("dictionary.rds", files_output)]
 
+
 # create list of all loaded files
 loaded_files <- list(
   "raw_articles" = raw_articles,
@@ -60,6 +61,9 @@ database_status <- tibble("type" = character(),
                               )
 
 # check individual files
+if(length(dictionary) == 0){
+  loaded_files <- loaded_files[!(names(loaded_files) == "dictionary")]
+  }
 for( i in names(loaded_files) ){
   temp <- database_status[0,]
   temp[1:length(loaded_files[[i]]), "type"] <- i

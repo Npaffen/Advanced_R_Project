@@ -52,7 +52,8 @@ count_art_day <- function(articles, plot = TRUE, min_art_outliers = 10){
   out <- ggplot(art_per_day,aes(date, n)) +
     geom_point() +
     geom_smooth()
-  outliers <- art_per_day[art_per_day$n > min_art_outliers,]
+  outliers <- min_art_outliers
+  #outliers <- art_per_day[art_per_day$n > min_art_outliers,]
   #print(outliers)
   #View(filter(articles, date %in% outliers$date))
   return(list("out" = out,
@@ -151,7 +152,7 @@ request_translation <- function(dict_CN,
 
 
 ### uses the dictionary to translate the articles
-translate_articles <- function(vec_articles){
+translate_articles <- function(vec_articles, dict_CN_EN){
   message("Beginning translation of articles, please wait...")
   dict_CN_EN <- readRDS(paste0(here::here(),"/output/dictionary.rds"))
   vec_articles_EN <- vec_articles # translation target
@@ -159,7 +160,7 @@ translate_articles <- function(vec_articles){
   for(i in c("title","subtitle","content")){ 
     for(j in 1:length(vec_articles[[i]])){
       vec_articles_EN[[i]][[j]] <- modify_if(vec_articles[[i]][[j]], str_not_zero,
-                                          ~ words_cn_to_en(.x))
+                                          ~ words_cn_to_en(.x, dict_CN_EN))
       if(j %% 10 == 0){
         message(paste("translated ", i, j, " out of ", length(vec_articles[[i]]), "\n"))
         }
@@ -175,7 +176,7 @@ translate_articles <- function(vec_articles){
 
 
 ### translate a title, subtitle, or content chunk
-words_cn_to_en <- function(words_cn){
+words_cn_to_en <- function(words_cn, dict_CN_EN){
   words_en <- modify(words_cn, ~ {
     if(is.character(.x)){
       word_en <- dict_CN_EN[dict_CN_EN[[1]] == .x,2] # find translation
@@ -195,7 +196,7 @@ words_cn_to_en <- function(words_cn){
 
 ## render_frequency(), creates an article frequency plot to be rendered
 render_frequency <- function(file, file_name){
-  count_art_day(file, plot = TRUE)$out +
+  count_art_day(file, plot = TRUE, outliers = 100)$out +
     ylab("articles per day") +
     ggtitle(file_name)
 }
