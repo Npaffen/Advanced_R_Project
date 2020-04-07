@@ -10,7 +10,7 @@
 
 
 updating_text_data_app <- function(
-  target = "2020-01",
+  target,
   api_key ="trnsl.1.1.20200315T225616Z.880e92d51073d977.c51f6e74be74a3598a6cc312d721303abb5e846a",
   TESTING = FALSE,
   # activate if testing
@@ -45,11 +45,11 @@ updating_text_data_app <- function(
              will start scraping from scratch in 10 seconds,
              which might take very long. Close window to abort.")
     Sys.sleep(10)
-    update_article_data(page_num = page_num,
+    update_article_data(page_num = page_num, year = year,
                         write_to_disk = TRUE)
     } else {
       message("Article_data files found, updating...")
-      update_article_data(page_num = page_num,
+      update_article_data(page_num = page_num, year = year,
                           write_to_disk = TRUE)
     }
 
@@ -86,7 +86,7 @@ updating_text_data_app <- function(
   }
   
   
-  # load old translated and new raw artcile data for comparison 
+  # load old translated and new raw article data for comparison 
   new_articles <- readRDS(raw_path) # new articles 
   en_articles <- readRDS(paste0(wdir, "/output/",
                                 processed_file, "_EN.rds")) # old translated articles 
@@ -149,8 +149,8 @@ updating_text_data_app <- function(
     new <- anti_join(new_articles,
                      en_articles,
                      by="id")
-    message(paste("Identified new articles: \n",
-                as.character(new$date), sep = "        "))
+    message(paste("Identified new articles: \n"))
+    message(paste(as.character(new$date), collapse = "\n"))
     
     
     #####################################################################

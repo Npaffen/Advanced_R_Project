@@ -2,6 +2,7 @@
 
 require(dplyr)
 require(ggplot2)
+require(jiebaR)
 source("src/functions.R")
 
 # read data
@@ -33,3 +34,9 @@ count_art_day(articles202, min_art_outliers = 9)
 
 
 
+## text analysis
+
+all_content <- paste(articles201$content[1:100], collapse = " ")
+words = all_content
+keys = worker("keywords", topn = 20)
+keys <= words

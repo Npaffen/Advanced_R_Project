@@ -202,5 +202,5 @@ if (econ_data == "dollar_yuan_exch"){
 }
 
 ts_word_frequency(page_num = 1, start_date = as.Date("2019-01-01"),
-                              end_date = today(), eng_word = "outbreak", econ_data = "NASDAQ_CNY")
+                              end_date = today(), eng_word = "New Crown pneumonia", econ_data = "NASDAQ_CNY")
   
