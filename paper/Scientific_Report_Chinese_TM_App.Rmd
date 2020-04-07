@@ -1,6 +1,6 @@
 ---
 title: 'Whats is driving Chinese News?'
-author: 'David Schulze, Eyayaw Teka Beze, Nils Paffen'
+author: 'David Schulze, Eyayaw Teka Beze,  Paffen'
 subtitle: "Linking Daily Text Data with Economic Data"
 type: "Scientifc Report"
 discipline: "Phd Programm RWI, VWL M.Sc.,"
@@ -35,7 +35,7 @@ classoption: a4paper
 
 
 
-# Introduction (David)
+# Introduction 
 
 
 ## Motivation
@@ -67,7 +67,7 @@ In the next sections we will introduce the general concept behind the constructi
 
 # Construction of the Application
 
-## General Concept (David)
+## General Concept 
 
 The functionality of the app has three major parts:
 
@@ -75,7 +75,7 @@ The functionality of the app has three major parts:
 - handling translation and transformation of data
 - outputting descriptive and analytical information
 
-### Shiny user interface (David)
+### Shiny user interface 
 
 This was implement using the R package *shiny*, especially *shinydashboard*, to create a layout with a tab menu on the left hand, and a space for content on the right. Large buttons convey key information quickly, and dynamic boxes can be filled with text, tables, buttons, drop-down menus, and others. Especially the feature to have tabs on top of the box to show for example several plots in one space, was very useful. 
 
@@ -135,7 +135,7 @@ First, a screenshot of the page is saved by the remoteDriver and cropped in a wa
 
 In the end the intense timeout periods lead us to the decision that the webscraping of the archive is possible but extremely time consuming. The code will be able to scrape the content as described, but for the purpose of the app we decided to not integrate the archive content so far. 
 
-## Translation from Chinese (David)
+## Translation from Chinese 
 To make the app basically usable for non-Chinese speakers, a translation feature was introduced. Because Chinese has no spaces, we needed to use a NLP algorithm, so that in the article texts, spaces could be placed between words to separate them. Unique words were added to a Chinese dictionary. Each word was in turn passed on to the translation API from Yandex. This yields in most cases a reliable one-word translation. Alternative translations were beyond the scope of this app, and for in depth analysis, a knowledge of Chinese or at least use of more translation tools is necessary. This dictionary is exported in .rds and .csv files for further use. The articles are then translated word for word. This will speed up using the app for text mining with English words, even if it does not give a useful translation of the complete texts.
 
 ### Some additional remarks:
@@ -202,7 +202,7 @@ Here we should show some of the results of our application. As discussed before 
 
 
 
-# Discussion (David)
+# Discussion 
 
 How could we improve the app? Extend the archive? Add more economic data? Implement some other statistical information?
 
@@ -210,7 +210,7 @@ Encrypted server version
 
 
 
-# Conclusion (David)
+# Conclusion 
 
 Summary of our application and our results. Do we have plans to expand and update the app further in the near future?
 
