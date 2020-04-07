@@ -170,7 +170,7 @@ Accordingly, the id of each section on an article is of this form:
 
 The maximum number of sections on a page is `r max(bulkiness$num_of_sections)`, in [an article published on 2019-04-26](http://paper.people.com.cn/rmrb/html/2019-04/26/nbs.D110000renmrb_01.htm), and the minimum is `r min(bulkiness$num_of_sections)`. On average, there were `r rounded_mean(bulkiness$num_of_sections)` sections per a page of an article, for the newspapers published since January 1st, 2019 regardless of the page number. Looking at the frequencies of articles individually, the tendency is for page 2 to have less issues with very high numbers of articles above around 9.
 
-![figs/art_freq201.pdf] ![figs/art_freq202.pdf]
+![some caption 1](../figs/art_freq201.pdf) ![some caption 2](../figs/art_freq202.pdf)
 
 <!-- ```{r, art_frequencies, results="H", out.width="49%", out.height="20%",fig.show='hold', fig.align='center', fig.cap=""} -->
 

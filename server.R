@@ -11,17 +11,16 @@
 #     - Other
 # 2. Try Updating
 
-
 #################################################################
 # 0. Preparation
 library(shiny)
 require(shinyjs)
 require(ggplot2)
-source("src/functions.R")
-source("src/updating_text_data_app.R")
+source("src/app/functions.R")
+source("src/app/updating_text_data_app.R")
 source("src/update_article_data.R")
-source("src/process_articles.R")
-source("src/create_dictionary.R")
+source("src/app/process_articles.R")
+source("src/app/create_dictionary.R")
 
 function(input, output, session){
   
@@ -30,24 +29,53 @@ function(input, output, session){
 
   ############################
   # First Tab: Database Status
-
-  output$earliest_article <- renderValueBox({
-    valueBox(
-      min(processed_articles_2019_page_01_EN$date),
-      "Earliest Article in DB",
-      icon = icon("list"),
-      color = "purple"
-    )
-  })
   
-  output$newest_article <- renderValueBox({
-    valueBox(
-      max(processed_articles_2020_page_01_EN$date),
-      "Newest Article in DB",
-      icon = icon("list"),
-      color = "yellow"
-    )
-  })
+  # show earliest article info
+  try(minart <- min(processed_articles_2019_page_01_EN$date))
+  if(exists("minart")){
+    output$earliest_article <- renderValueBox({
+      valueBox(
+        minart,
+        "Earliest Article in DB",
+        icon = icon("list"),
+        color = "purple"
+      )
+    })
+  } else {
+    output$earliest_article <- renderValueBox({
+      valueBox(
+        "NA",
+        "Earliest Article in DB",
+        icon = icon("list"),
+        color = "purple"
+      )
+    })
+    
+  }
+  
+  # show newesta rticle info
+  try(maxart <- max(processed_articles_2020_page_01_EN$date))
+  if(exists("maxart")){
+    output$newest_article <- renderValueBox({
+      valueBox(
+        maxart,
+        "Newest Article in DB",
+        icon = icon("list"),
+        color = "yellow"
+      )
+    })
+  } else {
+    output$newest_article <- renderValueBox({
+      valueBox(
+        "NA",
+        "Newest Article in DB",
+        icon = icon("list"),
+        color = "yellow"
+      )
+      })
+    }
+    
+
   
   output$database_status <- renderTable(database_status)
   
@@ -65,6 +93,7 @@ function(input, output, session){
   ############################
   # Third Tab: Updating
   
+  # infobox
   output$updating_text <- renderValueBox({
     valueBox(
       paste(Sys.Date() - max(article_data_2020_page_01$date)),
@@ -74,12 +103,14 @@ function(input, output, session){
     )
   })
   
+  # instruction
   output$updating_description <- renderText(
     "Type out the year and page number you wish to update and press the button:
     Year-Page, e.g. '2020-01' without quotes."
   )
   
-  confirm_update <- function() { # Confirmation pop-up
+  # confirmation popup
+  confirm_update <- function() {
     modalDialog(
       span('A long update is pending, do you have time?'),
       footer = tagList(
@@ -89,57 +120,69 @@ function(input, output, session){
     )
   }
   
-  update_in_app <- function(request_year_page){ # initiates update
-    year <- substr(request_year_page, 1, 4)
-    page <- substr(request_year_page, 6, 7)
-    request <- paste0("article_data_", year,
-                      "_page_", page)
-    if(exists(request)){
-      request <- eval(as.name(request))
-      if((year == 2019 && max(request$date) == as.Date("2019-12-31")) |
-         (Sys.Date() - max(request$date) == 0)){
-        message("Data is up to date!")
-      } else if((year == 2019 && max(request$date) - as.Date("2019-12-31") > 7) |
-                (year == 2020 && Sys.Date() - max(request$date) > 7)){
-        message("Data is older than 1 week! Perform long update?")
-        showModal(confirm_update())
-      } else{
-        message("Data is recent, will be updated.")
-        withCallingHandlers({
-          shinyjs::html("html", "")
+  # runs update
+  update_in_app <- function(request_year_page){ 
+      year <- substr(request_year_page, 1, 4)
+      page <- substr(request_year_page, 6, 7)
+      request <- paste0("article_data_", year,
+                        "_page_", page)
+      # check existance of raw files and if needs update
+      if(exists(request)){
+        request <- eval(as.name(request))
+        if((year == 2019 && max(request$date) == as.Date("2019-12-31")) |
+           (Sys.Date() - max(request$date) == 0)){
+          message(paste("Raw data is up to date! Exiting update."))
+        } else if((year == 2019 && max(request$date) - as.Date("2019-12-31") > 7) |
+                  (year == 2020 && Sys.Date() - max(request$date) > 7)){
+          message(paste("Raw data is older than 1 week! Perform long update?"))
+          showModal(confirm_update())
+        } else{
+          message(paste("Raw data is recent, will update."))
           updating_text_data_app(
             target = input$request_year_page,
             api_key ="trnsl.1.1.20200315T225616Z.880e92d51073d977.c51f6e74be74a3598a6cc312d721303abb5e846a",
             RUN_API = TRUE,
             RUN_TRANSLATION = TRUE
           )
-        },
-        message = function(m) {
-          shinyjs::html(id = "update_report", html = m$message, add = TRUE)
-          shinyjs::html(id = "update_report", html = "<br/>", add = TRUE)
-        })
+        }
+      } else {
+        message(paste("Raw data is missing, please redownload \'article_data_\' ",
+                      "file into /data folder or reinstall app"))
       }
-    } else {
-      withCallingHandlers({
-        shinyjs::html("html", "")
-        message("Data is missing, will be created.")
+      # check existance of dictionary and if needs creation
+      if(!exists("dictionary")){
+        message(paste("Missing /output/dictionary.rds file!",
+                      "Creating from scratch in 5 seconds..."))
+        Sys.sleep(5)
         updating_text_data_app(
           target = input$request_year_page,
           api_key ="trnsl.1.1.20200315T225616Z.880e92d51073d977.c51f6e74be74a3598a6cc312d721303abb5e846a",
           RUN_API = TRUE,
           RUN_TRANSLATION = TRUE
         )
-      },
-      message = function(m) {
-        shinyjs::html(id = "update_report", html = m$message, add = TRUE)
-        shinyjs::html(id = "update_report", html = "<br/>", add = TRUE)
-      })
-    }
-   
+      } else {
+        message(paste("Dictionary file found."))
+      }
+      # check if processed files exists and need update
+      request <- paste0("processed_articles_", year, 
+                        "_page_", page)
+      if(!exists(paste0(request, "_CN")) |
+         !exists(paste0(request, "_EN"))){
+        message(paste("Processed file(s) missing! Creating from scratch in 5 seconds..."))
+        Sys.sleep(5)
+        updating_text_data_app(
+          target = input$request_year_page,
+          api_key ="trnsl.1.1.20200315T225616Z.880e92d51073d977.c51f6e74be74a3598a6cc312d721303abb5e846a",
+          RUN_API = TRUE,
+          RUN_TRANSLATION = TRUE
+        )
+      } else {
+        message(paste0("Processed files found."))
+      }
   }
   
+  # react to long update confirmation
   observeEvent(input$button_long_update, {
-    removeModal()
     withCallingHandlers({
       shinyjs::html("html", "")
       updating_text_data_app(
@@ -155,10 +198,18 @@ function(input, output, session){
     })
   })
   
-  observeEvent(input$run_update, { # if button update is pressed
-    update_in_app(request_year_page = input$request_year_page)
-  })
-  
+  # react to update button pressed
+  observeEvent(input$run_update, {
+    withCallingHandlers({
+      shinyjs::html("html", "")
+      update_in_app(request_year_page = input$request_year_page)
+      },
+      message = function(m) {
+        shinyjs::html(id = "update_report", html = m$message, add = TRUE)
+        shinyjs::html(id = "update_report", html = "<br/>", add = TRUE)
+      })
+    })
+    
   
   ############################
   # Fourth Tab: Plot article frequency  per day
