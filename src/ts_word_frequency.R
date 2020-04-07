@@ -1,4 +1,5 @@
-  # page_num is the number of newspaper page either 1 or 2, start and end_date 
+
+# page_num is the number of newspaper page either 1 or 2, start and end_date 
 #define the time-span for the anlysis, eng_word is the english word a user is looking for,
 #econ_data can either be "NASDAQ_CNY" or "dollar_yuan_exch" to plot the eng_word frequency against
 # this economic indicator
@@ -14,7 +15,8 @@ library(tidytext)
 library(readr)
 library(tidyr)
 library(lubridate)
-library(ggplot2)  
+library(fredr)
+  
   
 source(str_c(here::here(), "src", "ts_economic_data.R", sep = "/"))
 
