@@ -3,7 +3,7 @@
 #econ_data can either be "NASDAQ_CNY" or "dollar_yuan_exch" to plot the eng_word frequency against
 # this economic indicator
 ts_word_frequency <- function(page_num = 1, start_date = as.Date("2019-01-01"),
-                              end_date = today(), eng_word = "outbreak", econ_data = "NASDAQ_CNY") {
+                              end_date = today()-1, eng_word = "outbreak", econ_data = "NASDAQ_CNY") {
   
   ## please add a description, what is eng_word, etc.
   ## adding a table of contents also makes sense at this length
@@ -137,8 +137,12 @@ if (econ_data == "dollar_yuan_exch"){
   tf_idf_yuan %>%
     ggplot(aes(x = date, y = value)) + 
     geom_line(aes(color = variable), size = 1)+
-    ggtitle(str_c("Time Series Word Frequency for", eng_word, "against Dollar/Yuan Exchange Rate", sep = " " ))+
-    scale_x_date(date_labels = "%b/%Y", date_breaks = "3 month")+
+    ggtitle(str_c("Time Series Word Frequency for",
+                  eng_word, "against Dollar/Yuan Exchange Rate",
+                  as.character(start_date), "-", as.character(end_date),
+                  sep = " " ))+
+    scale_x_date(date_labels = "%b/%Y",
+                 date_breaks = "3 month")+
     theme_minimal()
   } else if (econ_data == "NASDAQ_CNY"){
    tf_idf_NAS <- tf_idf %>%
@@ -152,7 +156,11 @@ if (econ_data == "dollar_yuan_exch"){
    tf_idf_NAS %>%
      ggplot(aes(x = date, y = value)) + 
     geom_line(aes(color = variable), size = 1)+
-     ggtitle(str_c("Time Series Word Frequency for", eng_word, "against NASDAQ_CNY", sep = " " ))+
+     ggtitle(str_c("Time Series Word Frequency for",
+                   eng_word,
+                   "against NASDAQ_CNY",
+                   as.character(start_date), "-", as.character(end_date),
+                   sep = " " ))+
      scale_x_date(date_labels = "%b/%Y", date_breaks = "3 month")+
     theme_minimal()
    } else {
@@ -163,7 +171,9 @@ if (econ_data == "dollar_yuan_exch"){
     color = "#FC4E07",
     fill = "#FC4E07",
     method = "loess")+
-       ggtitle(str_c("Time Series Word Frequency for", eng_word, sep = " " ))+
+       ggtitle(str_c("Time Series Word Frequency for",
+                     eng_word,
+                     as.character(start_date), "-", as.character(end_date), sep = " " ))+
        scale_x_date(date_labels = "%b/%Y", date_breaks = "3 month")+
        theme_minimal()
      
@@ -172,5 +182,3 @@ if (econ_data == "dollar_yuan_exch"){
 
 
 }
-
-  
