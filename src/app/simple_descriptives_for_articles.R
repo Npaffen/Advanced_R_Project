@@ -11,6 +11,10 @@ articles201 <- readRDS(paste0(wdir, "/data/article_data_2020_page_01.rds"))
 articles202 <- readRDS(paste0(wdir, "/data/article_data_2020_page_02.rds"))
 articles191 <- readRDS(paste0(wdir, "/data/article_data_2019_page_01.rds"))
 articles192 <- readRDS(paste0(wdir, "/data/article_data_2019_page_02.rds"))
+en_articles201 <- readRDS(paste0(wdir, "/output/processed_articles_2020_page_01_EN.rds"))
+en_articles202 <- readRDS(paste0(wdir, "/output/processed_articles_2020_page_02_EN.rds"))
+en_articles191 <- readRDS(paste0(wdir, "/output/processed_articles_2019_page_01_EN.rds"))
+en_articles192 <- readRDS(paste0(wdir, "/output/processed_articles_2019_page_02_EN.rds"))
 
 # count unique dates to check completeness
 length(unique(articles191$date)) # should be 365
@@ -57,7 +61,12 @@ count_art_day(articles202, min_art_outliers = 9,
 
 ## text analysis
 
-all_content <- paste(articles201$content[1:100], collapse = " ")
-words = all_content
-keys = worker("keywords", topn = 20)
-keys <= words
+keywordslist <- function(articles, topn){
+  all_content <- paste(articles$content[1:100], collapse = " ")
+  words = all_content
+  keys = worker("keywords", topn = topn)
+  keys <= words
+}
+
+keywordslist(articles191, 100)
+keywordslist(en_articles191, 1000)
