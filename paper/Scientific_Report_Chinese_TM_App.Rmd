@@ -40,55 +40,104 @@ classoption: a4paper
 
 # Introduction (David)
 
-- short intro
 
-- motivation: historic impact of news
+## Motivation
 
-- intro to structure of People's Daily
+Ever since it's establishment in 1948 as the Chinese Communist Party's (CPC) officially designated publication organ, and especially since it announced the foundation of the People's Republic by Mao Zedong on October 1st, 1949, the People's Daily newspaper (also known as Renmin Ribao or RMRB) has been an object of the highest interest for anyone interested in modern China. It is safe to say that it's front page is that of the most widely published newspapers in Chinese and it's the most widely read. This amount of attention and it's clear designation as voice of the CPC have made it an invaluable source for information on China's ruling elite's communication with the masses. In times of crisis, even tiny changes in placing, formatting or wording are chosen and interpreted with extreme scrutiny @tan1990. The reason for this is on the one hand the need for some form of discussion involving the government and the educated citizenry @kuhn2002, but also the sensitivity of certain topics, also called censorship.
 
-- motivation: People's Daily is the governing Chinese Communist Party's Major Outlet
+In the past, close reading and an intimate knowledge of the Chinese language were the only tools available to researchers interested in this publication. Even the most well-read scholars of modern China will have to admit that reading the paper daily and in it's entirety, even just the front page, will be a thankless undertaking. Most articles are official statements and collections of facts about the activites of leaders, or plain positive messages about some aspect about the nation, also called, by the CPC themselves, propaganda. The nuances that to detect require years of study are difficult to check against factual evidence, short of spending hours of reading yourself. Only rarely are messages communicated as clearly, as back on the founding day of the People's Republic.
 
+This presents in our view a very urgent opportunity for automated data mining. Unlike historic literary corpora like the works of Shakespeare that can be analysed by generations of scholars, news is by its nature fleeting and often needs to be analysed in a hurry and theories tested as events unfold. Fortunately, the People's Daily offers the whole paper's content every day for free on its homepage, [paper.people.com](http://paper.people.com.cn/rmrb/).
 
-## Current Situation in China (David)
+To test our idea for an automated evaluation of People's Daily articles on their own and in context of economic data, we proposed the development of an app, that would automate the task of updating the news corpora and economic data, as well as some descriptive and basic analytical steps used in quantitative text analysis. To make these results available to non-Chinese speakers, we include a simple translation routine, that gives the most common word for word translation, even if not the meaning of entire articles or sentences.
 
-- End of 2019: Trade war with the US
+We stress that this will in no way substitute any qualitative reading, knowledge of Chinese politics, expertise in Chinese language or even text mining of the news in general. But to be able to quickly develop and test quantitative hypotheses about Chinese news and its relation to economic data, might be a useful tool on the way to further research and in-depth text mining.
 
-- 2020: Covid-19
+## About the People's Daily newspaper
 
+For the app we focus on the first two pages, because the first is arguably one of the most important daily publications in China, and the second might offer interesting contrasts, because it is aimed at a different audience, while significance diminishes rapidly with increasing page count: The latter pages of this leading CPC publications are actually full-page advertisements for private company's products, among others.
 
+The first page's layout is different every day, according to the needs of the editors: The documentory function implies that a lot of information is squeezed into a tight space. Articles may be reduced, truncated or pushed to the side of the page to make room for symbolic pictures ^[See for example the pictures displaying national remembrance of the "martyrs sacrificed in the struggle against Covid-19" with bowing national leaders and the lowered flag in black and white [front page from 2020-04-05](http://paper.people.com.cn/rmrb/html/2020-04/05/nw.D110000renmrb_20200405_1-01.htm)] and voluminous leading articles. On the other end of the spectrum are crowded front pages with up to 15 tiny articles commemorating each meeting of a tightly packed international summit schedule, with 15 headlines reading: "Xi Jinping meets (insert name of foreign national head of state)" ^[[front page from 2020-04-26](http://paper.people.com.cn/rmrb/html/2019-04/26/nbs.D110000renmrb_01.htm)].
 
-# Data Sources 
+How can we ever expect to extract useful information from such a data source? Well, for nuances in reporting to have any impact, they have to be special or deviating in some way from an established norm. By gathering data over hundreds of days, we hope that these patterns and deviations will become visible. Also, comparing subsets of data such as front and second page, reporting before and after a certain date, commonalities will be filtered out and differences highlighted. Since our data cover the year 2019 and the first months of the Covid-19 outbreak that was first documented officially by authorities in Wuhan, Hubei Province China on 2020-01-05 ^["Wuhan Health Commission report on the situation concerning a viral lung disease with unknown origins", [wjw.wuhan.gov.cn](http://wjw.wuhan.gov.cn/front/web/showDetail/2020010509020)], this constitutes an opportunity to evaluate how this major shock is covered and news compare before and after the outbreak was acknowledged.
 
-## Text Data (Nils)
+While text mining and natural language processing algorithms have matured extremely in the contexts of machine learning and applications for example in online search, the technology barrier has limited it's adoption in the social sciences. To make basic results accessible and reproducible, is finally a large motivation for the creation of this app.
 
-- short and general info
+## Overview
 
-About one year and three month of data. Scraped from the free archive of [Peoples Daily](http://paper.people.com.cn/rmrb). A more detailed explanation of the scraping process is added in the method section \ref{sec:Methods} The app includes an automated updating routine that expands the database scraping directly from paper.people.com.cn.
-
-## Economic Data (Eyayaw)
-
+In the next sections we will introduce the general concept behind the construction of our app, its functionality, and our general process in coding the individual steps.
 
 
 # Construction of the Application
 
-## Concept (David)
-- introduce file structure
-- intruduce app concept in detail, maybe use ((Scrivner, Olga & Davis, Jefferson. (2017). Interactive Text Mining Suite: Data Visualization for Literary Studies)) available at http://ceur-ws.org/Vol-1786/scrivner.pdf for cool info on shiny text mining.
+## General Concept (David)
+
+The functionality of the app has three major parts:
+- updating databases with text and economic data
+- handling translation and transformation of data
+- outputting descriptive and analytical information
+
+Formally, this puts our app in the toolbox of so called *distant reading* approaches in methods of text analysis, the use of which in social sciences in general and economics in particular is growing.. As discussed in this [workshop paper](http://ceur-ws.org/Vol-1786/scrivner.pdf) by @scrivner_davis2017´, this method is not designed to substitute or render *close reading* obsolete. It actually increases the value of such traditional methods involving a detailed analysis of single texts, by pointing out interesting texts and features in a growing sea of available texts. To think of an overly simple example, compare reading a list of references to reading every single article contained therein. The list does not give the same information, because it abstracts from the detailed texts. But with the list, we can find the texts we are looking for, saving time and leading to new insights, i.e. texts we might have missed.
+
+The **updating** gives the user the ability to gain instant insights in developments as they are unfolding, as soon as data are available. The People's Daily website is updated regularly and many other other series reachable via API are reliable sources for economic data new enough to make this a useful feature. It is possible to extend the app to include monthly and yearly economic data as well, but this would be more useful, if the text data would be extended longer into the past to match.
+
+More precisely, our app contacts the servers of the [Peoples Daily website](http://paper.people.com.cn/rmrb). and economic data APIs to compare the information with our database and check if new articles are available. If the answer is yes, it downloads them for research purposes without intent on distribution or commercial use and expands our database accordingly. You can find the raw .rds-files created by scraping these articles in the folder '/data'. Our first attempt created separate files for years and pages, to decrease size and impact of errors. Ultimately, with additional time, creating for example a unified SQLite database for all objects would be computationally more efficient and lead to a simplification of all the following code.
+
+The **translation and transformation** aspect makes the data more useful by offering a translation and transformed version suitable for plotting and analysis. Having a word-for-word translation of the newspaper data allows users to gain a limited impression of the content, allow for quick scanning of the text by users not sufficiently proficient in Chinese, and also allows for streamlined mining. In particular, the free Yandex translation API used here, translates several versions of a Chinese word to the same English correspondence. So this n-m matching, where n>m, implies that a user who searches using the English word will get more correct hits than for one particular Chinese word, without necessarily losing the meaning. One of our team members is proficient in Chinese and spot checks have confirmed the quality of the data to be sufficient (most mistranslations concern less common names and obscure phrases). For literary allusion and poetic nuance, of course, the translation will necessary and always fail.
+
+Of course all the limits of analysing language quantiatively also apply in Chinese: Rarely is understanding a text as easy as grasping the meaning of the individual words. For example, when searching for the literal translation of coronavirus, recent articles will yield surprisingly low hits. The reason is that like a lot of Chinese texts, the news uses shorthands or less direct terms, especially for a subject that is politically and emotionally sensitive like this one. Therefore a better search would look for the Chinese equivalent of "outbreak", which in the first months of 2020 is only understood in one way, as a reference to the pandemic.
+
+This does not affect general inquiries, about the most frequent words for example, in the same way. Censorship and propaganda are more obvious on the aggregate level. It shouldn't surprise anyone to see that the name of president Xi Jinping, the CPC and other government organs feature highly among the most common words. This is not a mistake, but rather revealing an important aspect of the People's Daily's reporting!
+
+All unique Chinese article words, excluding symbols and numbers, were translated and saved a bilingual dictionary in the folder '/output' as a .rds-file and in comma-separated values, to allow use in other contexts. We have gathered around 95000 unique terms over around 15 months. For comparison, the free online dictionary [MDBG.net](https://www.mdbg.net/chinese/dictionary?page=cedict) is based on the CC-CEDICT database which as of 2020-04-06 counts around 120000 entries, so this does not seem entirely unreasonable. In the same folder, processed and translated copies of the articles are saved. The process uses an NLP algorithm 
 
 
-## Scraping process for original database (Nils)
+**Outputting** finally is the essential part of the app: If users can't see the result of updating and transforming the data, the app won't be of much use. Ultimately, it would be most desireable to offer a high degree of customization in using the app for output: Choosing search words, specifying paramters, etc. would greatly increase its usefulness. In the end, gathering and transforming the data proved most time-consuming. This was to be expected, but it meant that we had to discard our most ambitious ideas for describing, analysing and visualising the data as well as making it interactable.
 
-- idea, process and issues we encountered
+In summary, as a proof of concept, this app should show a potentially useful application of using R with the shiny web-app, the ggplot and other tidy packages, API connections, scraping and data mining in an applied context.
 
+
+
+## Webscraping the People's Daily archive with Rselenium and Docker
+
+The platform CrossAsia.org is a service provided by the Staatsbibliothek zu Berlin and funded by the DFG. It collects and offers access to data for many kinds of Asia-related research. Through CrossAsia we have access to a database of issues of the People's Daily starting from 1946. The oldest edition is dated on May 15, 1946. The People's Daily website on the other hand offers issues since the beginning of 2019 and is offered directly to everyone on the internet.
+
+To combine the long archive and the easy access to the new issues, we had the idea to develop a webscraper that updates using the People's Daily website and adds the articles to our database based on the archive via CrossAsia.org.
+
+Since this archive is only accessable with an account and a memebership, for the scraping of the archive, a login for the scraping process is necessary. The best solution to send the login credentials, browse through the archive, and scrape the content, we came up with is an Firefox image in Docker accessed by the RSelenium package.  
+
+Docker is a batch of so called platforms as a service (PaaS), which is a type of cloud computing service to manage and run application without any kind of infrastructure. For our purpose we used Docker to build a browser in a virtual machine and then connect these with R using the RSelenium package. For a detailed installation guideline we recommend to have a look at https://docs.ropensci.org/RSelenium/articles/docker.html. To interact with the virtual browser image in R, RSelenium uses a class called RSelenium::remoteDriver, which features several functions such as *remDr\$navigate("url")* to browse to a specific website or more specific ones like *remDr\$screenshot()* to display or save and screenshot of the actual webpage, or *remDr\$sendKeysToElement()* which allows the user to send specific keys like "Enter" to the browser. 
+
+Before we can start to scrape the articles we need to start the Docker image as explained in the guideline. Then the first thin the scraper function *ca_scaper()* function calls is *ca_login()*. The latter connects the remoteDriver with Docker. When this is done it navigates to the login page of CrossAsia.org and hands over our account credentials.
+
+The article overview of each issue is uniformly displayed by the date that the issue page is reached. 
+
+[//]: #  What do you mean here? Maybe a picture would help. ############
+
+In this case, 19460515 for the date and 1 for page 1. The link structure of the archive differs significantly from that of the free archive. Besides a personal session token, in this case "s894ib9c043f", the link structure differs by the access points to the archive. In addition to CrossAsia.org, the Staatsbibliothek zu Berlin should be mentioned here in particular. This can be found in the suffix ".erf.sbb.spk-berlin.de".   The article overview of each issue is uniformly accessible via the date and page number. 
+LINK http://data.people.com.cn.s894ib9c043f.erf.sbb.spk-berlin.de/rmrb/19460515/1/ 
+In this case, 19460515 for the date and 1 for page 1. 32-character ID is used for article archiving. LINK : http://data.people.com.cn.s894ib9c043f.erf.sbb.spk-berlin.de/rmrb/19460515/1/cae1d1ef94a74c8e99ad43189652fb40 shows the oldest article of the archive. Since the ID does not seem to follow a fixed pattern, it must be obtained from the article overview for the scraping process. A list of all article IDs can be retrieved on each overview page by using the HTML node "li h3 a" and the attribute "href". Now links can be generated from the date format and the IDs to call up the individual articles. To fullfill this task the scraper calls the function ca_date_urls. The so created url list is then passed to *ca_content()*.
+
+Afterwards the scraper maps over this list while calling the *ca_content()*-function. 
+Almost all important information such as author, title, subtitle and article content can be retrieved via the html node "#detail_pop_content" and the underlying nodes ".title", ".subtitle", ".author", and "p". After scraping the information all content is saved in a tibble. 
+
+### Page protection 
+
+Since CrossAsia.org is paying the provider of the archive a fee for the content they give acces to, both they and the provider are oriented towards protecting the archive data from illegal downloads. Although the use for preview purposes is allowed, the user cannot always be distinguished from a "data pirate", i.e. offering the articles on the Internet after downloading them. In addition, the provider wants to keep his server load as low as possible in order to grant as many users as possible quick access to the archive at the same time. If several users now send automated requests to the archive, this can affect the speed of the servers. By randomly generating sleep times in the code, the scraping behavior can be adapted to the usage behavior of a human being. CrossAsia.org asks the user to solve a simple captcha after a certain number of article calls. To solve these problems, our webscraper first checks for a location in the HTML code that is present on both the article page and the captcha page. If the site structure equals the one of a saved version of the captcha site the function *ca_captcha()* is called. 
+
+First, a screenshot of the page is saved by the remoteDriver and cropped in a way that only the captcha image is left. The page https://2captcha.com LINK offers the possibility to solve captchas automatically for a small fee of less than 1$ per 1000 captchas. For this purpose, the user is provided with an API key, which can be used to transmit the image information as a POST request with multipart-encoding. Afterwards, the user is assigned a ticket-ID, with which he can retrieve the solved captcha code as a string after about 5-10 seconds of waiting time. Since the operator may sometimes experience increased solving times, we check the content of the string. A waiting time of 5 seconds is added if the captcha has not been solved yet and an attempt to grab the code follows the additional waiting time. The captcha-code is now sent to the to the corresponding form of CrossAsia.com and will be forwarded automatically. After entering the captcha code, we check again if the forwarding was successful or if the entered captcha code was invalid and therefore another captcha must be solved. Even solving these captures codes and extensive waiting time of about 10 minutes after each page, we expierenced that the archive operator gives a time-out error to users additionally, if they try to look at too many articles in a given time. The time-out length and the length until a timeout is called differs from 30 minutes to a few hours. We tried to check for this site behavior but were not completly succesfull in providing a function to check for the time-out and wait until it disappears. 
+
+### Output
+In the end the intense timeout periods lead us to the decision that the webscraping of the archive is possible but extremely time consuming. The code will be able to scrape the content as described, but for the purpose of the app we decided to not integrate the archive content so far. 
 
 ## Translation from Chinese (David)
-To make the app basically usable for non-Chinese speakers, a translation feature was introduced. Because Chinese has no spaces, we needed to use a NLP algorithm ((quote: jiebaR)), so that in the article texts, spaces could be placed between words to separate them. Unique words were added to a Chinese dictionary. Each word was in turn passed on to the translation API from Yandex. This yields in most cases a reliable one-word translation. Alternative translations were beyond the scope of this app, and for in depth analysis, a knowledge of Chinese or at least use of more translation tools is necessary. This dictionary is exported in .rds and .csv files for further use. The articles are then translated word for word. This will speed up using the app for text mining with English words, even if it does not give a useful translation of the complete texts.
+To make the app basically usable for non-Chinese speakers, a translation feature was introduced. Because Chinese has no spaces, we needed to use a NLP algorithm, so that in the article texts, spaces could be placed between words to separate them. Unique words were added to a Chinese dictionary. Each word was in turn passed on to the translation API from Yandex. This yields in most cases a reliable one-word translation. Alternative translations were beyond the scope of this app, and for in depth analysis, a knowledge of Chinese or at least use of more translation tools is necessary. This dictionary is exported in .rds and .csv files for further use. The articles are then translated word for word. This will speed up using the app for text mining with English words, even if it does not give a useful translation of the complete texts.
 
 ### Some additional remarks:
 
-To reduce use of the Yandex translation API (which has limited free bandwith) in each update, only new words are translated and added. This allowed an approximation of the range of unique words used. For illustration: Translating all the unique words (words includes here names, idioms, technological terms, etc.) yielded at least 50150 unique words for the first pages of all of 2019. The second pages of 2019 added 16393 new words. For the first three months, we found still 3228 new words for page 1 and 2350 new words for page 2. Even when allowing for misclassification by the NLP algorithm (sometimes words might be recorded as separately and again as a compound), this suggests that the news needs plenty of new words to adapt to current developments, e.g. "Covid-19".
+To reduce use of the Yandex translation API (which has limited free bandwith) in each update, only new words are translated and added. This allowed an approximation of the range of unique words used. For illustration: Translating all the unique words (words includes here names, idioms, technological terms, etc.) yielded at least 50150 unique words for the first pages of all of 2019. The second pages of 2019 added 16393 new words. For the first three months, we found still 3228 new words for page 1 and 2350 new words for page 2. Even when allowing for misclassification by the NLP algorithm (sometimes words might be recorded as separate and again as a compound), this suggests that the news needs plenty of new words to adapt to current developments, e.g. "Covid-19".
 
-Another aspect of the dictionary: While all Chinese words are unique, the English translation yielded around 25000 duplicated entries. This means that users searching for example for "satellite" will find hits for 卫星, 颗卫星 and 人造卫星, which all carry that meaning, improving the accuracy of text mining.
+Another aspect of the dictionary: While all Chinese words are unique, the English translation yielded around 25000 duplicated entries. This means that users searching for example for "satellite" will find hits for "Wei Xing", "Ke Weixing" and "Renzao Wei Xing", which all carry that meaning, improving the accuracy of text mining.
 
 
 ## Economic data retrieval (Eyayaw)
@@ -129,8 +178,15 @@ Optional:
 Do not:
 
 - sentiment analysis
+## Word frequency time series and economic data
+In order to gain an impression of the impact the frequency of a single word can have on the economy, we created a function to generate time series and visualize the results. The user first specifies whether he wants to search the articles on page 1 or page 2 (page_num) for a specific word (eng_word). In addition, the user can specify a time period in which the analysis is to be performed using start_date and end_date. In the parameter econ_data he also determines whether he wants to compare the word frequency of eng_word with the NASDAQ_CNY or dollar_yuan_exch, which have already been explained in the section on economic data.  We have integrated a function to download them from different sources and then adjust and, if necessary, normalize them according to the user's input time parameters. Furthermore there is the possibility to extend the frequency of time series from monthly to daily.
+It is also possible to extend the frequency of time series from monthly to daily. 
 
+In the next step we load all articles of page 1 or 2 according to the number of pages requested by the user and tokenize them. A token can be described as a meaningful word, which is worth considering in the context of a later word frequency analysis.  The function which performs this task is called *tidy_text()*. Now we have a database which can be filtered by the user's chosen word eng_word, and the time period. Afterwards the values of the economic data are passed over the filtered database and the two time series are plotted. This plot is now transferred to the app and displayed to the user. 
 
+Translated with www.DeepL.com/Translator (free version)
+
+Translated with www.DeepL.com/Translator (free version)
 ## Shiny user interface (David)
 
 
@@ -141,7 +197,7 @@ Here we should show some of the results of our application. As discussed before 
 
 
 
-# Discussion
+# Discussion (David)
 
 How could we improve the app? Extend the archive? Add more economic data? Implement some other statistical information?
 
@@ -149,7 +205,7 @@ Encrypted server version
 
 
 
-# Conclusion
+# Conclusion (David)
 
 Summary of our application and our results. Do we have plans to expand and update the app further in the near future?
 

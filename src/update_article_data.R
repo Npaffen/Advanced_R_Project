@@ -4,14 +4,17 @@ library(glue)
 
 # Updating data for new articles after the last download.
 
-update_article_data <- function(page_num,
+update_article_data <- function(year, page_num,
                                 write_to_disk = FALSE) {
   stopifnot(page_num %in% c("01", "02"))
   message("Updating raw articles from People's Daily website...")
   
-  path <- paste0("data/article_data_2020_page_", page_num, ".rds")
+  path <- paste0("data/article_data_", year , "_page_", page_num, ".rds")
   nms <- str_sub(path, 6, -5)
   names(path) <- nms
+  if(year == "2019"){ # update until when?
+    today <- as.Date("2019-12-31")
+  } else {today <- today()}
   
   df <- map(path, read_rds) # read in the last scraped data sets.
   
@@ -29,20 +32,20 @@ update_article_data <- function(page_num,
   ) # for the updated article
   
   for (i in seq_along(last_updated)) {
-    if (last_updated[[i]] == today()) {
+    if (last_updated[[i]] == today) {
       message(
         "It seems that the data set <<", nms[[i]],
         ">> is up-to-date."
       )
       dat[[i]] <- tibble() # will not be updated, since it's up-to-date.
-    } else if (last_updated[[i]] < today()) {
+    } else if (last_updated[[i]] < today) {
       dates_to_be_updated <- set_names(
         vector("list", length(page_num)),
         nms
       ) # for dates from `last updated` `to today`
       
       dates_to_be_updated[[i]] <-
-        seq.Date(last_updated[[i]] + 1, today(), by = 1)
+        seq.Date(last_updated[[i]] + 1, today, by = 1)
       
       source("src/scrape_article.R") # for scrape_article(page_num, dates, ...)
       
@@ -59,7 +62,7 @@ update_article_data <- function(page_num,
         saveRDS(df[[i]], paste0("data/", names(df)[[i]], ".rds"))
       }
     } else {
-      return("Data contains articles from the future! (°o°)", call. = FALSE)
+      return("Data contains articles from the future!", call. = FALSE)
     }
   }
   

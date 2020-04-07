@@ -82,7 +82,7 @@ body <-   dashboardBody(
               fluidRow(
                 shinyjs::useShinyjs(),
                 textOutput("updating_description"),
-                textInput("request_year_page","","year and page, e.g. '2020-01'"),
+                textInput("request_year_page","","2020-01"),
                 actionButton("run_update","run update"),
                 verbatimTextOutput("update_report")
               )

@@ -1,4 +1,5 @@
 ca_captcha <- function(personal_2captcha_key) {
+  require(magick)
   remDr$screenshot(file = str_c(here::here(),
                                 "captcha.png",
                                 sep = "/")) # screenshot of the full site with captcha
