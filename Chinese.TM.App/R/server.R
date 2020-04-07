@@ -22,7 +22,7 @@ source("src/app/updating_text_data_app.R")
 source("src/update_article_data.R")
 source("src/app/process_articles.R")
 source("src/app/create_dictionary.R")
-#source("src/ts_word_frequency.R")
+source("src/ts_word_frequency.R")
 
 function(input, output, session){
   
@@ -247,6 +247,23 @@ function(input, output, session){
   ############################
   # Fourth Tab: Plot article frequency  per day
   
+  
+  output$word_freq1 <- renderPlot(word_freq1)
+  output$word_freq2 <- renderPlot(word_freq2)
+  output$word_freq3 <- renderPlot(word_freq3)
+  
+  output$wordfreqs <- renderUI({
+    tabBox(title = "Words per Day",id= "wordfreqtab",
+           tabPanel(freq_words[[1]], plotOutput("word_freq1")),
+           tabPanel(freq_words[[2]], plotOutput("word_freq2")),
+           tabPanel(freq_words[[3]], plotOutput("word_freq2"))
+    )
+  })
+  
+    
+  # output plots in tabs
+  
+
   
   
   ###########################

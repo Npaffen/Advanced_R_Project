@@ -4,7 +4,7 @@
 # 0. Preparation
 # 1. Load and check files
 # 2. Check database status
-# 3. 
+# 3. Word Frequencies
 
 
 
@@ -15,6 +15,7 @@ source("src/app/functions.R")
 require(stringr)
 require(tibble)
 require(dplyr)
+source("src/ts_word_frequency.R")
 
 
 
@@ -83,3 +84,18 @@ for( i in names(loaded_files) ){
 
 database_status <- database_status[with(database_status, order(file)), ]
 
+
+
+#####################################################################
+# 3. Word Frequencies
+
+freq_words <- c( "development", "inspection",
+                 "outbreak"
+                # "comrade", "committee"
+                # "corruption", "crown",
+                # , "supervision"
+)
+
+word_freq1 <- render_word(freq_words[[1]])
+word_freq2 <- render_word(freq_words[[2]])
+word_freq3 <- render_word(freq_words[[3]])
