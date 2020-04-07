@@ -7,15 +7,17 @@
 # 3. Word Frequencies
 
 
+message(paste("Welcome to the People's Daily Mining App. Please stand by for a few seconds while it loads..."))
 
 #####################################################################
 # 0. Preparation
 wdir <- here::here()
-source("src/app/functions.R")
+source("app/functions.R")
 require(stringr)
 require(tibble)
 require(dplyr)
-source("src/ts_word_frequency.R")
+source("scraping/ts_word_frequency.R")
+source("wrangling/update_article_data.R")
 
 
 
@@ -89,8 +91,9 @@ database_status <- database_status[with(database_status, order(file)), ]
 #####################################################################
 # 3. Word Frequencies
 
-freq_words <- c( "development", "inspection",
-                 "outbreak"
+freq_words <- c( "outbreak", "development",
+                 "inspection"
+                 
                 # "comrade", "committee"
                 # "corruption", "crown",
                 # , "supervision"
