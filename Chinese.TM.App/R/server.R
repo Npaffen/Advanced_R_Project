@@ -7,7 +7,8 @@
 #       - First Tab: Database Status
 #       - Second Tab: Loaded Data Files
 #       - Third Tab: Updating
-#       - Fourth Tab: Plot article frequency  per days
+#       - Fourth Tab: Plot article frequency per days
+#       - Fifth Tab: Plot word frequencies
 #     - Other
 # 2. Try Updating
 
@@ -21,6 +22,7 @@ source("src/app/updating_text_data_app.R")
 source("src/update_article_data.R")
 source("src/app/process_articles.R")
 source("src/app/create_dictionary.R")
+source("src/ts_word_frequency.R")
 
 function(input, output, session){
   
@@ -106,7 +108,11 @@ function(input, output, session){
   # instruction
   output$updating_description <- renderText(
     "Type out the year and page number you wish to update and press the button:
-    Year-Page, e.g. '2020-01' without quotes."
+    Year-Page, e.g. '2020-01' without quotes. In case of unexpected behavior,
+    remove processed files in /output and recompile. Removing the dictionary
+    is discouraged, recompilation takes up to 8 hours and translation bandwith
+    is limited. Best recommendation is re-downloading or reinstalling the app.
+    For testing, remove a file and replace it with its .old equivalent."
   )
   
   # confirmation popup
@@ -237,6 +243,27 @@ function(input, output, session){
     )
   })
   
+  
+  ############################
+  # Fourth Tab: Plot article frequency  per day
+  
+  
+  output$word_freq1 <- renderPlot(word_freq1)
+  output$word_freq2 <- renderPlot(word_freq2)
+  output$word_freq3 <- renderPlot(word_freq3)
+  
+  output$wordfreqs <- renderUI({
+    tabBox(title = "Words per Day",id= "wordfreqtab",
+           tabPanel(freq_words[[1]], plotOutput("word_freq1")),
+           tabPanel(freq_words[[2]], plotOutput("word_freq2")),
+           tabPanel(freq_words[[3]], plotOutput("word_freq2"))
+    )
+  })
+  
+    
+  # output plots in tabs
+  
+
   
   
   ###########################

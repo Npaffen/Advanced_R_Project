@@ -56,14 +56,14 @@ updating_text_data_app <- function(
   path <- here::here(paste0("output/", processed_file, "_CN.rds"))
   
   if(!file.exists(path)){
-    message(paste("Processed Chinese article data missing in folder '/output',
-            will start reprocessing in 5 seconds from scratch,
-            which might take a while. Close window to abort."))
+    message(paste0("Processed Chinese article data missing in folder '/output', ",
+                   "will start reprocessing in 5 seconds from scratch, ",
+                   "which might take a while. Close window to abort."))
     source("src/app/process_articles.R")
-    process_articles()
-    } else {
+    process_articles(year = year, page_num = page_num)
+  } else {
     message(paste("Processed Chinese articles found, updating..."))
-    process_articles()
+    process_articles(year = year, page_num = page_num)
   }
   
   # check and make dictionary if necessary
@@ -82,9 +82,18 @@ updating_text_data_app <- function(
   }
   dictionary <- readRDS("output/dictionary.rds")
   
+  # check and make or update translated articles
+  path <- here::here(paste0("output/", processed_file, "_EN.rds"))
   
- 
- 
+  if(!file.exists(path)){
+    message(paste0("Translated English article data missing in folder '/output', ",
+                   "will start reprocessing in 5 seconds from scratch, ",
+                   "which might take a while. Close window to abort."))
+    RUN_UPDATE <- TRUE
+  } else {
+    message(paste("Processed Chinese articles found."))
+  }
+  
   
   if(RUN_UPDATE) {
     
@@ -185,20 +194,28 @@ updating_text_data_app <- function(
       Sys.setlocale() # restore default locale
     }
     
-    
     #####################################################################
     # 5. Update databases
     
     if(RUN_TRANSLATION){ # can take some time
       Sys.setlocale(locale = "Chinese") # fix character encoding
-      art_words_EN <- translate_articles(art_words, dict_CN_EN)
-      art_words_EN <- bind_rows(en_articles, art_words_EN)
+      art_words <- insert_spaces(articles = new,
+                                 analyzer = "jiebaR",
+                                 # different options for "analyzer" : "default",
+                                 # "hmm", "jiebaR", "fmm","coreNLP"
+                                 nature = FALSE, # recognizes word nature
+                                 nosymbol = TRUE, # eliminates symbols
+                                 returnType = "vector" # default is insert spaces
+      )
+      art_words_EN <- translate_articles(art_words, dictionary)
+      art_words_EN <- vctrs::vec_rbind(en_articles, art_words_EN, .ptype = en_articles)
       saveRDS(art_words_EN,
               paste0("output/processed_articles_",
-              year, "_page_", page_num, "_EN.rds")
+                     year, "_page_", page_num, "_EN.rds")
       )
       Sys.setlocale() # restore default locale
     }
+    
   }
   message("******* updating text data completed *******")
 }

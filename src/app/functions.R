@@ -31,6 +31,7 @@ require(purrr) # install.packages("purrr")
 require(tibble) # install.packages("tibble")
 require("RYandexTranslate") #devtools::install_github("mukul13/RYandexTranslate")
 
+source("src/ts_word_frequency.R")
 
 ### check_if_complete(), compares two lists A and B, to see if anything is missing from B
 # not used at the moment
@@ -205,6 +206,17 @@ render_frequency <- function(file, file_name){
     ylab("articles per day") +
     ggtitle(file_name)
 }
+
+## word frequnecy plot to be rendered
+
+render_word <- function(word){
+  ts_word_frequency(start_date = as.Date("2019-01-01"),
+                    end_date = today()-1,
+                    eng_word = word,
+                    econ_data = "NASDAQ_CNY"
+                    )
+}
+  
 
 
 
