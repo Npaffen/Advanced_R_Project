@@ -17,12 +17,12 @@
 library(shiny)
 require(shinyjs)
 require(ggplot2)
-source("src/app/functions.R")
-source("src/app/updating_text_data_app.R")
-source("src/update_article_data.R")
-source("src/app/process_articles.R")
-source("src/app/create_dictionary.R")
-source("src/ts_word_frequency.R")
+source("app/functions.R")
+source("app/updating_text_data_app.R")
+source("wrangling/update_article_data.R")
+source("app/process_articles.R")
+source("app/create_dictionary.R")
+source("scraping/ts_word_frequency.R")
 
 function(input, output, session){
   
@@ -256,7 +256,7 @@ function(input, output, session){
     tabBox(title = "Words per Day",id= "wordfreqtab",
            tabPanel(freq_words[[1]], plotOutput("word_freq1")),
            tabPanel(freq_words[[2]], plotOutput("word_freq2")),
-           tabPanel(freq_words[[3]], plotOutput("word_freq2"))
+           tabPanel(freq_words[[3]], plotOutput("word_freq3"))
     )
   })
   

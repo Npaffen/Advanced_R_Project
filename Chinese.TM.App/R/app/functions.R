@@ -31,7 +31,7 @@ require(purrr) # install.packages("purrr")
 require(tibble) # install.packages("tibble")
 require("RYandexTranslate") #devtools::install_github("mukul13/RYandexTranslate")
 
-source("src/ts_word_frequency.R")
+source("scraping/ts_word_frequency.R")
 
 ### check_if_complete(), compares two lists A and B, to see if anything is missing from B
 # not used at the moment

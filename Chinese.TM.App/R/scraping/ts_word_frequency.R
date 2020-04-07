@@ -5,18 +5,24 @@
 ts_word_frequency <- function(page_num = 1, start_date = as.Date("2019-01-01"),
                               end_date = today()-1, eng_word = "outbreak", econ_data = "NASDAQ_CNY") {
 
+  library(dplyr)
+  library(purrr)
+  library(stringr)
+  library(tidytext)
+  library(readr)
+  library(stopwords)
+  library(tidyr)
+  library(tidyr)
+  library(lubridate)
+  library(lubridate)
+  library(quanteda)
+  library(readr)
+  library(Quandl)
+  library(fredr)
+  library(ggplot2)  
+  source(str_c(here::here(), "R/scraping/ts_economic_data.R", sep = "/"))
+  
 
-
-library(dplyr)
-library(purrr)
-library(stringr)
-library(tidytext)
-library(readr)
-library(tidyr)
-library(lubridate)
-library(ggplot2)
-
-source(str_c(here::here(), "ts_economic_data.R", sep = "/"))
 
 economic_data <- ts_economic_data(start_date = start_date,
               end_date = end_date,
