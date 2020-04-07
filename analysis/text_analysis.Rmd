@@ -158,7 +158,7 @@ First of all, the main link to the article is this one: (http://paper.people.com
 
 As we can see in Figure (\@ref(fig:example-newspaper)) there are several different sections crammed or squeezed into the single page of the newspaper and these parts (sections) are clickable, and each has a unique id. A click on each section will redirect to a link where one can access the full content of the section in an enlarged view. For example, the first section out of the 10 sections on this example article is [section 1](http://paper.people.com.cn/rmrb/html/2020-03/22/nw.D110000renmrb_20200322_1-01.htm) or (see Figure \@ref(fig:example-newspaper) --right). The section id for this first section is **nw.D110000renmrb_20200322_1-01**. 
 
-Accordingly, the id of each section on an article is of this form:
+Accordingly, the id of each section on an article is of this form: \n
 **nw.D110000renmrb_yyyymmdd_section#-page#**. Each section of the single page newspaper has the following additional characteristics. 
 
 * Title (**h1 tag**)
