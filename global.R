@@ -11,7 +11,7 @@
 #####################################################################
 # 0. Preparation
 wdir <- here::here()
-source("src/functions.R")
+source("src/app/functions.R")
 require(stringr)
 require(tibble)
 require(dplyr)
@@ -31,10 +31,11 @@ dictionary <- files_output[grep("dictionary.rds", files_output)]
 
 
 # create list of all loaded files
-loaded_files <- list(
-  "raw_articles" = raw_articles,
-  "processed_articles" = processed_articles,
-  "dictionary" = dictionary)
+loaded_files <- list()
+if(length(raw_articles) != 0){loaded_files$"raw_articles" = raw_articles}
+if(length(processed_articles) != 0){loaded_files$"processed_articles" = processed_articles}
+if(length(dictionary) != 0){loaded_files$"dictionary" = dictionary}
+
 
 # load in .rds files
 load_rds(filenames = c(dictionary, processed_articles),
@@ -61,9 +62,6 @@ database_status <- tibble("type" = character(),
                               )
 
 # check individual files
-if(length(dictionary) == 0){
-  loaded_files <- loaded_files[!(names(loaded_files) == "dictionary")]
-  }
 for( i in names(loaded_files) ){
   temp <- database_status[0,]
   temp[1:length(loaded_files[[i]]), "type"] <- i
