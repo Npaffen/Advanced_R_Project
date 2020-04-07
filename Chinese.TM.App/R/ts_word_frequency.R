@@ -1,13 +1,12 @@
-
-# page_num is the number of newspaper page either 1 or 2, start and end_date 
+  # page_num is the number of newspaper page either 1 or 2, start and end_date
 #define the time-span for the anlysis, eng_word is the english word a user is looking for,
 #econ_data can either be "NASDAQ_CNY" or "dollar_yuan_exch" to plot the eng_word frequency against
 # this economic indicator
 ts_word_frequency <- function(page_num = 1, start_date = as.Date("2019-01-01"),
                               end_date = today()-1, eng_word = "outbreak", econ_data = "NASDAQ_CNY") {
-  
 
-  
+
+
 library(dplyr)
 library(purrr)
 library(stringr)
@@ -15,10 +14,9 @@ library(tidytext)
 library(readr)
 library(tidyr)
 library(lubridate)
-library(fredr)
-  
-  
-source(str_c(here::here(), "src", "ts_economic_data.R", sep = "/"))
+library(ggplot2)
+
+source(str_c(here::here(), "ts_economic_data.R", sep = "/"))
 
 economic_data <- ts_economic_data(start_date = start_date,
               end_date = end_date,
@@ -27,8 +25,8 @@ economic_data <- ts_economic_data(start_date = start_date,
 
 ##### function   to tokenize the articles
 tidy_text <- function(data) {
-  
-  
+
+
   select(data, id, date, content) %>%
     mutate(content = str_split(content, "\\|\\|")) %>%
     unnest(cols = content) %>%
@@ -51,14 +49,14 @@ if (page_num == 1) {
                                         "output",
                                         "processed_articles_2020_page_01_EN.rds",
                                         sep = "/")) %>%
-    tidy_text() 
-  
+    tidy_text()
+
   article_2019_p_1_td <- read_rds(str_c(here::here(),
                                         "output",
                                         "processed_articles_2019_page_01_EN.rds",
                                         sep = "/")) %>%
     tidy_text()
-  
+
   database <- article_2019_p_1_td %>% full_join(article_2020_p_1_td)
 } else {
   article_2020_p_2_td <- read_rds(str_c(here::here(),
@@ -66,15 +64,15 @@ if (page_num == 1) {
                                         "processed_articles_2020_page_02_EN.rds",
                                         sep = "/")) %>%
     tidy_text()
-  
-  
-  
+
+
+
   article_2019_p_2_td <- read_rds(str_c(here::here(),
                                         "output",
                                         "processed_articles_2019_page_01_EN.rds",
                                         sep = "/")) %>%
     tidy_text()
-  
+
   database <- article_2019_p_2_td %>% full_join(article_2020_p_2_td)
 }
 
@@ -84,7 +82,7 @@ if (page_num == 1) {
 normalization_to_x <- function(dataset, x){
   factor_val <- dataset[1] - x
   normalize <- dataset - factor_val
-} 
+}
 
 ##### look for the eng_word frequency in the specific time-span, check for lower/upper case of first letter
 db_filter <- database %>%
@@ -107,11 +105,11 @@ db_filter <- database %>%
                        )
                   )
           )
-  
-#####most common words in the dataset  
+
+#####most common words in the dataset
 newspaper_words <- db_filter %>% count(word, sort = T)
 
-#####most common words within particular newspaper of page 1 
+#####most common words within particular newspaper of page 1
 words_by_newspaper_date_page <- db_filter %>%
   count(date, word, sort = T) %>%
   ungroup()
@@ -119,7 +117,7 @@ words_by_newspaper_date_page <- db_filter %>%
 #####Finding tf-idf within  newspaper of page_num
 tf_idf <- words_by_newspaper_date_page %>%
   bind_tf_idf(word, date, n)  %>%
-  arrange(date) 
+  arrange(date)
 ####produce the ggplots
 if (econ_data == "dollar_yuan_exch"){
   tf_idf_yuan <- tf_idf %>%
@@ -128,10 +126,10 @@ if (econ_data == "dollar_yuan_exch"){
   select(date, value, eng_word ) %>%
   gather(key = "variable", value = "value", -date) %>%
     mutate(value = ifelse(is.na(value) == T, 0, value))
-  
-    
+
+
   tf_idf_yuan %>%
-    ggplot(aes(x = date, y = value)) + 
+    ggplot(aes(x = date, y = value)) +
     geom_line(aes(color = variable), size = 1)+
     ggtitle(str_c("Time Series Word Frequency for",
                   eng_word, "against Dollar/Yuan Exchange Rate",
@@ -147,10 +145,10 @@ if (econ_data == "dollar_yuan_exch"){
     select(date, NASDAQ_norm, eng_word ) %>%
     gather(key = "variable", value = "value", -date) %>%
      mutate(value = ifelse(is.na(value) == T, 100, value))
-   
-  
+
+
    tf_idf_NAS %>%
-     ggplot(aes(x = date, y = value)) + 
+     ggplot(aes(x = date, y = value)) +
     geom_line(aes(color = variable), size = 1)+
      ggtitle(str_c("Time Series Word Frequency for",
                    eng_word,
@@ -169,7 +167,8 @@ if (econ_data == "dollar_yuan_exch"){
     method = "loess")+
        ggtitle(str_c("Time Series Word Frequency for",
                      eng_word,
-                     as.character(start_date), "-", as.character(end_date), sep = " " ))+
+                     as.character(start_date), "-", as.character(end_date),
+                     sep = " " ))+
        scale_x_date(date_labels = "%b/%Y", date_breaks = "3 month")+
        theme_minimal()
      }
