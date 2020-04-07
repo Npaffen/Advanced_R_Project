@@ -34,8 +34,7 @@ sidebar <- dashboardSidebar(
       menuItem("Data Status", tabName = "data_status", icon = icon("dashboard")),
       menuItem("Loaded Files", tabName = "loadedfiles", icon = icon("dashboard")),
       menuItem("Updating", tabName = "updating", icon = icon("dashboard")),
-      menuItem("Article Frequencies", tabName = "artfreq", icon = icon("dashboard")),
-      menuItem("Word Frequencies", tabName = "wordfreq", icon = icon("dashboard"))
+      menuItem("Article Frequencies", tabName = "artfreq", icon = icon("dashboard"))
     )
   )
 
@@ -89,19 +88,12 @@ body <-   dashboardBody(
               )
       ),
       
-      
+          
       ##############################
       # Fourth tab content
       tabItem(tabName = "artfreq",
               uiOutput("artfreqs")
-      ),
-      
-      
-      ##############################
-      # Fifth tab content
-      tabItem(tabName = "wordfreq",
-              uiOutput("wordfreqs")
-      )
+              )
     
     )
   )
