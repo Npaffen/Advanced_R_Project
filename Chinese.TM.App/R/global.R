@@ -17,6 +17,7 @@ require(stringr)
 require(tibble)
 require(dplyr)
 source("scraping/ts_word_frequency.R")
+source("wrangling/update_article_data.R")
 
 
 

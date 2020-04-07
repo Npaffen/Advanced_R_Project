@@ -9,8 +9,8 @@ update_article_data <- function(year, page_num,
   stopifnot(page_num %in% c("01", "02"))
   message("Updating raw articles from People's Daily website...")
   
-  path <- paste0("data/article_data_", year , "_page_", page_num, ".rds")
-  nms <- str_sub(path, 6, -5)
+  path <- paste0(here::here(), "/data/article_data_", year , "_page_", page_num, ".rds")
+  nms <- paste0("article_data_", year, "_page_", page_num)
   names(path) <- nms
   if(year == "2019"){ # update until when?
     today <- as.Date("2019-12-31")
@@ -47,7 +47,7 @@ update_article_data <- function(year, page_num,
       dates_to_be_updated[[i]] <-
         seq.Date(last_updated[[i]] + 1, today, by = 1)
       
-      source("src/scrape_article.R") # for scrape_article(page_num, dates, ...)
+      source(paste0(here::here(),"/R/wrangling/scrape_article.R")) # for scrape_article(page_num, dates, ...)
       
       dat[[i]] <- scrape_article(
         page_num[[i]],
@@ -59,7 +59,7 @@ update_article_data <- function(year, page_num,
         dat[[nms[[i]]]]
       )
       if (all(write_to_disk && !is_empty(dat[[i]]))) {
-        saveRDS(df[[i]], paste0("data/", names(df)[[i]], ".rds"))
+        saveRDS(df[[i]], paste0(here::here(), "/data/", names(df)[[i]], ".rds"))
       }
     } else {
       return("Data contains articles from the future!", call. = FALSE)
@@ -82,3 +82,4 @@ update_article_data <- function(year, page_num,
   # ---
   dat
 }
+

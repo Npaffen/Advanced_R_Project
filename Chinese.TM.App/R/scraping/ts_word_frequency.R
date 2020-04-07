@@ -2,8 +2,9 @@
 #define the time-span for the anlysis, eng_word is the english word a user is looking for,
 #econ_data can either be "NASDAQ_CNY" or "dollar_yuan_exch" to plot the eng_word frequency against
 # this economic indicator
-ts_word_frequency <- function(page_num = 1, start_date = as.Date("2019-01-01"),
-                              end_date = today()-1, eng_word = "outbreak", econ_data = "NASDAQ_CNY") {
+ts_word_frequency <- function(page_num = 1, start_date = as.Date("2019-01-01"), end_date = today()-1,
+                              eng_word = "outbreak",
+                              econ_data = "NASDAQ_CNY") {
 
   library(dplyr)
   library(purrr)
@@ -12,8 +13,6 @@ ts_word_frequency <- function(page_num = 1, start_date = as.Date("2019-01-01"),
   library(readr)
   library(stopwords)
   library(tidyr)
-  library(tidyr)
-  library(lubridate)
   library(lubridate)
   library(quanteda)
   library(readr)
@@ -21,10 +20,10 @@ ts_word_frequency <- function(page_num = 1, start_date = as.Date("2019-01-01"),
   library(fredr)
   library(ggplot2)  
   source(str_c(here::here(), "R/scraping/ts_economic_data.R", sep = "/"))
+  source(str_c(here::here(), "R/scraping/ts_economic_data.R", sep = "/"))
+
   
-
-
-economic_data <- ts_economic_data(start_date = start_date,
+  economic_data <- ts_economic_data(start_date = start_date,
               end_date = end_date,
               econ_data = econ_data)
 
@@ -33,16 +32,28 @@ economic_data <- ts_economic_data(start_date = start_date,
 tidy_text <- function(data) {
 
 
-  select(data, id, date, content) %>%
-    mutate(content = str_split(content, "\\|\\|")) %>%
+  select(data, id,
+         date,
+         content) %>%
+    mutate(content = str_split(content,
+                               "\\|\\|")) %>%
     unnest(cols = content) %>%
     group_by(id) %>%
     mutate(para_id = row_number()) %>%
     ungroup() %>%
-    tidytext::unnest_tokens(word, content) %>%
-    dplyr::filter(!str_detect(word, "\\d+")) %>% # remove any digit
-    mutate(month = lubridate::month(date, label = TRUE, abbr = FALSE)) %>%
-    select(id, date, month, para_id, word, everything())
+    tidytext::unnest_tokens(word,
+                            content) %>%
+    dplyr::filter(!str_detect(word,
+                              "\\d+")) %>% # remove any digit
+    mutate(month = lubridate::month(date,
+                                    label = TRUE,
+                                    abbr = FALSE)) %>%
+    select(id,
+           date,
+           month,
+           para_id,
+           word,
+           everything())
 }
 ##### load and process the articles
 
@@ -92,7 +103,9 @@ normalization_to_x <- function(dataset, x){
 
 ##### look for the eng_word frequency in the specific time-span, check for lower/upper case of first letter
 db_filter <- database %>%
-  filter(between(.$date, start_date, end_date)) %>%
+  filter(between(.$date,
+                 start_date,
+                 end_date)) %>%
   filter( .$word  %in% eng_word | .$word  %in%
             str_c(gsub(x = eng_word,
                        pattern = "^[a-zA-Z]{1}",
@@ -113,33 +126,47 @@ db_filter <- database %>%
           )
 
 #####most common words in the dataset
-newspaper_words <- db_filter %>% count(word, sort = T)
+newspaper_words <- db_filter %>% count(word,
+                                       sort = T)
 
 #####most common words within particular newspaper of page 1
 words_by_newspaper_date_page <- db_filter %>%
-  count(date, word, sort = T) %>%
+  count(date,
+        word,
+        sort = T) %>%
   ungroup()
 
 #####Finding tf-idf within  newspaper of page_num
 tf_idf <- words_by_newspaper_date_page %>%
-  bind_tf_idf(word, date, n)  %>%
+  bind_tf_idf(word,
+              date,
+              n)  %>%
   arrange(date)
 ####produce the ggplots
 if (econ_data == "dollar_yuan_exch"){
   tf_idf_yuan <- tf_idf %>%
     rename(eng_word = n) %>%
-    right_join(economic_data, by = "date") %>%
-  select(date, value, eng_word ) %>%
-  gather(key = "variable", value = "value", -date) %>%
-    mutate(value = ifelse(is.na(value) == T, 0, value))
+    right_join(economic_data,
+               by = "date") %>%
+  select(date,
+         value, eng_word ) %>%
+  gather(key = "variable",
+         value = "value", -date) %>%
+    mutate(value = ifelse(is.na(value) == T,
+                          0,
+                          value))
 
 
   tf_idf_yuan %>%
-    ggplot(aes(x = date, y = value)) +
-    geom_line(aes(color = variable), size = 1)+
+    ggplot(aes(x = date,
+               y = value)) +
+    geom_line(aes(color = variable),
+              size = 1)+
     ggtitle(str_c("Time Series Word Frequency for",
                   eng_word, "against Dollar/Yuan Exchange Rate",
-                  as.character(start_date), "-", as.character(end_date),
+                  as.character(start_date),
+                  "-",
+                  as.character(end_date),
                   sep = " " ))+
     scale_x_date(date_labels = "%b/%Y",
                  date_breaks = "3 month")+
@@ -148,9 +175,15 @@ if (econ_data == "dollar_yuan_exch"){
    tf_idf_NAS <- tf_idf %>%
     mutate(eng_word = normalization_to_x(n, 100)) %>%
   right_join(economic_data, by = "date")%>%
-    select(date, NASDAQ_norm, eng_word ) %>%
-    gather(key = "variable", value = "value", -date) %>%
-     mutate(value = ifelse(is.na(value) == T, 100, value))
+    select(date,
+           NASDAQ_norm,
+           eng_word ) %>%
+    gather(key = "variable",
+           value = "value",
+           -date) %>%
+     mutate(value = ifelse(is.na(value) == T,
+                           100,
+                           value))
 
 
    tf_idf_NAS %>%
@@ -159,21 +192,28 @@ if (econ_data == "dollar_yuan_exch"){
      ggtitle(str_c("Time Series Word Frequency for",
                    eng_word,
                    "against NASDAQ_CNY",
-                   as.character(start_date), "-", as.character(end_date),
+                   as.character(start_date),
+                   "-",
+                   as.character(end_date),
                    sep = " " ))+
-     scale_x_date(date_labels = "%b/%Y", date_breaks = "3 month")+
+     scale_x_date(date_labels = "%b/%Y",
+                  date_breaks = "3 month")+
     theme_minimal()
    } else {
   tf_idf %>%
-  ggplot(aes(x= date,y = n ))+
-  geom_line(color = "#00AFBB", size = 1)+
+  ggplot(aes(x= date,
+             y = n ))+
+  geom_line(color = "#00AFBB",
+            size = 1)+
   stat_smooth(
     color = "#FC4E07",
     fill = "#FC4E07",
     method = "loess")+
        ggtitle(str_c("Time Series Word Frequency for",
                      eng_word,
-                     as.character(start_date), "-", as.character(end_date),
+                     as.character(start_date),
+                     "-",
+                     as.character(end_date),
                      sep = " " ))+
        scale_x_date(date_labels = "%b/%Y", date_breaks = "3 month")+
        theme_minimal()

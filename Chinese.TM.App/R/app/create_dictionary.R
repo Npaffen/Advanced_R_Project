@@ -10,20 +10,19 @@
 # 2. Request translation of the dictionary with translation API
 
 create_dictionary <- function(
-  RUN_API = FALSE,# set to true only if you are really sure Yandex API is available 
+  RUN_API = FALSE,# set to true only if you are really sure Yandex API is available
   # and you have a lot of time, a new dictionary might take hours
   OVERWRITE = FALSE, # set to true if you suspect the old dictionary is corrupt
   api_key = "trnsl.1.1.20200315T225616Z.880e92d51073d977.c51f6e74be74a3598a6cc312d721303abb5e846a"
   ){
-  
+
   message("Creating dictionary from processed articles, please wait...")
-  
+
   #####################################################################
   # 0. Preparation
-  
+
   # source self-written functions
   source("app/functions.R")
-  
   # load/install required packages
   require(purrr) # install.packages("purrr")
   require(dplyr) # install.packages("dplyr")
@@ -34,7 +33,7 @@ create_dictionary <- function(
   # "coreNLP" by Arnold Taylor and Lauren Tilton (2016)
   require("Rwordseg") # devtools::install_github("lijian13/Rwordseg")
   if(0){ # if using coreNLP, HMM
-    require("coreNLP") # install.packages("coreNLP") 
+    require("coreNLP") # install.packages("coreNLP")
     require(rJava) # install.packages("rJava")
     coreNLP::downloadCoreNLP()
     require("HMM") # install.packages("HMM")
@@ -44,27 +43,27 @@ create_dictionary <- function(
   require("RYandexTranslate") #devtools::install_github("mukul13/RYandexTranslate")
   # install/load packages for translating with the dictionary
   require("stringr") #install.packages("stringr")
-  
+
   #####################################################################
-  
+
   # find list of article files
   wdir <- here::here()
   files <- list.files(paste0(wdir, "/data"))
-  files <- files[grep("article_data", files)] 
-  
-  
+  files <- files[grep("article_data", files)]
+
+
   ### repeat for each article file
-  
+
   for(i in files){
     # read article data and delete duplicates
-    
+
     message(paste("#### beginning processing of file: ", i, " ####\n"))
     articles <- readRDS(paste0(wdir, "/data/", i))%>%
       remove_duplicates()
-    
+
     #####################################################################
     ## 1. Create dictionary of all words in articles and check for old version
-    
+
     # make a list that returns the articles separated into word vectors
     vec_articles <- insert_spaces(articles,
                                   analyzer = "jiebaR",
@@ -74,12 +73,12 @@ create_dictionary <- function(
                                   nosymbol = TRUE, # eliminates symbols
                                   returnType = "vector" # default is insert spaces
     )
-    
+
     # extract dictionary of unique words from article words
     dict_CN <- vec_articles %>%
       extract_dictionary() %>%
       delete_numbers()
-    
+
     # try to read any old dictionary.rds and determine new words
     if(file.exists(paste0(wdir,"/output/dictionary.rds")) & !OVERWRITE ){
       message("found existing dictionary.rds, translating and appending new words \n")
@@ -93,8 +92,8 @@ create_dictionary <- function(
         dict_CN_EN <- old_dict # call old dictionary
         }
     }
-    
-    
+
+
     #####################################################################
     # 2. Request translation of the dictionary with Yandex translation API
     if(RUN_API){ # only run once! character limit: 1,000,000/day, 10,000,000 month
@@ -117,13 +116,13 @@ create_dictionary <- function(
     } # this part took several attempts, due to server time-out, connection errors, etc.
     # if it fails definitively, make sure Yandex bandwith is still open and
     # get the last step from "i" and repeated with "start = i-1" until finished
-    
+
     if(exists("old_dict")){
       message("Appended new unique words and translations. \n")
     }
     message("Dictionary creation completed. \n")
-    
+
   }
-  
-  
+
+
 }

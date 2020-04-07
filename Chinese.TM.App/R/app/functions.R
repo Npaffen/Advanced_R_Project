@@ -207,16 +207,9 @@ render_frequency <- function(file, file_name){
     ggtitle(file_name)
 }
 
-## word frequnecy plot to be rendered
 
 render_word <- function(word){
-  ts_word_frequency(start_date = as.Date("2019-01-01"),
-                    end_date = today()-1,
+  ts_word_frequency(page_num = 1, start_date = as.Date("2019-01-01"), end_date = today()-1,
                     eng_word = word,
-                    econ_data = "NASDAQ_CNY"
-                    )
+                    econ_data = "NASDAQ_CNY")
 }
-  
-
-
-

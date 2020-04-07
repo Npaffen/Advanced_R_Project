@@ -6,7 +6,7 @@
 # 2. Insert spaces with NLP tool
 # 3. Find new words not in dictionary
 # 4. Translate new words with API, articles with dictionary
-# 5. Update databases 
+# 5. Update databases
 
 
 updating_text_data_app <- function(
@@ -19,10 +19,10 @@ updating_text_data_app <- function(
   RUN_TRANSLATION = TRUE
   # might take very long
   ){
-  
+
   RUN_UPDATE <- FALSE # will self-activate if updating
-  
-  
+
+
   #####################################################################
 
   # construct target file names
@@ -32,9 +32,9 @@ updating_text_data_app <- function(
                  "_page_", page_num)
   processed_file <- paste0("processed_articles_", year,
                      "_page_", page_num)
-  
+
   # check if relevant files are present and create if necessary
-  
+
   # check and make or update article data
   wdir <- here::here()
   raw_path <- paste0(wdir, "/data/", raw_file, ".rds")
@@ -51,10 +51,10 @@ updating_text_data_app <- function(
                           write_to_disk = TRUE)
     }
 
-  
+
   # check and make or update processed articles
   path <- here::here(paste0("output/", processed_file, "_CN.rds"))
-  
+
   if(!file.exists(path)){
     message(paste0("Processed Chinese article data missing in folder '/output', ",
                    "will start reprocessing in 5 seconds from scratch, ",
@@ -65,7 +65,7 @@ updating_text_data_app <- function(
     message(paste("Processed Chinese articles found, updating..."))
     process_articles(year = year, page_num = page_num)
   }
-  
+
   # check and make dictionary if necessary
   if(!file.exists(here::here("output/dictionary.rds"))){
     message(paste("Dictionary data missing in folder '/output',
@@ -81,10 +81,10 @@ updating_text_data_app <- function(
                 "entries: ", dim(readRDS("output/dictionary.rds"))[1]))
   }
   dictionary <- readRDS("output/dictionary.rds")
-  
+
   # check and make or update translated articles
   path <- here::here(paste0("output/", processed_file, "_EN.rds"))
-  
+
   if(!file.exists(path)){
     message(paste0("Translated English article data missing in folder '/output', ",
                    "will start reprocessing in 5 seconds from scratch, ",
@@ -93,14 +93,13 @@ updating_text_data_app <- function(
   } else {
     message(paste("Processed Chinese articles found."))
   }
-  
-  
+
+
   if(RUN_UPDATE) {
-    
+
     # source self-written functions
     source("app/functions.R")
-    source("app/update_article_data.R")
-    
+    source("wrangling/update_article_data.R")
     # load/install required packages
     require("dplyr") # install.packages("dplyr")
     require("purrr") # install.packages("purrr")
@@ -110,7 +109,7 @@ updating_text_data_app <- function(
     # "coreNLP" by Arnold Taylor and Lauren Tilton (2016)
     require("Rwordseg") # devtools::install_github("lijian13/Rwordseg")
     if(0){ # if using coreNLP
-      require("coreNLP") # install.packages("coreNLP") 
+      require("coreNLP") # install.packages("coreNLP")
       require(rJava) # install.packages("rJava")
       coreNLP::downloadCoreNLP()
     }
@@ -120,19 +119,19 @@ updating_text_data_app <- function(
     require("RYandexTranslate") #devtools::install_github("mukul13/RYandexTranslate")
     # install/load packages for translating with the dictionary
     require("stringr") #install.packages("stringr")
-    
-   
+
+
     message(paste("Running translation update..."))
-    
+
     #####################################################################
     # 1. Identify new articles
-    # compare with English, because it's the final output 
-    
+    # compare with English, because it's the final output
+
     if(file.exists(here::here(paste0("output/",processed_file, "_EN.rds")))){
-        # load old translated and new raw article data for comparison 
-        new_articles <- readRDS(raw_path) # new articles 
+        # load old translated and new raw article data for comparison
+        new_articles <- readRDS(raw_path) # new articles
         en_articles <- readRDS(paste0(wdir, "/output/",
-                                      processed_file, "_EN.rds")) # old translated articles 
+                                      processed_file, "_EN.rds")) # old translated articles
         new <- anti_join(new_articles,
                        en_articles,
                        by="id")
@@ -140,11 +139,11 @@ updating_text_data_app <- function(
         message(paste(as.character(new$date), collapse = "\n"))
     } else {
       message(paste("Article translation missing, translating from scratch..."))
-      new <- readRDS(raw_path) # new articles 
+      new <- readRDS(raw_path) # new articles
       en_articles <- new[0,]
     }
-    
-    
+
+
     #####################################################################
     # 2. Insert spaces with NLP tool
     message(paste("Vectorizing new articles with NLP algorithm."))
@@ -156,14 +155,14 @@ updating_text_data_app <- function(
                                nosymbol = TRUE, # eliminates symbols
                                returnType = "vector" # default is insert spaces
     )
-    
+
     # extract dictionary of unique words from new articles
     dict_CN <- art_words %>%
       extract_dictionary() %>%
       delete_numbers()
-    
-    
-    
+
+
+
     #####################################################################
     # 3. Find new words not in dictionary or use old one
     dict_CN <- anti_join(enframe(dict_CN),
@@ -175,7 +174,7 @@ updating_text_data_app <- function(
       RUN_API <- FALSE
       message(paste("No new words found for dictionary, none translated or added."))
     }
-    
+
     #####################################################################
     # 4. Translate new words with API, articles with dictionary
     if(RUN_API){ # use sparingly! character limit: 1,000,000/day, 10,000,000 month
@@ -193,10 +192,10 @@ updating_text_data_app <- function(
                 fileEncoding = "UTF-16LE")
       Sys.setlocale() # restore default locale
     }
-    
+
     #####################################################################
     # 5. Update databases
-    
+
     if(RUN_TRANSLATION){ # can take some time
       Sys.setlocale(locale = "Chinese") # fix character encoding
       art_words <- insert_spaces(articles = new,
@@ -215,7 +214,7 @@ updating_text_data_app <- function(
       )
       Sys.setlocale() # restore default locale
     }
-    
+
   }
   message("******* updating text data completed *******")
 }
