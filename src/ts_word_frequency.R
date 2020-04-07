@@ -13,8 +13,13 @@ library(purrr)
 library(stringr)
 library(tidytext)
 library(readr)
+library(stopwords)
 library(tidyr)
 library(lubridate)
+library(quanteda)
+library(readr)
+library(Quandl)
+library(fredr)
 library(ggplot2)  
   
 source(str_c(here::here(), "src", "ts_economic_data.R", sep = "/"))
@@ -177,6 +182,7 @@ if (econ_data == "dollar_yuan_exch"){
 
 
 }
+
 
 #ts_word_frequency(start_date = as.Date("2019-01-01"),
 #                           end_date = today()-1, eng_word = "outbreak", econ_data = "dollar_yuan_exch")
