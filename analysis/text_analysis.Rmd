@@ -7,6 +7,7 @@ output:
       latex_engine: xelatex
       fig_caption: yes
       keep_tex: yes
+  bookdown::html_document2: default
 subtitle: 'Text analysis of Chinese Paper Daily news article '
 fontsize: 12pt
 colorlinks: true
@@ -15,8 +16,8 @@ link-citations: yes
 urlcolor: blue
 citecolor: #0174DF
 header_includes:
-  -- \usepackage{float}
-  -- \usepackage{ctex}
+  - \usepackage{float}
+  - \usepackage{ctex}
 ---
 
 ```{r setup, include = FALSE}
@@ -64,7 +65,7 @@ article_df <-
   mutate(
     year = year(date),
     page_num = case_when(
-      page_num == "01" ~ "1st",
+      page_num == "01" ~ "1st", 
       page_num == "02" ~ "2nd"
     )
   )
@@ -399,7 +400,7 @@ map2(vals$year, vals$page, function(.x, .y) {
 ```{r}
 plots_paths <- list.files("figs", "word_per_month.", 
                           full.names = TRUE)
-
+# include_graphics does not work with loops
 include_graphics(here(plots_paths[1]))
 include_graphics(here(plots_paths[2]))
 include_graphics(here(plots_paths[3]))
