@@ -53,7 +53,7 @@ updating_text_data_app <- function(
 
   
   # check and make or update processed articles
-  path <- paste0(wdir, "/output/", processed_file, "_CN.rds")
+  path <- here::here(paste0("output/", processed_file, "_CN.rds"))
   
   if(!file.exists(path)){
     message("Processed Chinese article data missing in folder '/output',
@@ -67,7 +67,7 @@ updating_text_data_app <- function(
   }
   
   # check and make dictionary if necessary
-  if(!file.exists(paste0(wdir,"/output/dictionary.rds"))){
+  if(!file.exists(here::here("output/dictionary.rds"))){
     message("Dictionary data missing in folder '/output',
             will start recompiling in 5 seconds from scratch,
             which might take a while. Close window to abort.")
@@ -119,7 +119,7 @@ updating_text_data_app <- function(
     # 1. Identify new articles
     # compare with English, because it's the final output 
     
-    if(file.exists(paste0(wdir, "/output/",processed_file, "_EN.rds"))){
+    if(file.exists(here::here(paste0("output/",processed_file, "_EN.rds"))){
         # load old translated and new raw article data for comparison 
         new_articles <- readRDS(raw_path) # new articles 
         en_articles <- readRDS(paste0(wdir, "/output/",

@@ -14,7 +14,7 @@
 
 ## FUNCTIONS FOR APP
 # render_frequency(), creates an article frequency plot to be rendered in server.R
-# update_in_app(), initiates update in server.R
+
 
 
 ### required packages
@@ -47,11 +47,16 @@ require("RYandexTranslate") #devtools::install_github("mukul13/RYandexTranslate"
 
 
 ### count and plot articles per day, print outliers
-count_art_day <- function(articles, plot = TRUE, min_art_outliers = 10){
+count_art_day <- function(articles, plot = TRUE,
+                          add2ggplot = # optional add to plot
+                            "ggtitle('Articles per day on page x')", 
+                          min_art_outliers = 10){
   art_per_day <- articles %>% group_by(date) %>% count()
-  out <- ggplot(art_per_day,aes(date, n)) +
-    geom_point() +
-    geom_smooth()
+  out <- eval(parse(text= paste0(
+                      "ggplot(art_per_day,aes(date, n)) +",
+                      "geom_point() +",
+                      "geom_smooth() +",
+                      add2ggplot)))
   outliers <- min_art_outliers
   #outliers <- art_per_day[art_per_day$n > min_art_outliers,]
   #print(outliers)
@@ -154,7 +159,7 @@ request_translation <- function(dict_CN,
 ### uses the dictionary to translate the articles
 translate_articles <- function(vec_articles, dict_CN_EN){
   message("Beginning translation of articles, please wait...")
-  dict_CN_EN <- readRDS(paste0(here::here(),"/output/dictionary.rds"))
+  dict_CN_EN <- readRDS(here::here("output/dictionary.rds"))
   vec_articles_EN <- vec_articles # translation target
   str_not_zero <- function(x){nchar(x) !=0} # nonempty character condition
   for(i in c("title","subtitle","content")){ 

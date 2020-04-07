@@ -27,10 +27,31 @@ dim(unique(articles202))[1] - dim(articles202)[1]
 # count and plot articles per day, print outliers
 
 
-count_art_day(articles201, min_art_outliers = 9) ## cool: first and second pages are quite different
-count_art_day(articles191, min_art_outliers = 9) ## check what's up with outliers with n>10 in the first pages
-count_art_day(articles192, min_art_outliers = 8)
-count_art_day(articles202, min_art_outliers = 9)
+count_art_day(articles201, min_art_outliers = 9,
+              add2ggplot = paste0(
+                "ggtitle('Articles per day on page 1 in 2020') + ",
+                "ylab('articles') + ",
+                "xlab('dates in 2020')")
+)
+              ## cool: first and second pages are quite different
+count_art_day(articles191, min_art_outliers = 9,
+              add2ggplot = paste0(
+                "ggtitle('Articles per day on page 1 in 2019') + ",
+                "ylab('articles') + ",
+                "xlab('dates in 2019')")
+)
+count_art_day(articles192, min_art_outliers = 8,
+              add2ggplot = paste0(
+                "ggtitle('Articles per day on page 2 in 2020') + ",
+                "ylab('articles') + ",
+                "xlab('dates in 2020')")
+)
+count_art_day(articles202, min_art_outliers = 9,
+              add2ggplot = paste0(
+                "ggtitle('Articles per day on page 2 in 2019') + \n",
+                "ylab('articles') + \n",
+                "xlab('dates in 2019')")
+)
 
 
 
