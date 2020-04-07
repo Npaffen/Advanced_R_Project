@@ -57,7 +57,7 @@ tidy_text <- function(data) {
 ```{r, reading-in-data-sets}
 
 article_df <-
-  map_df(list.files("output/", pattern = "EN.rds$", full.names = TRUE), read_rds) %>%
+  map_df(list.files(here("output/"), pattern = "EN.rds$", full.names = TRUE), read_rds) %>%
   mutate_if(is.list, unlist) %>%
   mutate(
     year = year(date),
@@ -135,7 +135,7 @@ article_words_2020 <-
 
 The data are collected from the Chinese [People's Daily](https://en.wikipedia.org/wiki/People%27s_Daily) newspaper for year 2019 and 2020. The daily newspapers are published on a consistent structure (we give the details of the structure below) online on the newspaper's [website](paper.people.com.cn). Despite the slow loading speed of the website, We tapped into its structure and have scraped the **first two pages** of the daily newspapers. 
 
-For instance, the 1st page of the newspaper published on *2020-03-22* can be accessed [here](http://paper.people.com.cn/rmrb/html/2020-03/22/nbs.D110000renmrb_01.htm). 
+For instance, the 1st page of the issue published on *2020-03-22* can be accessed [here](http://paper.people.com.cn/rmrb/html/2020-03/22/nbs.D110000renmrb_01.htm). 
 
  
 ```{r, example-newspaper, results="H", out.width="49%", out.height="20%",fig.show='hold', fig.align='center', fig.cap="Example newspaper page published on 2020-03-22 (left), and Section or column 1 of it enlarged (right)."}
@@ -147,9 +147,9 @@ include_graphics(c(
 ```
 
 
-We dissect the different characteristics of this particular article as follows and these properties apply to all other articles. 
+We dissect the different characteristics of this particular article as follows and these properties apply to all other articles.
 
-First of all, the main link to the article is this one: (http://paper.people.com.cn/rmrb/html/2020-03/22/nbs.D110000renmrb_01.htm). This takes us to the page of the newspaper, i.e., to the 1st page of the newspaper in this particular example. However, a lot load of content is packed on this single page. There are 10 different sections or columns on this article (see Figure \@ref(fig:example-newspaper) for this example newspaper page published on 2020-03-22). 
+First of all, the main link to the article is this one: (http://paper.people.com.cn/rmrb/html/2020-03/22/nbs.D110000renmrb_01.htm). This takes us to one page of the newspaper, i.e., to the 1st page of the newspaper in this particular example. However, a lot of content is packed on this single page. There are 10 different sections or columns on this article (see Figure \@ref(fig:example-newspaper) for this example newspaper page published on 2020-03-22). 
 
 * The prefix of the URL, i.e.,
 **(http://paper.people.com.cn/rmrb/html)** is the same for every article, regardless of page number or edition.
@@ -160,14 +160,23 @@ First of all, the main link to the article is this one: (http://paper.people.com
 
 As we can see in Figure (\@ref(fig:example-newspaper)) there are several different sections crammed or squeezed into the single page of the newspaper and these parts (sections) are clickable, and each has a unique id. A click on each section will redirect to a link where one can access the full content of the section in an enlarged view. For example, the first section out of the 10 sections on this example article is [section 1](http://paper.people.com.cn/rmrb/html/2020-03/22/nw.D110000renmrb_20200322_1-01.htm) or (see Figure \@ref(fig:example-newspaper) --right). The section id for this first section is **nw.D110000renmrb_20200322_1-01**. 
 
-Accordingly, the id of each section on an article is of this form: **nw.D110000renmrb_yyyymmdd_section#-page#**. Each section of the single page newspaper has the following additional characteristics. 
+Accordingly, the id of each section on an article is of this form:
+**nw.D110000renmrb_yyyymmdd_section#-page#**. Each section of the single page newspaper has the following additional characteristics. 
 
 * Title (**h1 tag**)
 * Subtitle (**h3 tag**)
 * Number of paragraphs on each page, and
 * Content or body of the news article section.
 
-The maximum number of sections on a page of a newspaper is `r max(bulkiness$num_of_sections)`, in [an article published on 2019-04-26](http://paper.people.com.cn/rmrb/html/2019-04/26/nbs.D110000renmrb_01.htm), and the minimum is `r min(bulkiness$num_of_sections)`. On average, there were `r rounded_mean(bulkiness$num_of_sections)` sections per a page of an article, for the newspapers published since January 1st, 2019 regardless of the page number.
+The maximum number of sections on a page is `r max(bulkiness$num_of_sections)`, in [an article published on 2019-04-26](http://paper.people.com.cn/rmrb/html/2019-04/26/nbs.D110000renmrb_01.htm), and the minimum is `r min(bulkiness$num_of_sections)`. On average, there were `r rounded_mean(bulkiness$num_of_sections)` sections per a page of an article, for the newspapers published since January 1st, 2019 regardless of the page number. Looking at the frequencies of articles individually, the tendency is for page 2 to have less issues with very high numbers of articles above around 9.
+
+```{r, art_frequencies, results="H", out.width="49%", out.height="20%",fig.show='hold', fig.align='center', fig.cap="Articles per day for page 1 and page 2."}
+
+include_graphics(c(
+  here("figs/art_freq201.pdf"),
+  here("figs/art_freq202.pdf")
+), dpi = NA)
+```
 
 Therefore, the contents of all the sections together--on the page of the news article-- make up the contents of the entire (single) page--which are compactly placed in a single page of the article. Particularly, we scraped the sections of the newspapers--through their unique ids. The date and the page number of the newspaper uniquely identify a newspaper, where the combination of which forms the ids of the sections--prefixed with **nbs.D110000renmrb**.
 
