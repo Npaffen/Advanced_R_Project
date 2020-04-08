@@ -16,16 +16,16 @@ output:
     latex_engine: xelatex
     template: template.tex
     fig_caption: yes
-    citation_package: biblatex
+    citation_package: natbib
     number_sections: true
 toc: true
 lot: true
 lof: true
 graphics: true
-biblio-title: paper/references
+biblio-title: References
 fontsize: 12pt
 geometry: lmargin = 3 cm,rmargin = 2.5cm,tmargin=2.5cm,bmargin=2.5cm
-bibliography: references.bib
+bibliography: paper/references.bib
 classoption: a4paper
 colorlinks: true
 linkcolor: teal
@@ -33,12 +33,11 @@ link-citations: yes
 urlcolor: blue
 citecolor: #0174DF
 
-
-
 ---
-
+% This command is used by pandoc when create lists and is defined in pandoc's default latex template
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
 
 
 
@@ -176,7 +175,7 @@ Another aspect of the dictionary: While all Chinese words are unique, the Englis
 In order to gain an impression of the impact the frequency of a single word can have on the economy, we created the function *ts_word_frequency()* to generate time series and visualize the results. The user first specifies whether he wants to search the articles on page 1 or page 2 (page_num) for a specific word (eng_word). In addition, the user can specify a time period in which the analysis is to be performed using start_date and end_date. In the parameter econ_data he also determines whether he wants to compare the word frequency of eng_word with the NASDAQ_CNY or dollar_yuan_exch, which have already been explained in the section on economic data.  We have integrated a function to download them from different sources and then adjust and, if necessary, normalize them according to the user's input time parameters. Furthermore there is the possibility to extend the frequency of time series from monthly to daily. It is also possible to extend the frequency of time series from monthly to daily.
 
 
-## Economic data retrieval
+## Economic data retrieval (Eyayaw)
 To give the user an impression how a term can impact the economy we decided to implement two indicators for chinese economy. The [NASDAQ CNY](https://www.quandl.com/data/NASDAQOMX/NQCN2000CNY-NASDAQ-China-Inds-CNY-Index-NQCN2000CNY) is a daily stock market index of [74](https://indexes.nasdaqomx.com/Index/Weighting/NQCN2000CNY) international chinese companys. The other on is the [exchange rate of Chinese Yuan to one US Dollar](https://fred.stlouisfed.org/series/DEXCHUS).
 
 
@@ -281,7 +280,7 @@ The data are collected from the Chinese [People's Daily](https://en.wikipedia.or
 For instance, the 1st page of the issue published on *2020-03-22* can be accessed [here](http://paper.people.com.cn/rmrb/html/2020-03/22/nbs.D110000renmrb_01.htm). 
 
  
-```{r, example-newspaper, results="H", out.width="49%", out.height="20%",fig.show='hold', fig.cap="Example newspaper page published on 2020-03-22 (left), and Section or column 1 of it enlarged (right)."}
+```{r, example-newspaper, results="H", out.width="49%", out.height="20%",fig.show='hold', fig.align='center', fig.cap="Example newspaper page published on 2020-03-22 (left), and Section or column 1 of it enlarged (right)."}
 
 include_graphics(
   c(
@@ -323,6 +322,57 @@ Moreover, most of the news articles are bulky in terms of number of paragraphs a
 
 
 # Descriptive Statistics
+
+
+```{r, desc-stat-table}
+
+desc.funs <-
+  list(median = median, mean = mean, sd = sd, max = max, min = min)
+
+bulkiness %>%
+  group_by(year, page_num) %>%
+  summarise_at(
+    vars(
+      num_of_paragraphs,
+      num_of_sections,
+      paragraph_per_section,
+      words = total
+    ),
+    desc.funs
+  ) %>%
+  ungroup() %>%
+  pivot_longer(
+    -c(year, page_num),
+    names_to = c("var", "stats"),
+    names_pattern = "(\\w+)_(mean|median|max|min|sd)",
+    values_to = "value"
+  ) %>%
+  pivot_wider(c(year, var), c(page_num, stats), values_from = value) %>%
+  select(-year) %>%
+  knitr::kable(
+    caption = "Descriptive Statistics: How bulky is the daily newspaper?",
+    digits = 1,
+    col.names = c("Variable", rep(names(desc.funs), 2)),
+    booktabs = TRUE,
+    linesep = ""
+  ) %>%
+  kable_styling(latex_options = c("scale_down", "Hold_position", "striped")) %>%
+  add_header_above(c("", "Page 1" = 5, "Page 2" = 5), bold = TRUE, italic = TRUE, line = TRUE) %>%
+  pack_rows(
+    group_label = "2019",
+    start_row = 1,
+    end_row = 4,
+    bold = TRUE,
+    italic = TRUE
+  ) %>%
+  pack_rows(
+    group_label = "2020",
+    start_row = 5,
+    end_row = 8,
+    bold = TRUE,
+    italic = TRUE
+  )
+```
 
 
 ```{r, num-of-section, fig.cap = "Distribution of **number of sections** in a page of a newspaper"}
@@ -492,6 +542,18 @@ map2(vals$year, vals$page, function(.x, .y) {
 })
 ```
 
+```{r}
+plots_paths <- list.files("figs", "word_per_month.", 
+                          full.names = TRUE)
+# include_graphics does not work with loops
+include_graphics(here(plots_paths[1]))
+include_graphics(here(plots_paths[2]))
+include_graphics(here(plots_paths[3]))
+include_graphics(here(plots_paths[4]))
+
+
+```
+
 
 
 
@@ -541,7 +603,7 @@ Another interesting result is the frequency of "development", a staple of positi
 
 Lastly this quick and large scale analysis can lead to surprising results that warrant furher investigation: The term "inspection", usually associated with political control and anti-corruption activities, has two extreme modes in the data, one during the outbreak and one last spring. This could be related to the spring festival, which is around February every year, or have some other reason. The results show that this approach has potential to be a highly useful tool for empirically testing hypothesis and developing new ones.
 
-```{r, ts_plots, results="H", out.width="49%", out.height="20%",fig.show='hold', fig.cap="", echo=FALSE}
+```{r, ts_plots, results="H", out.width="49%", out.height="20%",fig.show='hold', fig.align='center', fig.cap="", echo=FALSE}
 
 knitr::include_graphics(
   c(
