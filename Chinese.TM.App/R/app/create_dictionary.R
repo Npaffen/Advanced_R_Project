@@ -22,7 +22,7 @@ create_dictionary <- function(
   # 0. Preparation
 
   # source self-written functions
-  source(str_c(here::here(),"R/app/functions.R", sep = "/"))
+  source("app/functions.R")
   # load/install required packages
   require(purrr) # install.packages("purrr")
   require(dplyr) # install.packages("dplyr")

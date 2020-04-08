@@ -15,15 +15,15 @@
 #################################################################
 # 0. Preparation
 
-require(shiny)
+library(shiny)
 require(shinyjs)
 require(ggplot2)
-source(str_c(here::here(), "app/functions.R", sep = "/"))
-source(str_c(here::here(), "app/updating_text_data_app.R", seo = "/"))
-source(str_c(here::here(), "wrangling/update_article_data.R", sep = "/"))
-source(str_c(here::here(), "app/process_articles.R", sep = "/"))
-source(str_c(here::here(), "app/create_dictionary.R", sep = "/"))
-source(str_c(here::here(), "scraping/ts_word_frequency.R", seo = "/"))
+source("app/functions.R")
+source("app/updating_text_data_app.R")
+source("wrangling/update_article_data.R")
+source("app/process_articles.R")
+source("app/create_dictionary.R")
+source("scraping/ts_word_frequency.R")
 
 
 function(input, output, session){

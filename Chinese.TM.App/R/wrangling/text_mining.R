@@ -1,4 +1,10 @@
-
+library(dplyr)
+library(purrr)
+library(stringr)
+library(tidytext)
+library(readr)
+library(stopwords)
+library(tidyr)
 
 # convert into tidy text format--a table with **one-token-per-row**,
 # token == a word.
@@ -63,13 +69,13 @@ article_2019_p_1_dtm <- article_2019_p_2_td %>% cast_into_dtm()
 # 3. saving
 
 # nms <- ls(pattern = "_\\d{4}_(td|dtm)")
-#
+# 
 # walk2(.x = list(article_2019_td, article_2019_dtm,
 #            article_2020_td, article_2020_dtm),
 #       .y = nms, ~saveRDS(.x, paste0("output/", .y, ".rds")))
 
 
-# Analyzing word and document frequency:
+# Analyzing word and document frequency: 
 # term frequency(tf) and/or inverse document frequency (idf)
 
 article_2020_p_1_dtm %>%

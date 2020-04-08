@@ -59,7 +59,7 @@ updating_text_data_app <- function(
     message(paste0("Processed Chinese article data missing in folder '/output', ",
                    "will start reprocessing in 5 seconds from scratch, ",
                    "which might take a while. Close window to abort."))
-    source(str_c(here::here(), "/R/app/process_articles.R", sep = "/"))
+    source("app/process_articles.R")
     process_articles(year = year, page_num = page_num)
   } else {
     message(paste("Processed Chinese articles found, updating..."))
@@ -83,7 +83,7 @@ updating_text_data_app <- function(
   dictionary <- readRDS("output/dictionary.rds")
 
   # check and make or update translated articles
-  path <- here::here(paste0("output/", "processed_file", "_EN.rds"))
+  path <- here::here(paste0("output/", processed_file, "_EN.rds"))
 
   if(!file.exists(path)){
     message(paste0("Translated English article data missing in folder '/output', ",
@@ -98,8 +98,8 @@ updating_text_data_app <- function(
   if(RUN_UPDATE) {
 
     # source self-written functions
-    source(str_c(here::here(), "/R/app/functions.R", sep = "/"))
-    source(str_c(here::here(), "/R/wrangling/update_article_data.R", sep = "/"))
+    source("app/functions.R")
+    source("wrangling/update_article_data.R")
     # load/install required packages
     require("dplyr") # install.packages("dplyr")
     require("purrr") # install.packages("purrr")

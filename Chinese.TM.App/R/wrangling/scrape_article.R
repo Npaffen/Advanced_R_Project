@@ -1,4 +1,9 @@
---------------------------------------------------
+# load packages -------------------------------------------------
+library(lubridate)
+library(rvest)
+library(tidyverse)
+library(glue)
+# ---------------------------------------------------------------
 # if dates is not supplied, then ... passes args to the make_dates()
 # function, which are [ year, month, from_day, to_day, all_dates (logical),
 # respectively ]. Please refer to `make_dates.R`.

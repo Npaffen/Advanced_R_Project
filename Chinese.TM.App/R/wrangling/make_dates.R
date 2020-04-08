@@ -1,4 +1,7 @@
-
+# load packages -------------------------------------------------
+library(lubridate)
+library(purrr)
+library(dplyr)
 
 make_dates <- function(year = 2020L,
                        month = 1L,
@@ -11,11 +14,11 @@ make_dates <- function(year = 2020L,
     as.integer(from_day),
     as.integer(to_day)
   ), 1, 31)))
-
-
+  
+  
   if (missing(to_day) && !missing(from_day)) to_day <- from_day
   stopifnot(from_day <= to_day)
-
+  
   if (all(
     missing(year), missing(month),
     missing(from_day), missing(to_day)
@@ -31,7 +34,7 @@ make_dates <- function(year = 2020L,
           "01",
           "01"
         )) - 1) # for December
-
+        
         for (mon in 1:(n - 1)) {
           to_day[[mon]] <- day(ymd(paste(
             year,
@@ -48,12 +51,12 @@ make_dates <- function(year = 2020L,
       }
     }
   }
-
+  
   a <- ymd(paste(year, month, from_day, sep = "-"))
   b <- map2(month, to_day, function(x, y) {
     ymd(paste(year, x, y))
   })
-
+  
   dds <- map2(a, b, ~ seq.Date(.x, .y, by = 1))
   labels <- c(
     "Jan", "Feb", "Mar", "Apr", "May", "Jun",

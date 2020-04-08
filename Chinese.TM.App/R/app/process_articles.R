@@ -14,22 +14,23 @@ process_articles <- function(year, page_num){
   # 0. Preparation
 
   # source self-written functions
-  source(str_c(here::here(), "R/app/functions.R", sep = "/"))
+  source("app/functions.R")
    # load/install required packages
+  require(purrr) # install.packages("purrr")
   # require(devtools) # install.packages("devtools") # for installing packages
   # install/load packages for separating Chinese words
   # "Rwordseg" by Jian Li (2019) (https://github.com/lijian13/Rwordseg)
   # "coreNLP" by Arnold Taylor and Lauren Tilton (2016)
-  # devtools::install_github("lijian13/Rwordseg")
+  require("Rwordseg") # devtools::install_github("lijian13/Rwordseg")
   if(0){ # if using coreNLP, HMM
-    # install.packages("coreNLP")
-    # install.packages("rJava")
+    require("coreNLP") # install.packages("coreNLP")
+    require(rJava) # install.packages("rJava")
     coreNLP::downloadCoreNLP()
-    # install.packages("HMM")
+    require("HMM") # install.packages("HMM")
   }
-  # install.packages("jiebaR")
+  require("jiebaR") # install.packages("jiebaR")
   # install/load packages for translating with the dictionary
-  #install.packages("stringr")
+  require("stringr") #install.packages("stringr")
 
   #####################################################################
 
