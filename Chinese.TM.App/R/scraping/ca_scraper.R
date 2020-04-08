@@ -1,5 +1,5 @@
 
-ca_scraper <- function(username, password, years, month=1:12, paper_length=1:2, personal_2captcha_key){
+ca_scraper <- function(username = "dschulze", password = "bonsaibonsai", years, month=1:12, paper_length=1:2, personal_2captcha_key = "d3ce30748e45dc73365f4e327acaebee"){
   source(str_c(here::here(), "scraping", "ca_login.R", sep = "/"))
   source(str_c(here::here(), "scraping", "ca_articles_url.R", sep = "/"))
   source(str_c(here::here(), "scraping", "ca_content.R", sep = "/"))
