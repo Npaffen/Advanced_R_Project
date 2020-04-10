@@ -6,3 +6,8 @@
 analysis/text_analysis_cache
 analysis/text_analysis_files
 paper/Scientific_Report_Chinese_TM_App_cache/
+.out
+.tex
+.aux
+.gz
+.bcf
