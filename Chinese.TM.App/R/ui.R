@@ -21,6 +21,7 @@
 library(shinydashboard)
 library(shiny)
 library(shinyjs)
+# require("DT")
 
 
 #################################################################
@@ -35,7 +36,8 @@ sidebar <- dashboardSidebar(
       menuItem("Loaded Files", tabName = "loadedfiles", icon = icon("dashboard")),
       menuItem("Updating", tabName = "updating", icon = icon("dashboard")),
       menuItem("Article Frequencies", tabName = "artfreq", icon = icon("dashboard")),
-      menuItem("Word Frequencies", tabName = "wordfreq", icon = icon("dashboard"))
+      menuItem("Word Frequencies", tabName = "wordfreq", icon = icon("dashboard")),
+      menuItem("Dictionary", tabName = "dict", icon = icon("dashboard"))
     )
   )
 
@@ -81,9 +83,9 @@ body <-   dashboardBody(
                 valueBoxOutput("updating_text")
               ),
               fluidRow(
-                shinyjs::useShinyjs(),
                 textOutput("updating_description"),
                 textInput("request_year_page","","2020-02"),
+                shinyjs::useShinyjs(),
                 actionButton("run_update","run update"),
                 verbatimTextOutput("update_report")
               )
@@ -93,6 +95,7 @@ body <-   dashboardBody(
       ##############################
       # Fourth tab content
       tabItem(tabName = "artfreq",
+              textOutput("artfreq_desc"),
               uiOutput("artfreqs")
       ),
 
@@ -100,9 +103,22 @@ body <-   dashboardBody(
       ##############################
       # Fifth tab content
       tabItem(tabName = "wordfreq",
-              uiOutput("wordfreqs")
-      )
+              uiOutput("wordfreqs"),
+              textOutput("wordfreq_description"),
+              textInput("request_wordfreq", "", "committee"),
+              textInput("request_worddate", "", "2019-01-01"),
+              shinyjs::useShinyjs(),
+              actionButton("make_plot","make plot"),
+              plotOutput("wordfreqs_dyn")
+      ),
 
+      ##############################
+      # Sixth tab content
+      tabItem(tabName = "dict",
+              h2("Chinese-English Dictionary"),
+              textOutput("dictionary_desc"),
+              DT::DTOutput("dictionary_table")
+      )
     )
   )
 

@@ -16,11 +16,11 @@ updating_text_data_app <- function(
   # might take very long only if
   # you are really sure that yandex
   # API is available
-  RUN_TRANSLATION = TRUE
+  RUN_TRANSLATION = TRUE,
+  RUN_UPDATE = FALSE # will self-activate if updating
   # might take very long
   ){
 
-  RUN_UPDATE <- FALSE # will self-activate if updating
 
 
   #####################################################################
@@ -186,9 +186,9 @@ updating_text_data_app <- function(
                                             start = 1 # if this fails at a certain "i", just restart at i-1
       )
       dict_CN_EN <- bind_rows(new_dict_CN_EN, dictionary)
-      saveRDS(dict_CN_EN, "output/dictionary.rds")
+      saveRDS(dict_CN_EN, paste0(wdir, "/output/dictionary.rds"))
       write.csv(dict_CN_EN, # csv file for further use
-                file = "output/dictionary.csv",
+                file = paste0(wdir, "/output/dictionary.csv"),
                 fileEncoding = "UTF-16LE")
       Sys.setlocale() # restore default locale
     }
@@ -209,7 +209,7 @@ updating_text_data_app <- function(
       art_words_EN <- translate_articles(art_words, dictionary)
       art_words_EN <- vctrs::vec_rbind(en_articles, art_words_EN, .ptype = en_articles)
       saveRDS(art_words_EN,
-              paste0("output/processed_articles_",
+              paste0(wdir, "/output/processed_articles_",
                      year, "_page_", page_num, "_EN.rds")
       )
       Sys.setlocale() # restore default locale

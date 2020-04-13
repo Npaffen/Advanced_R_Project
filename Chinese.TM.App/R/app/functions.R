@@ -13,12 +13,15 @@
 # words_cn_to_en(), translate a title, subtitle, or content chunk
 
 ## FUNCTIONS FOR APP
+# check_files(), creates a table of descriptives from the data files
 # render_frequency(), creates an article frequency plot to be rendered in server.R
-
+# render_word(), creates a word frequency plot to be rendered
+# update_in_app(), runs update on the requested year and page data, capturing and printing messages
 
 
 ### required packages
 require("stringr") #install.packages("stringr")
+# require("DT")
 require("dplyr") #install.packages("dplyr")
 require("Rwordseg") # devtools::install_github("lijian13/Rwordseg")
 if(0){ # if using coreNLP
@@ -30,7 +33,7 @@ require("jiebaR")
 require("purrr") # install.packages("purrr")
 require("tibble") # install.packages("tibble")
 require("RYandexTranslate") #devtools::install_github("mukul13/RYandexTranslate")
-
+require("shiny")
 source("scraping/ts_word_frequency.R")
 
 ### check_if_complete(), compares two lists A and B, to see if anything is missing from B
@@ -144,7 +147,8 @@ request_translation <- function(dict_CN,
       } else{ break }
       if(timeout == 10){
         return(paste0("request failed at i = ", i,
-                    " after 10 tries."))
+                    " after 10 tries."),
+               stderr())
         }
     }
     if(i %% 10 == 0){
@@ -232,9 +236,93 @@ render_frequency <- function(file, file_name){
 }
 
 ## render_word(), creates a word frequency plot to be rendered
-render_word <- function(word){
+render_word <- function(word, start_date = "2019-01-01"){
   message(paste("Rendering a stunning word frequency plot just for you..."))
-  ts_word_frequency(page_num = 1, start_date = as.Date("2019-01-01"), end_date = today()-1,
-                    eng_word = word,
+  wordd <- word
+  ts_word_frequency(page_num = 1, start_date = as.Date(start_date), end_date = today()-1,
+                    eng_word = wordd,
                     econ_data = "NASDAQ_CNY")
 }
+
+# update_in_app(), runs update on the requested year and page data, capturing and printing messages
+update_in_app <- function(request_year_page){
+  year <- substr(request_year_page, 1, 4)
+  page <- substr(request_year_page, 6, 7)
+  request <- paste0("article_data_", year,
+                    "_page_", page)
+  # check existance of raw files and if needs update
+  if(exists(request)){
+    request <- eval(as.name(request))
+    if((year == 2019 && max(request$date) == as.Date("2019-12-31")) |
+       (Sys.Date() - max(request$date) == 0)){
+      message(paste("Raw data is up to date! Exiting update."))
+    } else if((year == 2019 && max(request$date) - as.Date("2019-12-31") > 7) |
+              (year == 2020 && Sys.Date() - max(request$date) > 7)){
+      message(paste("Raw data is older than 1 week! Perform long update?"))
+      showModal(confirm_update())
+    } else{
+      message(paste("Raw data is recent, will update."))
+      updating_text_data_app(
+        target = input$request_year_page,
+        api_key ="trnsl.1.1.20200315T225616Z.880e92d51073d977.c51f6e74be74a3598a6cc312d721303abb5e846a",
+        RUN_API = TRUE,
+        RUN_TRANSLATION = TRUE,
+        RUN_UPDATE = TRUE
+      )
+    }
+  } else {
+    message(paste("Raw data is missing, please redownload \'article_data_\' ",
+                  "file into /data folder or reinstall app"))
+  }
+  # check existance of dictionary and if needs creation
+  if(!exists("dictionary")){
+    message(paste("Missing /output/dictionary.rds file!",
+                  "Creating from scratch in 5 seconds..."))
+    Sys.sleep(5)
+    updating_text_data_app(
+      target = input$request_year_page,
+      api_key ="trnsl.1.1.20200315T225616Z.880e92d51073d977.c51f6e74be74a3598a6cc312d721303abb5e846a",
+      RUN_API = TRUE,
+      RUN_TRANSLATION = TRUE,
+      RUN_UPDATE = TRUE
+    )
+  } else {
+    message(paste("Dictionary file found."))
+  }
+  # check if processed files exists and need update
+  request <- paste0("processed_articles_", year,
+                    "_page_", page)
+  if(!exists(paste0(request, "_CN")) |
+     !exists(paste0(request, "_EN"))){
+    message(paste("Processed file(s) missing! Creating from scratch in 5 seconds..."))
+    Sys.sleep(5)
+    updating_text_data_app(
+      target = input$request_year_page,
+      api_key ="trnsl.1.1.20200315T225616Z.880e92d51073d977.c51f6e74be74a3598a6cc312d721303abb5e846a",
+      RUN_API = TRUE,
+      RUN_TRANSLATION = TRUE,
+      RUN_UPDATE = TRUE
+    )
+  } else {
+    message(paste0("Processed files found."))
+  }
+}
+
+# react to long update confirmation
+observeEvent(input$button_long_update, {
+  removeModal()
+  withCallingHandlers({
+    shinyjs::html("html", "")
+    updating_text_data_app(
+      target = input$request_year_page,
+      api_key ="trnsl.1.1.20200315T225616Z.880e92d51073d977.c51f6e74be74a3598a6cc312d721303abb5e846a",
+      RUN_API = TRUE,
+      RUN_TRANSLATION = TRUE,
+      RUN_UPDATE = TRUE
+    )
+  },
+  message = function(m) {
+    shinyjs::html(id = "update_report", html = m$message, add = TRUE)
+    shinyjs::html(id = "update_report", html = "<br/>", add = TRUE)
+  })
+})

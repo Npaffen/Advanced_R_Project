@@ -14,6 +14,7 @@ message(paste("Welcome to the People's Daily Mining App. Please stand by for a f
 wdir <- here::here()
 source("app/functions.R")
 require(stringr)
+# require("DT")
 require(tibble)
 require(dplyr)
 source("scraping/ts_word_frequency.R")
@@ -73,7 +74,8 @@ database_status <- check_files(loaded_files)
 #####################################################################
 # 3. Word Frequencies
 
-freq_words <- c( "outbreak", "development",
+
+freq_words <<- c( "outbreak", "development",
                  "inspection"
 
                 # "comrade", "committee"
@@ -81,6 +83,9 @@ freq_words <- c( "outbreak", "development",
                 # , "supervision"
 )
 
-word_freq1 <- render_word(freq_words[[1]])
+blank_plot <- ggplot(mtcars, aes(x = wt, y = mpg)) + geom_blank()
+
+word_freq1 <<- render_word(freq_words[[1]])
 word_freq2 <- render_word(freq_words[[2]])
 word_freq3 <- render_word(freq_words[[3]])
+word_freq4 <- blank_plot
