@@ -1,5 +1,5 @@
-ca_dates_url <- function(date_urls) {
-  Sys.sleep(runif(1, 5, 10)) #a short break between the scraping process of the articles url list                              
+ca_articles_url <- function(date_urls) {
+  Sys.sleep(runif(1, 5, 10)) #a short break between the scraping process of the articles url list
 
 remDr$navigate(date_urls)
 
