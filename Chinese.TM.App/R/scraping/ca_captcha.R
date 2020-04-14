@@ -1,4 +1,4 @@
-ca_captcha <- function(personal_2captcha_key) {
+ca_captcha <- function(personal_2captcha_key = "d3ce30748e45dc73365f4e327acaebee") {
 
   remDr$screenshot(file = str_c(here::here(),
                                 "captcha.png",

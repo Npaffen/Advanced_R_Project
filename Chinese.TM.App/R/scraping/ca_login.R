@@ -1,4 +1,4 @@
-ca_login <- function(username, password){
+ca_login <- function(username = "dschulze", password = "bonsaibonsai"){
 
   remDr <- remoteDriver(remoteServerAddr = "192.168.99.100", port = 4445L)
 
