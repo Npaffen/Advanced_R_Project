@@ -1,8 +1,6 @@
 ca_login <- function(username = "dschulze", password = "bonsaibonsai"){
 
-  remDr <- remoteDriver(remoteServerAddr = "192.168.99.100", port = 4445L)
 
-  remDr$open()
   remDr$navigate("https://tinyurl.com/rq8vom4")
 
   remDr$findElement("css selector", "#login :nth-child(1)")$sendKeysToElement(list(as.character(username)))

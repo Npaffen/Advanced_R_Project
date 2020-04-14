@@ -21,7 +21,7 @@ ca_scraper <- function(username, password, years, month=1:12, paper_length=1:2, 
   url_articles <- map(date_urls,
                       ~ ca_articles_url(.x))
 
-  map_df(url_articles,
+  map_df(url_articles[1:25],
          ~ca_content(.x))
   Sys.sleep(runif(1, 300,330))
 }
