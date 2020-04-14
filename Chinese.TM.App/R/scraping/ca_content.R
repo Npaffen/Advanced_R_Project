@@ -3,7 +3,7 @@ ca_content <- function(url_articles) {
   remDr$navigate(url_articles)
 
 
-  if (read_html(remDr$getPageSource()[[1]]) %>%
+  'if (read_html(remDr$getPageSource()[[1]]) %>%
       xml_child(2) %>%
       xml_child(2) %>%
       html_text() == timeout %>%
@@ -12,9 +12,11 @@ ca_content <- function(url_articles) {
       html_text()) message(str_c("Timeout after",
                                  as.numeric(Sys.time()-start_time,
                                             units = "mins") ),
-                           sep = " ")
+                           sep = " ")'
 
-  source(str_c(here::here(),"src", "ca_captcha.R", sep = "/"))
+  source(str_c(here::here(), "R", "scraping", "ca_captcha.R", sep = "/"))
+
+  captcha_tester <- read_html(str_c(here::here(), "data" , "captcha.html", sep = "/"))
 
   if (read_html(remDr$getPageSource()[[1]]) %>%
       xml_child(2) %>%

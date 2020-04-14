@@ -1,0 +1,3 @@
+14.04.2020
+
+So the app currently "forces a restart" after a succesfull update, i.e. it crashes. But after a restart the update is preserved.
