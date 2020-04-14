@@ -9,7 +9,7 @@ ca_scraper <- function(username, password, years, month=1:12, paper_length=1:2, 
 
   remDr$open()
 
-  ca_login()
+  ca_login(username = username, password = password )
 
   date_urls <- map(paper_length ,
                     ~ca_date_urls(years=years,
