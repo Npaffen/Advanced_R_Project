@@ -19,9 +19,10 @@ ca_scraper <- function(username, password, years, month=1:12, paper_length=1:2, 
     sort()
 
   url_articles <- map(date_urls,
-                      ~ ca_articles_url(.x))
+                      ~ ca_articles_url(.x)) %>%
+    unlist()
 
-  map_df(url_articles[1:25],
+  map_df(url_articles,
          ~ca_content(.x))
   Sys.sleep(runif(1, 300,330))
 }
