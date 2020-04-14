@@ -5,6 +5,9 @@ ca_scraper <- function(username, password, years, month=1:12, paper_length=1:2, 
   source(str_c(here::here(), "R", "scraping", "ca_content.R", sep = "/"))
   source(str_c(here::here(), "R", "scraping", "ca_date_urls.R", sep = "/"))
 
+  remDr <- remoteDriver(remoteServerAddr = "192.168.99.100", port = 4445L)
+
+  remDr$open()
 
   ca_login()
 
