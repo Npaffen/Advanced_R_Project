@@ -10,6 +10,7 @@
 #       - Fourth Tab: Plot article frequency per days
 #       - Fifth Tab: Plot word frequencies
 #       - Sixth Tab: Chinese-English Dictionary
+#       - Seventh Tab: Bugs
 #     - Other
 # 2. Try Updating
 
@@ -244,10 +245,18 @@ function(input, output, session){
   output$dictionary_table <- DT::renderDT({dtbl})
 
   output$dictionary_desc <- renderText(paste(
-     "Unique expressions identified using a NLP algorithm named 'Jiebar'. ",
+     "Unique expressions identified using a NLP algorithm named 'Jieba'. ",
      "Translation updated through Yandex Translation API.",
      "Please refer to the Chinese for accuracy."
    ))
+
+  ### Seventh Tab: Bugs #########################
+
+  output$bugs_desc <- renderText(paste(
+    "14.04.2020 ",
+    "So the app currently 'forces a restart' after a successful update, i.e. ",
+    "it crashes. But after a restart the update is preserved."
+  ))
 
 
 

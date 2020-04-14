@@ -132,7 +132,7 @@ request_translation <- function(dict_CN,
                                 api_key,
                                 start = 1 # replace 1 here with last step "i" if time-out
                                 ){
-  message(paste("Requesting translating from Yandex translation API, please wait..."))
+  message(paste("Requesting translation from Yandex translation API, please wait..."))
   dict_EN <- character(length = length(dict_CN)) # create empty English dictionary
   for(i in start:length(dict_CN)){
     # translate each single entry, to avoid "contamination" from using many at once

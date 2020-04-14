@@ -10,6 +10,9 @@
 #       - Second Tab: Loaded Data Files
 #       - Third Tab: Updating
 #       - Fourth Tab: Descriptives
+#       - Fifth Tab: Plot word frequencies
+#       - Sixth Tab: Chinese-English Dictionary
+#       - Seventh Tab: Bugs
 #     - Other
 # 2. join parts
 
@@ -37,7 +40,8 @@ sidebar <- dashboardSidebar(
       menuItem("Updating", tabName = "updating", icon = icon("dashboard")),
       menuItem("Article Frequencies", tabName = "artfreq", icon = icon("dashboard")),
       menuItem("Word Frequencies", tabName = "wordfreq", icon = icon("dashboard")),
-      menuItem("Dictionary", tabName = "dict", icon = icon("dashboard"))
+      menuItem("Dictionary", tabName = "dict", icon = icon("dashboard")),
+      menuItem("Bugtracker", tabName = "bugs", icon = icon("dashboard"))
     )
   )
 
@@ -86,7 +90,9 @@ body <-   dashboardBody(
                 textOutput("updating_description"),
                 textInput("request_year_page","","2020-02"),
                 shinyjs::useShinyjs(),
-                actionButton("run_update","run update"),
+                actionButton("run_update","run update")
+                ),
+              fluidRow(
                 verbatimTextOutput("update_report")
               )
       ),
@@ -95,29 +101,46 @@ body <-   dashboardBody(
       ##############################
       # Fourth tab content
       tabItem(tabName = "artfreq",
-              textOutput("artfreq_desc"),
-              uiOutput("artfreqs")
+              fluidRow(
+                textOutput("artfreq_desc"),
+                uiOutput("artfreqs")
+                )
       ),
 
 
       ##############################
       # Fifth tab content
       tabItem(tabName = "wordfreq",
-              uiOutput("wordfreqs"),
-              textOutput("wordfreq_description"),
-              textInput("request_wordfreq", "", "committee"),
-              textInput("request_worddate", "", "2019-01-01"),
-              shinyjs::useShinyjs(),
-              actionButton("make_plot","make plot"),
-              plotOutput("wordfreqs_dyn")
+              fluidRow(
+                uiOutput("wordfreqs"),
+                textOutput("wordfreq_description"),
+                textInput("request_wordfreq", "", "committee"),
+                textInput("request_worddate", "", "2019-01-01"),
+              ),
+              fluidRow(
+                shinyjs::useShinyjs(),
+                actionButton("make_plot","make plot"),
+                plotOutput("wordfreqs_dyn")
+              )
       ),
 
       ##############################
       # Sixth tab content
       tabItem(tabName = "dict",
               h2("Chinese-English Dictionary"),
-              textOutput("dictionary_desc"),
-              DT::DTOutput("dictionary_table")
+              fluidRow(
+                textOutput("dictionary_desc"),
+                DT::DTOutput("dictionary_table")
+              )
+      ),
+
+      ##############################
+      # Seventh tab content
+      tabItem(tabName = "bugs",
+              h2("Bugtracker"),
+              fluidRow(
+                textOutput("bugs_desc")
+              )
       )
     )
   )
