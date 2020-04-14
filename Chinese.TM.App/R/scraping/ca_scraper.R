@@ -11,10 +11,10 @@ ca_scraper <- function(username, password, years, month=1:12, paper_length=1:2, 
 
   ca_login()
 
-  date_urls <- (map(paper_length,
+  date_urls <- map(paper_length ,
                     ~ca_date_urls(years=years,
                                   month=month,
-                                  paper_length = .x))) %>%
+                                  paper_length = .x)) %>%
     unlist() %>%
     sort()
 
