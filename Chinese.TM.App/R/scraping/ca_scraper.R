@@ -6,8 +6,7 @@ ca_scraper <- function(username, password, years, month=1:12, paper_length=1:2, 
   source(str_c(here::here(), "R", "scraping", "ca_date_urls.R", sep = "/"))
 
 
-  ca_login(username = username,
-           password = password)
+  ca_login()
 
   date_urls <- (map(paper_length,
                     ~ca_date_urls(years=years,
