@@ -1,53 +1,119 @@
-ca_captcha <- function(personal_2captcha_key = "d3ce30748e45dc73365f4e327acaebee") {
+ca_content <- function(url_articles) {
+  Sys.sleep(runif(1,10L,15L))
 
-  remDr$screenshot(file = str_c(here::here(),
-                                "captcha.png",
-                                sep = "/")) # screenshot of the full site with captcha
-  magick::image_crop(
-    image_read(
-      str_c(here::here(),
-            "captcha.png",
-            sep = "/")),
-    geometry_area(97, 38.5, 480, 290)) %>%
-    image_write(
-      str_c(here::here(),
-            "captcha.png",
-            sep = "/"),
-      format = "png") # crop the captcha
+  remDr$navigate(url_articles)
 
-  cap_POST <- httr::POST(
-    url = as.character(personal_2captcha_key),
-    encode = "multipart",
-    body = list(file = upload_file(path = str_c(here::here(),
-                                                "captcha.png",
-                                                sep = "/")))) # send the captcha to the api
 
-  captcha_ID <- content(cap_POST) %>%
-    xml_child() %>%
-    xml_text() %>%
-    gsub("[^0-9]+",
-         replacement = "",
-         x = .) # catch the ticket ID
+  'if (read_html(remDr$getPageSource()[[1]]) %>%
+  xml_child(2) %>%
+  xml_child(2) %>%
+  html_text() == timeout %>%
+  xml_child(2) %>%
+  xml_child(2) %>%
+  html_text()) message(str_c("Timeout after",
+  as.numeric(Sys.time()-start_time,
+  units = "mins") ),
+  sep = " ")'
 
-  Sys.sleep(10L) # wait untill solving
+  source(str_c(here::here(), "R", "scraping", "ca_captcha.R", sep = "/"))
 
-  while (httr::GET(url = str_c("https://2captcha.com/res.php?key=",personal_2captcha_key,"&action=get&id=",
-                               captcha_ID,
-                               sep = "")) %>%
-         content() == "CAPCHA_NT_READY")# check if the captcha key is not ready yet
-  {Sys.sleep(5L)} # if so add extra time and to solve and check again
+  captcha_tester <- read_html(str_c(here::here(), "data" , "captcha.html", sep = "/"))
 
-  captcha_key <- httr::GET(url = str_c("https://2captcha.com/res.php?key=",personal_2captcha_key,"&action=get&id=",
-                                       captcha_ID,
-                                       sep = "")) %>%
-    content() %>%
-    gsub(
-      x = .,
-      pattern = "[OK|]",
-      replacement = ""
-    ) # grab the captcha code
+  if (read_html(remDr$getPageSource()[[1]]) %>%
+      xml_child(2) %>%
+      xml_child(2) %>%
+      html_text() %>%
+      gsub(x = .,
+           pattern ="(\\n)+|(\\t)+|\\s|(\\r)+",
+           replacement = "") ==  captcha_tester %>%
+      xml_child(2) %>%
+      xml_child(2) %>%
+      html_text() %>%
+      gsub(x = .,
+           pattern ="(\\n)+|\\r|\\s",
+           replacement = "")) { # check if the archive requests a captcha
+    ca_captcha()
+  } # solve the captcha if necessary
 
-  remDr$findElement("css selector",
-                    "#validateCode")$sendKeysToElement(list(captcha_key,
-                                                            key = "enter")) # post the captcha code to crossasia
+
+
+
+  if (read_html(remDr$getPageSource()[[1]]) %>%
+      xml_child(2) %>%
+      xml_child(2) %>%
+      html_text() %>%
+      gsub(x = .,
+           pattern ="(\\n)+|(\\t)+|\\s|(\\r)+",
+           replacement = "") ==  captcha_tester %>%
+      xml_child(2) %>%
+      xml_child(2) %>%
+      html_text() %>%
+      gsub(x = .,
+           pattern ="(\\n)+|\\r|\\s",
+           replacement = "")) { # check if the captcha was solved correctly
+    ca_captcha()
+  } # solve again if not true
+
+
+  page <- read_html(remDr$getPageSource()[[1]])
+
+  get_title <- compose(html_text,
+                       partial(html_nodes, css = ".title"),
+                       partial(html_nodes, css = "#detail_pop_content"),
+                       .dir = "backward"
+  )
+
+  get_subtitle <- compose(html_text,
+                          partial(html_nodes, css = ".subtitle"),
+                          partial(html_nodes, css = "#detail_pop_content"),
+                          .dir = "backward"
+  )
+
+  get_author <- compose(html_text,
+                        partial(html_nodes, css = ".author"),
+                        partial(html_nodes, css = "#detail_pop_content"),
+                        .dir = "backward"
+  )
+
+  get_paragraph <- compose(html_text,
+                           partial(html_nodes, css = "p"),
+                           partial(html_nodes, css = "#detail_pop_content"),
+                           .dir = "backward"
+  )
+
+  get_date <- compose(html_text,
+                      partial(html_nodes, css = ".sha_left span:nth-child(1)"),
+                      partial(html_nodes, css = "#detail_pop_content"),
+                      .dir = "backward"
+  )
+
+  get_page_num <- compose(html_text,
+                          partial(html_nodes, css = ".sha_left span:nth-child(2)"),
+                          partial(html_nodes, css = "#detail_pop_content"),
+                          .dir = "backward"
+  )
+
+  df_l <- list(
+    title = get_title(page),
+    subtitle = get_subtitle(page),
+    author = get_author(page),
+    content = get_paragraph(page),
+    date = get_date(page),
+    PageNumber = get_page_num(page)
+  ) %>%
+    map(~if(length(.x) == 0){.x = NA} else .x = .x)
+
+
+
+  df <- tibble(
+    title = df_l$title,
+    subtitle = df_l$subtitle,
+    date = df_l$date,
+    PageNumber = df_l$PageNumber,
+    content = paste0(df_l$content, collapse = ""),
+    num_paragraph = length(df_l$content),
+    id = url_articles
+  ) # grab the article content
+
+  df
 }
