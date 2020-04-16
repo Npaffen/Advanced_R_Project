@@ -212,14 +212,17 @@ function(input, output, session){
   output$word_freq3 <- renderPlot(word_freq3)
 
   output$wordfreq_description <- renderText(paste(
+    "The first three plots are examples, a fourth can be generated dynamically ",
+    "by choosing another expression instead of 'committee'.",
     "Choose an expression to plot its daily frequency in the translated English articles.  ",
     "Keep in mind this is a rough translation and no substitute for looking at the Chinese ",
     "original texts with a working knowledge of the language. This version only allows single",
     "word searches, so to find 'Xi Jinping', please use 'Jinping' for now.",
     "Optional: Choose a different start date between 2019-01-01 and today. ",
     "Please allow some time for rendering. ",
-    "The economic index is NASDAQ inds CNY (NQCN2000CNY), including around 200 Chinese industrial firms traded on the NASDAQ ",
-    "more info on: indexes.nasdaqomx.com"
+    "The economic index is NASDAQ inds CNY (NQCN2000CNY), including around 200 Chinese industrial",
+    "firms traded on the NASDAQ, normalized around the starting date.",
+    "More info on: indexes.nasdaqomx.com"
   ))
 
   #react to make plot button pressed
