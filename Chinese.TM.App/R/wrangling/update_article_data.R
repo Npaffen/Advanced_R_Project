@@ -80,7 +80,7 @@ update_article_data <- function(year, page_num,
     ))
     })
   }
-  # returns the updates, will appending them to the existing datasets if write_to_disk=TRUE
+  # returns the updates, will be appending them to the existing datasets if write_to_disk=TRUE
   dat
 }
 
