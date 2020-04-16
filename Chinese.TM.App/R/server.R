@@ -220,8 +220,9 @@ function(input, output, session){
     "word searches, so to find 'Xi Jinping', please use 'Jinping' for now.",
     "Optional: Choose a different start date between 2019-01-01 and today. ",
     "Please allow some time for rendering. ",
-    "The economic index is NASDAQ inds CNY (NQCN2000CNY), including around 200 Chinese industrial firms traded on the NASDAQ ",
-    "more info on: indexes.nasdaqomx.com"
+    "The economic index is NASDAQ inds CNY (NQCN2000CNY), including around 200 Chinese industrial",
+    "firms traded on the NASDAQ, normalized around the starting date.",
+    "More info on: indexes.nasdaqomx.com"
   ))
 
   #react to make plot button pressed
