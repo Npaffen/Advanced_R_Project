@@ -12,13 +12,16 @@ message(paste("Welcome to the People's Daily Mining App. Please stand by for a f
 #####################################################################
 # 0. Preparation
 wdir <- here::here()
-source("app/functions.R")
+source(str_c(here::here(), "R/app/functions.R", sep = "/"))
+#source("app/functions.R")
 require(stringr)
 # require("DT")
 require(tibble)
 require(dplyr)
-source("scraping/ts_word_frequency.R")
-source("wrangling/update_article_data.R")
+source(str_c(here::here(), "R/scraping/ts_word_frequency.R", sep = "/"))
+#source("scraping/ts_word_frequency.R")
+source(str_c(here::here(), "R/wrangling/update_article_data.R", sep = "/"))
+#source("wrangling/update_article_data.R")
 
 
 
