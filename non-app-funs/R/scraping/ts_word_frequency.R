@@ -46,7 +46,7 @@ ts_word_frequency <- function(page_num = "01",
   if (page_num == "01") {
     database <- map_df(page_01_files, read_rds) %>% tidy_text()
   } else if (page_num == "02") {
-    database <- map_df(page_01_files, read_rds) %>% tidy_text()
+    database <- map_df(page_02_files, read_rds) %>% tidy_text()
   }
 
   # look for the eng_word frequency in the specific time-span, check for lower/upper case of first letter
