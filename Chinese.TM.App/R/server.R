@@ -255,7 +255,9 @@ function(input, output, session){
   output$bugs_desc <- renderText(paste(
     "14.04.2020 ",
     "So the app currently 'forces a restart' after a successful update, i.e. ",
-    "it crashes. But after a restart the update is preserved."
+    "it crashes. But after a restart the update is preserved.",
+    "16.04.2020 ",
+    "www.quandl.com port 443 ERROR, stops the app from running, but goes away after a few trys."
   ))
 
 
