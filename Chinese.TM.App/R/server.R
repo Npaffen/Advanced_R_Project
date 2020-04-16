@@ -212,6 +212,8 @@ function(input, output, session){
   output$word_freq3 <- renderPlot(word_freq3)
 
   output$wordfreq_description <- renderText(paste(
+    "The first three plots are examples, a fourth can be generated dynamically ",
+    "by choosing another expression instead of 'committee'.",
     "Choose an expression to plot its daily frequency in the translated English articles.  ",
     "Keep in mind this is a rough translation and no substitute for looking at the Chinese ",
     "original texts with a working knowledge of the language. This version only allows single",
