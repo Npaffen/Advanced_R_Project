@@ -1,9 +1,9 @@
-install.packages("devtools")
+# install.packages("devtools")
 library("devtools")
 devtools::install_github("klutometis/roxygen")
 library(roxygen2)
 
-setwd("parent_directory")
+here::here("parent_directory")
 
 testthat::with_mock( 
        `usethis:::check_not_nested` = function(path, name) NULL,
