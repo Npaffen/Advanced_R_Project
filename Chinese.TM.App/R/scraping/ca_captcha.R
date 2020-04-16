@@ -16,7 +16,9 @@ ca_captcha <- function(personal_2captcha_key = "d3ce30748e45dc73365f4e327acaebee
       format = "png") # crop the captcha
 
   cap_POST <- httr::POST(
-    url = as.character(personal_2captcha_key),
+    url = str_c("http://2captcha.com/in.php?key=",
+                personal_2captcha_key,
+                "&method=post", sep = ""),
     encode = "multipart",
     body = list(file = upload_file(path = str_c(here::here(),
                                                 "captcha.png",
@@ -31,13 +33,17 @@ ca_captcha <- function(personal_2captcha_key = "d3ce30748e45dc73365f4e327acaebee
 
   Sys.sleep(10L) # wait untill solving
 
-  while (httr::GET(url = str_c("https://2captcha.com/res.php?key=",personal_2captcha_key,"&action=get&id=",
+  while (httr::GET(url = str_c("https://2captcha.com/res.php?key=",
+                               personal_2captcha_key,
+                               "&action=get&id=",
                             captcha_ID,
                             sep = "")) %>%
   content() == "CAPCHA_NT_READY")# check if the captcha key is not ready yet
     {Sys.sleep(5L)} # if so add extra time and to solve and check again
 
-  captcha_key <- httr::GET(url = str_c("https://2captcha.com/res.php?key=",personal_2captcha_key,"&action=get&id=",
+  captcha_key <- httr::GET(url = str_c("https://2captcha.com/res.php?key=",
+                                       personal_2captcha_key,
+                                       "&action=get&id=",
                                        captcha_ID,
                                        sep = "")) %>%
     content() %>%
