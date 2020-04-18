@@ -1,0 +1,284 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames*,x11names*}{xcolor}
+%
+\documentclass[
+  10pt,
+  ignorenonframetext,
+]{beamer}
+\usepackage{pgfpages}
+\setbeamertemplate{caption}[numbered]
+\setbeamertemplate{caption label separator}{: }
+\setbeamercolor{caption name}{fg=normal text.fg}
+\beamertemplatenavigationsymbolsempty
+% Prevent slide breaks in the middle of a paragraph
+\widowpenalties 1 10000
+\raggedbottom
+\setbeamertemplate{part page}{
+  \centering
+  \begin{beamercolorbox}[sep=16pt,center]{part title}
+    \usebeamerfont{part title}\insertpart\par
+  \end{beamercolorbox}
+}
+\setbeamertemplate{section page}{
+  \centering
+  \begin{beamercolorbox}[sep=12pt,center]{part title}
+    \usebeamerfont{section title}\insertsection\par
+  \end{beamercolorbox}
+}
+\setbeamertemplate{subsection page}{
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center]{part title}
+    \usebeamerfont{subsection title}\insertsubsection\par
+  \end{beamercolorbox}
+}
+\AtBeginPart{
+  \frame{\partpage}
+}
+\AtBeginSection{
+}
+\AtBeginSubsection{
+  \frame{\subsectionpage}
+}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usetheme[]{Frankfurt}
+\usefonttheme{structurebold}
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={Web Scraping, Data Wrangling and Visualization},
+  pdfauthor={Eyayaw Teka Beze},
+  colorlinks=true,
+  linkcolor=Maroon,
+  filecolor=Maroon,
+  citecolor=blue,
+  urlcolor=blue,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\newif\ifbibliography
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+% Make links footnotes instead of hotlinks:
+\DeclareRobustCommand{\href}[2]{#2\footnote{\url{#1}}}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\usepackage[]{natbib}
+\bibliographystyle{plainnat}
+
+\title{Web Scraping, Data Wrangling and Visualization}
+\author{Eyayaw Teka Beze}
+\date{April 18, 2020}
+
+\begin{document}
+\frame{\titlepage}
+
+\begin{frame}[allowframebreaks]
+  \tableofcontents[hideallsubsections]
+\end{frame}
+\hypertarget{the-scraping-process-and-all-that}{%
+\section{The Scraping Process-and all
+that}\label{the-scraping-process-and-all-that}}
+
+\begin{frame}{Structure of the Newspaper page, and the scraping work}
+\protect\hypertarget{structure-of-the-newspaper-page-and-the-scraping-work}{}
+\begin{itemize}
+\item[$\boxtimes$]
+  We scraped the first and the second pages of the People's Daily
+  Newspaper, from January 1st, 2019 onwards.
+\item
+  The newspaper's website structure
+
+  \begin{itemize}
+  \item
+    page-01\\
+    (\url{http://paper.people.com.cn/rmrb/html/2020-04/16/nbs.D110000renmrb_01.htm})
+  \item
+    section-1\\
+    (\url{http://paper.people.com.cn/rmrb/html/2020-04/16/nw.D110000renmrb_20200416_1-01.htm})
+  \end{itemize}
+\item[$\boxtimes$]
+  Steps: Article \(\rightarrow{}\) pages(01\&02) \(\rightarrow\)
+  sections/columns \(\rightarrow\) paragraphs
+\end{itemize}
+\end{frame}
+
+\begin{frame}{The functions for the scraping}
+\protect\hypertarget{the-functions-for-the-scraping}{}
+\begin{enumerate}
+\tightlist
+\item
+  \emph{\textbf{make\_dates(year, mon, from\_day, to\_day, all\_dates)}}
+\item
+  \emph{\textbf{generate\_article\_url(date, page\_num)}}
+\item
+  get\_article\_contents.R
+
+  \begin{itemize}
+  \tightlist
+  \item
+    \emph{\textbf{get\_article\_data(article\_urls)}}\\
+    \(\rightarrow{}\) tbl of {[}title, subtitle, content,
+    num\_paraghs{]}
+  \end{itemize}
+\item
+  \emph{\textbf{scrape\_article(page\_num, dates = NULL, \ldots)}}
+\end{enumerate}
+
+\begin{itemize}
+\tightlist
+\item
+  returns a tbl of successful requests.
+\end{itemize}
+
+\begin{enumerate}
+\setcounter{enumi}{4}
+\tightlist
+\item
+  download\_article\_data.R
+\end{enumerate}
+
+\begin{itemize}
+\tightlist
+\item
+  With page\_nums, years or months we get article data.\\
+\end{itemize}
+
+\begin{enumerate}
+\setcounter{enumi}{5}
+\tightlist
+\item
+  \emph{\textbf{update\_article\_data(year, page\_num,
+  write\_to\_disk)}}
+\end{enumerate}
+\end{frame}
+
+\hypertarget{data-wrangling}{%
+\section{Data Wrangling}\label{data-wrangling}}
+
+\begin{frame}{}
+\protect\hypertarget{section}{}
+\begin{itemize}
+\item
+  Data cleaning
+
+  \begin{itemize}
+  \tightlist
+  \item
+    our data come in a tidy form, i.e.~one-section-per-row
+  \item
+    paste contents of sections together to form a page of newsarticle
+  \item
+    we then get one-row-per-page-per-day
+  \item
+    then unnest the contents into one-token-per-row
+  \end{itemize}
+\item
+  Text mining work, tidytext package \citep{R-tidytext}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    term-frequency(tf)
+  \item
+    term-frequncy-inverse-document-frequency(tf-idf)
+  \item
+    n-grams
+  \end{itemize}
+\end{itemize}
+
+\begin{quote}
+please refer to the rmd file
+\href{https://github.com/Npaffen/Advanced_R_Project/blob/master/analysis/text_analysis.Rmd}{here}
+\end{quote}
+\end{frame}
+
+\hypertarget{descriptive-statistics}{%
+\section{Descriptive Statistics}\label{descriptive-statistics}}
+
+\begin{frame}{}
+\protect\hypertarget{section-1}{}
+\includegraphics{/Users/eyayawteka/Documents/Advanced_R_Assignments/adv-r-project/Advanced_R_Project/presentation/Eyayaw/descriptive-stat.png}
+\end{frame}
+
+\hypertarget{data-visualization-and-discussion}{%
+\section{Data Visualization and
+Discussion}\label{data-visualization-and-discussion}}
+
+\begin{frame}{term-frequency, bigrams and trigrams}
+\protect\hypertarget{term-frequency-bigrams-and-trigrams}{}
+\includegraphics{/Users/eyayawteka/Documents/Advanced_R_Assignments/adv-r-project/Advanced_R_Project/figs/word_per_month_freq_plot_1st_page_2020.pdf}
+\end{frame}
+
+\begin{frame}
+\begin{itemize}
+\tightlist
+\item
+  We looked not only at the most frequent words but also at bigrams and
+  trigrams.
+\end{itemize}
+
+\[
+idf(\text{term}) = \ln{\left(\frac{n_{\text{documents}}}{n_{\text{documents containing term}}}\right)}
+\]
+
+\includegraphics{/Users/eyayawteka/Documents/Advanced_R_Assignments/adv-r-project/Advanced_R_Project/presentation/Eyayaw/bigrams.png}
+\end{frame}
+
+\begin{frame}
+\includegraphics{/Users/eyayawteka/Documents/Advanced_R_Assignments/adv-r-project/Advanced_R_Project/presentation/Eyayaw/trigrams.png}
+\end{frame}
+
+\begin{frame}
+\includegraphics{/Users/eyayawteka/Documents/Advanced_R_Assignments/adv-r-project/Advanced_R_Project/figs/word_per_month_freq_plot_1st_page_2019.pdf}
+
+\nocite{R-kableExtra} \nocite{R-tidyverse} \nocite{R-lubridate}
+\end{frame}
+
+\begin{frame}[allowframebreaks]{}
+  \bibliographytrue
+  \bibliography{ref.bib}
+\end{frame}
+
+\end{document}

@@ -1,0 +1,216 @@
+---
+title: "Web Scraping, Data Wrangling and Visualization"
+author: "Eyayaw Teka Beze"
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+output:
+    beamer_presentation:
+        keep_tex: yes
+        slide_level: 2
+        theme: Frankfurt
+        toc: yes
+        fonttheme: structurebold
+        latex_engine: xelatex
+        citation_package: natbib
+        template: mytemplate.tex
+link-citations: yes
+links-as-notes: yes
+fontsize: 10pt
+bibliography: ref.bib
+colorlinks: true
+linkcolor: Maroon
+citecolor: blue
+urlcolor: blue
+---
+
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo = FALSE)
+library(tidyverse)
+library(tidytext)
+library(lubridate)
+library(here)
+library(kableExtra)
+
+```
+
+# The Scraping Process-and all that
+
+## Structure of the Newspaper page, and the scraping work 
+
+- [x] We scraped the first and the second pages of the People's Daily Newspaper, from January 1st, 2019 onwards.
+
+- The newspaper's website structure 
+
+    - page-01  
+        (http://paper.people.com.cn/rmrb/html/2020-04/16/nbs.D110000renmrb_01.htm)  
+
+    - section-1  
+        (http://paper.people.com.cn/rmrb/html/2020-04/16/nw.D110000renmrb_20200416_1-01.htm)   
+
+- [x] Steps: Article $\rightarrow{}$ pages(01&02) $\rightarrow$ sections/columns $\rightarrow$ paragraphs
+
+## The functions for the scraping  
+
+1. _**make_dates(year, mon, from_day, to_day, all_dates)**_
+2. _**generate_article_url(date, page_num)**_
+3. get_article_contents.R
+    -  _**get_article_data(article_urls)**_     
+        $\rightarrow{}$ tbl of [title, subtitle, content, num_paraghs]
+4. _**scrape_article(page_num, dates = NULL, ...)**_
+  - returns a tbl of successful requests. 
+5. download_article_data.R
+  - With page_nums, years or months we get article data.  
+6. _**update_article_data(year, page_num, write_to_disk)**_
+
+
+# Data Wrangling
+
+##
+- Data cleaning
+  - our data come in a tidy form, i.e. one-section-per-row
+  - paste contents of sections together to form a page of newsarticle
+  - we then get one-row-per-page-per-day
+  - then unnest the contents into one-token-per-row
+  
+- Text mining work, tidytext package [@R-tidytext]
+  
+  * term-frequency(tf)
+  * term-frequncy-inverse-document-frequency(tf-idf)
+  * n-grams  
+ 
+> please refer to the rmd file [here](https://github.com/Npaffen/Advanced_R_Project/blob/master/analysis/text_analysis.Rmd)
+
+
+# Descriptive Statistics
+
+##
+
+```{r, desc-stat-table}
+# bulkiness <- read_rds(here("presentation/Eyayaw/bulkiness.rds"))
+# 
+# desc.funs <-
+#   list(median = median, mean = mean, sd = sd, max = max, min = min)
+# 
+# bulkiness %>%
+#   group_by(year, page_num) %>%
+#   summarise_at(
+#     vars(
+#       num_of_paragraphs,
+#       num_of_sections,
+#       paragraph_per_section,
+#       words = total
+#     ),
+#     desc.funs
+#   ) %>%
+#   ungroup() %>%
+#   pivot_longer(
+#     -c(year, page_num),
+#     names_to = c("var", "stats"),
+#     names_pattern = "(\\w+)_(mean|median|max|min|sd)",
+#     values_to = "value"
+#   ) %>%
+#   pivot_wider(c(year, var), c(page_num, stats), values_from = value) %>%
+#   select(-year) %>%
+#   knitr::kable(
+#     caption = "Descriptive Statistics: How bulky is the daily newspaper?",
+#     digits = 1,
+#     col.names = c("Variable", rep(names(desc.funs), 2)),
+#     booktabs = TRUE,
+#     linesep = ""
+#   ) %>%
+#   kable_styling(font_size = 10, 
+#                 full_width = FALSE, 
+#                 latex_options = c("scale_down", "HOLD_position", "striped")) %>%
+#   add_header_above(c("", "Page 1" = 5, "Page 2" = 5), bold = TRUE, italic = TRUE, line = TRUE) %>%
+#   pack_rows(
+#     group_label = "2019",
+#     start_row = 1,
+#     end_row = 4,
+#     bold = TRUE,
+#     italic = TRUE
+#   ) %>%
+#   pack_rows(
+#     group_label = "2020",
+#     start_row = 5,
+#     end_row = 8,
+#     bold = TRUE,
+#     italic = TRUE
+#   )
+
+knitr::include_graphics(here("presentation/Eyayaw/descriptive-stat.png"))
+
+```
+
+
+
+
+# Data Visualization and Discussion
+
+## term-frequency, bigrams and trigrams
+
+
+```{r, echo=FALSE}
+knitr::include_graphics(here('figs/word_per_month_freq_plot_1st_page_2020.pdf'))
+
+
+```
+
+---
+
+
++ We looked not only at the most frequent words but also at bigrams and trigrams.
+
+$$
+idf(\text{term}) = \ln{\left(\frac{n_{\text{documents}}}{n_{\text{documents containing term}}}\right)}
+$$
+
+```{r, bigrams}
+# top 3 bigrams by tf_idf per month in 2020
+
+# bigrams_tf_idf_2020 <- read_rds(here("presentation/Eyayaw/bigrams_tf_idf_2020.rds"))
+# 
+# bigrams_tf_idf_2020 %>%
+#   distinct(bigram, .keep_all = TRUE) %>%
+#   group_by(month) %>%
+#   top_n(3, tf_idf) %>%
+#   knitr::kable(
+#     caption = "The 12 bigrams with the highest tf\\_idf in 2020", booktabs = TRUE
+#   ) %>%
+#   kable_styling(font_size = 7,
+#                 latex_options = c("scale_down", "HOLD_position", "striped"))
+
+knitr::include_graphics(here("presentation/Eyayaw/bigrams.png"))
+
+
+
+```
+
+
+---
+
+```{r, trigrams}
+
+# trigrams_tf_idf_2020 <- read_rds(here("presentation/Eyayaw/trigrams_tf_idf_2020.rds"))
+# trigrams_tf_idf_2020 %>%
+#   distinct(trigram, .keep_all = TRUE) %>%
+#   group_by(month) %>%
+#   top_n(3, tf_idf) %>%
+#   knitr::kable(
+#     caption = "The 12 trigrams with the highest tf\\_idf in 2020", booktabs = TRUE
+#   ) %>%
+#   kable_styling(font_size = 7,
+#                 latex_options = c("scale_down", "HOLD_position", "striped"))
+
+knitr::include_graphics(here("presentation/Eyayaw/trigrams.png"))
+```
+
+--- 
+
+```{r, echo=FALSE}
+knitr::include_graphics(here('figs/word_per_month_freq_plot_1st_page_2019.pdf'))
+```
+
+
+\nocite{R-kableExtra}
+\nocite{R-tidyverse}
+\nocite{R-lubridate}

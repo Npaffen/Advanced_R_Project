@@ -1,0 +1,4 @@
+\beamer@sectionintoc {1}{The Scraping Process-and all that}{3}{0}{1}
+\beamer@sectionintoc {2}{Data Wrangling}{5}{0}{2}
+\beamer@sectionintoc {3}{Descriptive Statistics}{6}{0}{3}
+\beamer@sectionintoc {4}{Data Visualization and Discussion}{7}{0}{4}

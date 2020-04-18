@@ -18,6 +18,7 @@ citecolor: #0174DF
 header_includes:
   - \usepackage{float}
   - \usepackage{ctex}
+  - \usepackage{xcolor}
 ---
 
 ```{r setup, include = FALSE}
@@ -33,7 +34,6 @@ library(lubridate)
 library(here)
 library(kableExtra)
 library(showtext)
-
 ```
 
 
@@ -59,13 +59,19 @@ tidy_text <- function(data) {
 
 ```{r, reading-in-data-sets}
 
+files <- list.files(here::here("output.old/"),
+  pattern = "EN.rds$",
+  full.names = TRUE
+)
 article_df <-
-  map_df(list.files(here("output/"), pattern = "EN.rds$", full.names = TRUE), read_rds) %>%
-  mutate_if(is.list, unlist) %>%
+  map_df(files, function(.x) {
+    read_rds(.x) %>%
+      mutate_if(is.list, unlist)
+  }) %>%
   mutate(
     year = year(date),
     page_num = case_when(
-      page_num == "01" ~ "1st", 
+      page_num == "01" ~ "1st",
       page_num == "02" ~ "2nd"
     )
   )
@@ -159,8 +165,7 @@ First of all, the main link to the article is this one: (http://paper.people.com
 
 As we can see in Figure (\@ref(fig:example-newspaper)) there are several different sections crammed or squeezed into the single page of the newspaper and these parts (sections) are clickable, and each has a unique id. A click on each section will redirect to a link where one can access the full content of the section in an enlarged view. For example, the first section out of the 10 sections on this example article is [section 1](http://paper.people.com.cn/rmrb/html/2020-03/22/nw.D110000renmrb_20200322_1-01.htm) or (see Figure \@ref(fig:example-newspaper) --right). The section id for this first section is **nw.D110000renmrb_20200322_1-01**. 
 
-Accordingly, the id of each section on an article is of this form: \n
-**nw.D110000renmrb_yyyymmdd_section#-page#**. Each section of the single page newspaper has the following additional characteristics. 
+Accordingly, the id of each section on an article is of this form: **nw.D110000renmrb_yyyymmdd_section#-page#**. Each section of the single page newspaper has the following additional characteristics. 
 
 * Title (**h1 tag**)
 * Subtitle (**h3 tag**)
@@ -172,14 +177,14 @@ The maximum number of sections on a page is `r max(bulkiness$num_of_sections)`, 
 
 Therefore, the contents of all the sections (**paragraph or p-tags**) together--on the page of the news article-- make up the contents of the entire (single) page--which are compactly placed in a single page of the article. Particularly, we scraped the sections of the newspapers--through their unique ids. The date and the page number of the newspaper uniquely identify a newspaper, where the combination of which forms the ids of the sections--prefixed with **nbs.D110000renmrb**.
 
-Moreover, most of the news articles are bulky in terms of number of paragraphs and text volume.  There are `r rounded_mean(bulkiness$num_of_paragraphs)` number of paragraphs per page, and `r rounded_mean(bulkiness$paragraph_per_section)`
+Moreover, most of the news articles are bulky in terms of number of paragraphs and text volume.  On average, there are `r rounded_mean(bulkiness$num_of_paragraphs)` number of paragraphs per page, and `r rounded_mean(bulkiness$paragraph_per_section)` numbers of paragraphs per section of a single page. 
 
+\newpage
 
 # Descriptive Statistics
 
 
 ```{r, desc-stat-table}
-
 desc.funs <-
   list(median = median, mean = mean, sd = sd, max = max, min = min)
 
@@ -210,7 +215,7 @@ bulkiness %>%
     booktabs = TRUE,
     linesep = ""
   ) %>%
-  kable_styling(latex_options = c("scale_down", "Hold_position", "striped")) %>%
+  kable_styling(latex_options = c("scale_down", "HOLD_position", "striped")) %>%
   add_header_above(c("", "Page 1" = 5, "Page 2" = 5), bold = TRUE, italic = TRUE, line = TRUE) %>%
   pack_rows(
     group_label = "2019",
@@ -239,8 +244,11 @@ bulkiness %>%
   geom_density(show.legend = TRUE) +
   labs(x = "Number of sections", col = "Page") +
   theme(legend.position = "bottom") +
-  facet_wrap(~year, scales = "free")
+  facet_wrap(~year, scales = "free") + 
+  theme_light()
 ```
+
+
 
 ```{r, num-of-paragraphs, fig.cap="Distribution of Number of Paragraphs in the Newspaper Page" }
 #  How packed is a newpaper page in terms of paragraph counts?
@@ -250,7 +258,8 @@ bulkiness %>%
   geom_density(show.legend = TRUE) +
   labs(x = "Number of paragraphs", col = "Page") +
   theme(legend.position = "bottom") +
-  facet_wrap(~year, scales = "free")
+  facet_wrap(~year, scales = "free") + 
+  theme_light()
 ```
 
 
@@ -264,7 +273,8 @@ bulkiness %>%
   labs(x = NULL, y = "Words per page (total)", col = "Page") +
   scale_y_continuous(labels = scales::label_number(scale = 1 / 1000, suffix = "k")) +
   facet_wrap(~year, scales = "free") +
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom") + 
+  theme_light()
 ```
 
 
@@ -274,9 +284,10 @@ bulkiness %>%
 bulkiness %>%
   ggplot(aes(total, fill = page_num)) +
   geom_histogram(bins = 10) +
-  labs(x="total words", fill="Page") +
+  labs(x = "total words", fill = "Page") +
   facet_grid(page_num ~ year, scales = "free", space = "free") +
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom") + 
+  theme_light()
 ```
 
 
@@ -285,12 +296,13 @@ bulkiness %>%
 # article_words %>%
 #   bind_tf_idf(word, date, n) %>%
 #   arrange(desc(tf_idf))
-ggplot(article_words, aes(n/total, fill = page_num)) +
+ggplot(article_words, aes(n / total, fill = page_num)) +
   geom_histogram(show.legend = TRUE) +
   xlim(NA, 0.009) +
-  labs(fill="Page") +
+  labs(fill = "Page") +
   theme(legend.position = "bottom") +
-  facet_wrap(~ year(date), scales = "free_y")
+  facet_wrap(~ year(date), scales = "free_y") +
+  theme_light()
 ```
 
 
@@ -309,27 +321,29 @@ bigrams_filtered <- bigrams %>%
   unite(bigram, word1, word2, sep = " ")
 
 bigrams_tf_idf_2020 <- bigrams_filtered %>%
-  mutate(year = year(date), month = month(date, label = TRUE)) %>% dplyr::filter(year==2020) %>% 
+  mutate(year = year(date), month = month(date, label = TRUE)) %>%
+  dplyr::filter(year == 2020) %>%
   count(page_num, month, bigram) %>%
   bind_tf_idf(bigram, month, n) %>%
   arrange(desc(tf_idf))
 
 # top 3 bigrams by tf_idf per month in 2020
-bigrams_tf_idf_2020 %>%  
-    distinct(bigram, .keep_all = TRUE) %>% 
-  group_by(month) %>% 
-    top_n(3, tf_idf) %>% 
-  knitr::kable(caption = "The 12 bigrams with the highest tf_idf in 2020", booktabs=TRUE) %>% 
-  kable_styling()
+bigrams_tf_idf_2020 %>%
+  distinct(bigram, .keep_all = TRUE) %>%
+  group_by(month) %>%
+  top_n(3, tf_idf) %>%
+  knitr::kable(
+    caption = "The 12 bigrams with the highest tf\\_idf in 2020", booktabs = TRUE
+  ) %>%
+  kable_styling(latex_options = c("scale_down", "HOLD_position", "striped"))
 ```
 
 
 
 ```{r, trigrams}
-
-trigrams_tf_idf_2020 <- articles %>% 
-  mutate(year=year(date)) %>% 
-  dplyr::filter(year==2020) %>% 
+trigrams_tf_idf_2020 <- articles %>%
+  mutate(year = year(date)) %>%
+  dplyr::filter(year == 2020) %>%
   unnest_tokens(trigram, content, token = "ngrams", n = 3) %>%
   separate(trigram, c("word1", "word2", "word3"), sep = " ") %>%
   dplyr::filter(
@@ -338,40 +352,43 @@ trigrams_tf_idf_2020 <- articles %>%
     !word3 %in% stop_words$word
   ) %>%
   mutate(month = month(date, label = TRUE)) %>%
-   unite("trigram", c(word1, word2, word3),  sep = " ") %>%  count(month, trigram, sort = TRUE) %>% 
+  unite("trigram", c(word1, word2, word3), sep = " ") %>%
+  count(month, trigram, sort = TRUE) %>%
   bind_tf_idf(trigram, month, n) %>%
   arrange(desc(tf_idf))
 
-trigrams_tf_idf_2020 %>% 
-  distinct(trigram, .keep_all = TRUE) %>% 
-  group_by(month) %>% 
-    top_n(3, tf_idf) %>% 
-  knitr::kable(caption = "The 12 trigrams with the highest tf_idf in 2020", booktabs=TRUE) %>% 
-  kable_styling()
-
+trigrams_tf_idf_2020 %>%
+  distinct(trigram, .keep_all = TRUE) %>%
+  group_by(month) %>%
+  top_n(3, tf_idf) %>%
+  knitr::kable(
+    caption = "The 12 trigrams with the highest tf\\_idf in 2020", booktabs = TRUE
+  ) %>%
+  kable_styling(latex_options = c("scale_down", "HOLD_position", "striped"))
 ```
 
 
 
-```{r, term-freq-plots, eval=FALSE}
+```{r, term-freq-plots}
 
 articles_tidy_tf <- articles_tidy %>%
   mutate(
     year = year(date),
     month = month(date, label = TRUE)
-  ) %>% count(page_num, month, year, word, sort = TRUE) 
+  ) %>%
+  count(page_num, month, year, word, sort = TRUE)
 
 
-articles_tidy_tf <- articles_tidy_tf %>% 
-  add_count(page_num, month, year, name = "total") %>% 
-  mutate(tf = n/total)
+articles_tidy_tf <- articles_tidy_tf %>%
+  add_count(page_num, month, year, name = "total") %>%
+  mutate(tf = n / total)
 
 vals <- list(
   page = c("1st", "2nd", "1st", "2nd"),
   year = c(2019, 2019, 2020, 2020)
 )
 
-map2(vals$year, vals$page, function(.x, .y) {
+walk2(vals$year, vals$page, function(.x, .y) {
   title <- paste0("Highest term-freq words in the ", .y, " page of People's Daily newspaper in ", .x)
 
   path <- paste0("figs/word_per_month_freq_plot_", .y, "_page_", .x, ".pdf")
@@ -391,22 +408,22 @@ map2(vals$year, vals$page, function(.x, .y) {
     facet_wrap(~month, scales = "free") +
     coord_flip() +
     scale_x_reordered() +
-    theme(legend.position = "none")
+    theme(legend.position = "none") +
+    theme_light()
 
   ggsave(path, p, width = 10.5)
 })
 ```
 
-```{r}
-plots_paths <- list.files("figs", "word_per_month.", 
-                          full.names = TRUE)
+```{r, eval=FALSE, message=FALSE}
+plots_paths <- list.files("figs", "word_per_month.",
+  full.names = TRUE
+)
 # include_graphics does not work with loops
 include_graphics(here(plots_paths[1]))
 include_graphics(here(plots_paths[2]))
 include_graphics(here(plots_paths[3]))
 include_graphics(here(plots_paths[4]))
-
-
 ```
 
 
@@ -425,7 +442,18 @@ bigrams_tf_idf %>%
   coord_flip() +
   scale_x_reordered() +
   theme(legend.position = "none")
+```
 
 
+```{r, for-presentation, eval=FALSE}
+
+nms <- paste0(
+  "presentation/Eyayaw/", 
+  c('bulkiness', 'bigrams_tf_idf_2020', 'trigrams_tf_idf_2020'), 
+  ".rds")
+
+list(bulkiness, bigrams_tf_idf_2020, trigrams_tf_idf_2020) %>% 
+  walk2(.x = ., nms, ~ saveRDS(.x, .y))
 
 ```
+

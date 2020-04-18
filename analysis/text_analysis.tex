@@ -39,7 +39,7 @@
 \IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
 \hypersetup{
   pdftitle={Text Mining},
-  pdfauthor={Eyayaw Teka Beze},
+  pdfauthor={Eyayaw Teka Beze, David Schulze, Nils Paffen},
   colorlinks=true,
   linkcolor=teal,
   filecolor=Maroon,
@@ -97,8 +97,8 @@
 }
 \makeatother
 \subtitle{Text analysis of Chinese Paper Daily news article}
-\author{Eyayaw Teka Beze}
-\date{2020-04-07}
+\author{Eyayaw Teka Beze, David Schulze, Nils Paffen}
+\date{2020-04-18}
 
 \begin{document}
 \maketitle
@@ -117,7 +117,7 @@ For instance, the 1st page of the issue published on \emph{2020-03-22} can be ac
 
 \begin{figure}
 
-{\centering \includegraphics[width=0.49\linewidth,height=0.2\textheight]{/Users/eyayawteka/Documents/Advanced_R_Assignments/Advanced_R_Project/figs/example_newspaper_page} \includegraphics[width=0.49\linewidth,height=0.2\textheight]{/Users/eyayawteka/Documents/Advanced_R_Assignments/Advanced_R_Project/figs/section1_enlarged} 
+{\centering \includegraphics[width=0.49\linewidth,height=0.2\textheight]{/Users/eyayawteka/Documents/Advanced_R_Assignments/adv-r-project/Advanced_R_Project/figs/example_newspaper_page} \includegraphics[width=0.49\linewidth,height=0.2\textheight]{/Users/eyayawteka/Documents/Advanced_R_Assignments/adv-r-project/Advanced_R_Project/figs/section1_enlarged} 
 
 }
 
@@ -142,8 +142,7 @@ First of all, the main link to the article is this one: (\url{http://paper.peopl
 
 As we can see in Figure (\ref{fig:example-newspaper}) there are several different sections crammed or squeezed into the single page of the newspaper and these parts (sections) are clickable, and each has a unique id. A click on each section will redirect to a link where one can access the full content of the section in an enlarged view. For example, the first section out of the 10 sections on this example article is \href{http://paper.people.com.cn/rmrb/html/2020-03/22/nw.D110000renmrb_20200322_1-01.htm}{section 1} or (see Figure \ref{fig:example-newspaper} --right). The section id for this first section is \textbf{nw.D110000renmrb\_20200322\_1-01}.
 
-Accordingly, the id of each section on an article is of this form:
-\textbf{nw.D110000renmrb\_yyyymmdd\_section\#-page\#}. Each section of the single page newspaper has the following additional characteristics.
+Accordingly, the id of each section on an article is of this form: \textbf{nw.D110000renmrb\_yyyymmdd\_section\#-page\#}. Each section of the single page newspaper has the following additional characteristics.
 
 \begin{itemize}
 \tightlist
@@ -161,12 +160,14 @@ The maximum number of sections on a page is 15, in \href{http://paper.people.com
 
 Therefore, the contents of all the sections (\textbf{paragraph or p-tags}) together--on the page of the news article-- make up the contents of the entire (single) page--which are compactly placed in a single page of the article. Particularly, we scraped the sections of the newspapers--through their unique ids. The date and the page number of the newspaper uniquely identify a newspaper, where the combination of which forms the ids of the sections--prefixed with \textbf{nbs.D110000renmrb}.
 
-Moreover, most of the news articles are bulky in terms of number of paragraphs and text volume. There are 82.71 number of paragraphs per page, and 16.62
+Moreover, most of the news articles are bulky in terms of number of paragraphs and text volume. On average, there are 82.64 number of paragraphs per page, and 16.59 numbers of paragraphs per section of a single page.
+
+\newpage
 
 \hypertarget{descriptive-statistics}{%
 \section{Descriptive Statistics}\label{descriptive-statistics}}
 
-\begin{table}
+\begin{table}[H]
 
 \caption{\label{tab:desc-stat-table}Descriptive Statistics: How bulky is the daily newspaper?}
 \centering
@@ -185,10 +186,10 @@ Variable & median & mean & sd & max & min & median & mean & sd & max & min\\
 \hspace{1em}words & 2898.0 & 3326.3 & 1756.0 & 16190.0 & 803.0 & 2537.0 & 2661.3 & 888.1 & 8675 & 219.0\\
 \rowcolor{gray!6}  \addlinespace[0.3em]
 \multicolumn{11}{l}{\textit{\textbf{2020}}}\\
-\hspace{1em}num\_of\_paragraphs & 69.0 & 83.1 & 48.8 & 341.0 & 30.0 & 66.0 & 70.2 & 26.8 & 204 & 9.0\\
+\hspace{1em}num\_of\_paragraphs & 69.0 & 83.1 & 48.8 & 341.0 & 30.0 & 66.0 & 70.0 & 26.5 & 204 & 9.0\\
 \hspace{1em}num\_of\_sections & 7.0 & 6.4 & 1.7 & 11.0 & 2.0 & 6.0 & 6.0 & 2.0 & 9 & 1.0\\
-\rowcolor{gray!6}  \hspace{1em}paragraph\_per\_section & 11.3 & 13.9 & 8.9 & 56.8 & 4.2 & 10.0 & 15.9 & 22.7 & 204 & 4.0\\
-\hspace{1em}words & 2871.0 & 3137.7 & 1212.0 & 9732.0 & 1508.0 & 2446.0 & 2439.3 & 651.6 & 4270 & 232.0\\
+\rowcolor{gray!6}  \hspace{1em}paragraph\_per\_section & 11.3 & 13.9 & 8.9 & 56.8 & 4.2 & 10.0 & 15.7 & 22.4 & 204 & 4.0\\
+\hspace{1em}words & 2871.0 & 3137.7 & 1212.0 & 9732.0 & 1508.0 & 2444.0 & 2439.9 & 643.3 & 4270 & 232.0\\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -223,62 +224,58 @@ Variable & median & mean & sd & max & min & median & mean & sd & max & min\\
 \caption{\label{fig:unnamed-chunk-2}Term Frequency Distribution per page of the newpaper}
 \end{figure}
 
-\textbackslash begin\{table\}
+\begin{table}[H]
 
-\textbackslash caption\{\label{tab:bigrams}The 12 bigrams with the highest tf\_idf in 2020\}
+\caption{\label{tab:bigrams}The 12 bigrams with the highest tf\_idf in 2020}
 \centering
-
+\resizebox{\linewidth}{!}{
 \begin{tabular}[t]{lllrrrr}
 \toprule
 page\_num & month & bigram & n & tf & idf & tf\_idf\\
 \midrule
-1st & Feb & outbreak prevention & 1016 & 0.01127 & 0.40547 & 0.00457\\
-1st & Apr & basic law & 19 & 0.00162 & 2.48491 & 0.00403\\
+\rowcolor{gray!6}  1st & Feb & outbreak prevention & 1016 & 0.01127 & 0.40547 & 0.00457\\
 1st & Jan & xi jinping & 919 & 0.00922 & 0.40547 & 0.00374\\
-2nd & Apr & 培 玉 & 17 & 0.00145 & 2.48491 & 0.00361\\
-2nd & Apr & 赵 培 & 17 & 0.00145 & 2.48491 & 0.00361\\
+\rowcolor{gray!6}  1st & Feb & spotter sue & 111 & 0.00123 & 2.48491 & 0.00306\\
+2nd & Apr & zhao pei & 17 & 0.00105 & 2.48491 & 0.00261\\
+\rowcolor{gray!6}  2nd & Apr & outbreak prevention & 89 & 0.00550 & 0.40547 & 0.00223\\
 \addlinespace
-1st & Feb & spotter sue & 111 & 0.00123 & 2.48491 & 0.00306\\
-2nd & Feb & outbreak prevention & 468 & 0.00519 & 0.40547 & 0.00210\\
-1st & Mar & labor education & 75 & 0.00072 & 2.48491 & 0.00179\\
-1st & Mar & crown pneumonia & 260 & 0.00249 & 0.69315 & 0.00173\\
+1st & Apr & basic law & 19 & 0.00117 & 1.79176 & 0.00210\\
+\rowcolor{gray!6}  1st & Mar & labor education & 75 & 0.00072 & 2.48491 & 0.00179\\
+1st & Feb & education supervision & 88 & 0.00098 & 1.79176 & 0.00175\\
+\rowcolor{gray!6}  1st & Mar & crown pneumonia & 260 & 0.00249 & 0.69315 & 0.00173\\
 2nd & Jan & xi jinping & 413 & 0.00414 & 0.40547 & 0.00168\\
 \addlinespace
-1st & Jan & theme education & 187 & 0.00188 & 0.87547 & 0.00164\\
+\rowcolor{gray!6}  1st & Jan & theme education & 187 & 0.00188 & 0.87547 & 0.00164\\
 2nd & Mar & crown pneumonia & 222 & 0.00213 & 0.69315 & 0.00148\\
 \bottomrule
-\end{tabular}
+\end{tabular}}
+\end{table}
 
-\textbackslash end\{table\}
+\begin{table}[H]
 
-\textbackslash begin\{table\}
-
-\textbackslash caption\{\label{tab:trigrams}The 12 trigrams with the highest tf\_idf in 2020\}
+\caption{\label{tab:trigrams}The 12 trigrams with the highest tf\_idf in 2020}
 \centering
-
+\resizebox{\linewidth}{!}{
 \begin{tabular}[t]{lllrrrr}
 \toprule
 page\_num & month & trigram & n & tf & idf & tf\_idf\\
 \midrule
-2nd & Apr & 赵 培 玉 & 17 & 0.00238 & 2.48491 & 0.00591\\
-2nd & Apr & 何 香 云 & 12 & 0.00168 & 2.48491 & 0.00417\\
-2nd & Apr & flood control drought & 10 & 0.00140 & 1.79176 & 0.00251\\
-1st & Mar & crown pneumonia outbreak & 202 & 0.00320 & 0.69315 & 0.00222\\
-1st & Jan & party central committee & 259 & 0.00445 & 0.40547 & 0.00180\\
+\rowcolor{gray!6}  2nd & Apr & zhao pei yu & 17 & 0.00171 & 2.48491 & 0.00426\\
+2nd & Apr & ningbo zhoushan port & 16 & 0.00161 & 1.79176 & 0.00289\\
+\rowcolor{gray!6}  1st & Mar & crown pneumonia outbreak & 202 & 0.00320 & 0.69315 & 0.00222\\
+2nd & Apr & resume production complex & 52 & 0.00524 & 0.40547 & 0.00213\\
+\rowcolor{gray!6}  1st & Mar & resume production complex & 294 & 0.00466 & 0.40547 & 0.00189\\
 \addlinespace
-2nd & Feb & health care professionals & 134 & 0.00255 & 0.53900 & 0.00137\\
+1st & Jan & party central committee & 259 & 0.00445 & 0.40547 & 0.00180\\
+\rowcolor{gray!6}  2nd & Feb & health care professionals & 134 & 0.00255 & 0.53900 & 0.00137\\
 1st & Jan & china features socialist & 189 & 0.00325 & 0.40547 & 0.00132\\
-1st & Jan & era china features & 108 & 0.00185 & 0.69315 & 0.00129\\
-1st & Mar & rural community workers & 43 & 0.00068 & 1.79176 & 0.00122\\
+\rowcolor{gray!6}  1st & Jan & era china features & 108 & 0.00185 & 0.69315 & 0.00129\\
 2nd & Feb & traditional chinese medicine & 87 & 0.00166 & 0.69315 & 0.00115\\
 \addlinespace
-1st & Feb & education supervision mechanism & 24 & 0.00046 & 2.48491 & 0.00113\\
-2nd & Mar & rural community workers & 33 & 0.00052 & 1.79176 & 0.00094\\
+\rowcolor{gray!6}  1st & Feb & education supervision mechanism & 24 & 0.00046 & 2.48491 & 0.00113\\
+1st & Mar & rural community workers & 43 & 0.00068 & 1.38629 & 0.00094\\
 \bottomrule
-\end{tabular}
-
-\textbackslash end\{table\}
-
-\includegraphics{/Users/eyayawteka/Documents/Advanced_R_Assignments/Advanced_R_Project/figs/word_per_month_freq_plot_1st_page_2019.pdf} \includegraphics{/Users/eyayawteka/Documents/Advanced_R_Assignments/Advanced_R_Project/figs/word_per_month_freq_plot_1st_page_2020.pdf} \includegraphics{/Users/eyayawteka/Documents/Advanced_R_Assignments/Advanced_R_Project/figs/word_per_month_freq_plot_2nd_page_2019.pdf} \includegraphics{/Users/eyayawteka/Documents/Advanced_R_Assignments/Advanced_R_Project/figs/word_per_month_freq_plot_2nd_page_2020.pdf}
+\end{tabular}}
+\end{table}
 
 \end{document}
