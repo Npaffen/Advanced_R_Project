@@ -6,6 +6,9 @@
 # 2. Check database status
 # 3. Word Frequencies
 
+fix_objsize <- FALSE # drop desc table?
+fix_fredr <- FALSE # drop freq plots?
+
 
 message(paste("Welcome to the People's Daily Mining App. Please stand by for a few seconds while it loads..."))
 
@@ -69,7 +72,9 @@ database_status <- tibble("type" = character(),
                               )
 
 # check individual files
-database_status <- check_files(loaded_files)
+if(fix_objsize != TRUE){
+  database_status <- check_files(loaded_files, database_status)
+}
 
 
 
@@ -88,8 +93,11 @@ freq_words <<- c( "outbreak", "development",
 
 blank_plot <- ggplot(mtcars, aes(x = wt, y = mpg)) + geom_blank()
 
-word_freq1 <<- render_word(freq_words[[1]])
-word_freq2 <- render_word(freq_words[[2]])
-word_freq3 <- render_word(freq_words[[3]])
-word_freq4 <- blank_plot
+if(fix_fredr != TRUE){
+  word_freq1 <<- render_word(freq_words[[1]])
+  word_freq2 <- render_word(freq_words[[2]])
+  word_freq3 <- render_word(freq_words[[3]])
+  word_freq4 <- blank_plot
+}
+
 

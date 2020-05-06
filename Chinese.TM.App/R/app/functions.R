@@ -206,7 +206,7 @@ words_cn_to_en <- function(words_cn, dict_CN_EN){
 ## FUNCTIONS FOR APP
 
 ## check_files(), creates a table of descriptives from the data files
-check_files <- function(loaded_files){
+check_files <- function(loaded_files, database_status){
   for( i in names(loaded_files) ){
     temp <- database_status[0,]
     temp[1:length(loaded_files[[i]]), "type"] <- i
@@ -215,7 +215,7 @@ check_files <- function(loaded_files){
       file_name <- loaded_files[[i]][[j]]
       file_name <- str_sub(file_name, 1, length(file_name)-6)
       temp[j, "dimensions"] <- dim(eval(as.name((file_name)))) %>% str_c(collapse = " ")
-      temp[j, "size in kb"] <- object.size(eval(as.name((file_name))))/10e3
+      temp[j, "size in kb"] <- as.numeric(object.size(eval(as.name((file_name))))/10e3)
       if(i != "dictionary"){
         temp[j, "articles"] <- length(unique(get(file_name)$content))
         temp[j, "dates"] <- length(unique(get(file_name)$date))
