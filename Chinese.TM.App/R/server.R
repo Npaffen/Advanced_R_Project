@@ -20,22 +20,23 @@
 library(shiny)
 require(shinyjs)
 require(ggplot2)
+require(tidyverse)
 require("DT")
-source("app/functions.R")
-source("app/updating_text_data_app.R")
-source("wrangling/update_article_data.R")
-source("app/process_articles.R")
-source("app/create_dictionary.R")
-source("scraping/ts_word_frequency.R")
+source(str_c(here::here(), "/R/app/functions.R"))
+source(str_c(here::here(), "/R/app/updating_text_data_app.R"))
+source(str_c(here::here(), "/R/wrangling/update_article_data.R"))
+source(str_c(here::here(), "/R/app/process_articles.R"))
+source(str_c(here::here(), "/R/app/create_dictionary.R"))
+source(str_c(here::here(), "/R/scraping/ts_word_frequency.R"))
 
 
-function(input, output, session){
+server <- function(input, output, session){
 
   ### Sidebar ############################################################
 
   ### First Tab: Database Status #########################
 
-  source("app/tab_1_status.R", local=TRUE)
+  source(str_c(here::here(), "/R/app/tab_1_status.R"), local=TRUE)
 
   ### Second Tab: Loaded Data Files #########################
 
@@ -201,7 +202,7 @@ function(input, output, session){
 
   ### Fourth Tab: Plot article frequency  per day #########################
 
-  source("app/tab_4_art_freq.R", local=TRUE)
+  source(str_c(here::here(), "/R/app/tab_4_art_freq.R"), local=TRUE)
 
 
   ### Fifth Tab: Plot word frequency  per day #########################

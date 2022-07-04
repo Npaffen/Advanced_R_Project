@@ -20,7 +20,7 @@ date_url <-map(dates,
 map(date_url,~str_c(
   "http://data.people.com.cn.s894ibwr0870.erf.sbb.spk-berlin.de/rmrb",
   .x,
-  paper_length,"",
+  paper_length,
   sep = "/")
   )
 

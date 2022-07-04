@@ -214,13 +214,18 @@ check_files <- function(loaded_files, database_status){
     for( j in 1:length(loaded_files[[i]]) ){
       file_name <- loaded_files[[i]][[j]]
       file_name <- str_sub(file_name, 1, length(file_name)-6)
+<<<<<<< Updated upstream
       temp[j, "dimensions"] <- dim(eval(as.name((file_name)))) %>% str_c(collapse = " ")
       temp[j, "size in kb"] <- as.numeric(object.size(eval(as.name((file_name))))/10e3)
+=======
+      temp[j, "dimensions"] <- file_name %>% as.name  %>%  eval %>% dim  %>%  str_c(collapse = " ")
+      temp[j, "size in kb"] <- file_name %>% as.name  %>% eval %>%  object.size %>% {./10e3} %>% as.double()
+>>>>>>> Stashed changes
       if(i != "dictionary"){
-        temp[j, "articles"] <- length(unique(get(file_name)$content))
-        temp[j, "dates"] <- length(unique(get(file_name)$date))
-        temp[j, "start"] <- as.character(min(get(file_name)$date))
-        temp[j, "end"] <- as.character(max(get(file_name)$date))
+        temp[j, "articles"] <-file_name %>% get %>% .$content %>% unique %>% length
+        temp[j, "dates"] <- file_name %>% get %>% .$date %>% unique %>% length
+        temp[j, "start"] <- file_name %>% get %>% .$date %>% min %>% as.character
+        temp[j, "end"] <- file_name %>% get %>% .$date %>% max %>% as.character
       }
     }
     database_status <- rbind(temp, database_status)
