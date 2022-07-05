@@ -15,7 +15,7 @@ ca_content <- function(url_articles) {
   units = "mins") ),
   sep = " ")'
 
-  source(str_c(here::here(), "R", "scraping", "ca_captcha.R", sep = "/"))
+  source(str_c(here::here(),  "scraping", "ca_captcha.R", sep = "/"))
 
   captcha_tester <- read_html(str_c(here::here(), "data" , "captcha.html", sep = "/"))
 

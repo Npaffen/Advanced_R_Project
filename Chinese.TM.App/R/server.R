@@ -22,12 +22,12 @@ require(shinyjs)
 require(ggplot2)
 require(tidyverse)
 require("DT")
-source(str_c(here::here(), "/R/app/functions.R"))
-source(str_c(here::here(), "/R/app/updating_text_data_app.R"))
-source(str_c(here::here(), "/R/wrangling/update_article_data.R"))
-source(str_c(here::here(), "/R/app/process_articles.R"))
-source(str_c(here::here(), "/R/app/create_dictionary.R"))
-source(str_c(here::here(), "/R/scraping/ts_word_frequency.R"))
+source(str_c(here::here(), "/app/functions.R"))
+source(str_c(here::here(), "/app/updating_text_data_app.R"))
+source(str_c(here::here(), "/wrangling/update_article_data.R"))
+source(str_c(here::here(), "/app/process_articles.R"))
+source(str_c(here::here(), "/app/create_dictionary.R"))
+source(str_c(here::here(), "/scraping/ts_word_frequency.R"))
 
 
 server <- function(input, output, session){
@@ -36,7 +36,7 @@ server <- function(input, output, session){
 
   ### First Tab: Database Status #########################
 
-  source(str_c(here::here(), "/R/app/tab_1_status.R"), local=TRUE)
+  source(str_c(here::here(), "/app/tab_1_status.R"), local=TRUE)
 
   ### Second Tab: Loaded Data Files #########################
 
@@ -202,30 +202,34 @@ server <- function(input, output, session){
 
   ### Fourth Tab: Plot article frequency  per day #########################
 
-  source(str_c(here::here(), "/R/app/tab_4_art_freq.R"), local=TRUE)
+  source(str_c(here::here(), "/app/tab_4_art_freq.R"), local=TRUE)
 
 
   ### Fifth Tab: Plot word frequency  per day #########################
 
   # render plots with example words
-  output$word_freq1 <- renderPlot(word_freq1)
-  output$word_freq2 <- renderPlot(word_freq2)
-  output$word_freq3 <- renderPlot(word_freq3)
+  #output$word_freq1 <- renderPlot(word_freq1)
+  #output$word_freq2 <- renderPlot(word_freq2)
+  #output$word_freq3 <- renderPlot(word_freq3)
 
   output$wordfreq_description <- renderText(paste(
-    "The first three plots are examples, a fourth can be generated dynamically ",
-    "by choosing another expression instead of 'committee'.",
+    "The plot can be generated dynamically ",
+    "by choosing another expression instead of 'committee'. ",
     "Choose an expression to plot its daily frequency in the translated English articles.  ",
     "Keep in mind this is a rough translation and no substitute for looking at the Chinese ",
     "original texts with a working knowledge of the language. This version only allows single",
     "word searches, so to find 'Xi Jinping', please use 'Jinping' for now.",
-    "Optional: Choose a different start date between 2019-01-01 and today. ",
+    "Optional: Choose a different start date between 2019-01-01 and 06.05.2020. ",
     "Please allow some time for rendering. ",
     "The economic index is NASDAQ inds CNY (NQCN2000CNY), including around 200 Chinese industrial",
     "firms traded on the NASDAQ, normalized around the starting date.",
     "More info on: indexes.nasdaqomx.com"
   ))
 
+bindEvent({
+  word_freq4 <- render_word(word = freq_words[1])
+  output$word_freq4 <- renderPlot(word_freq4)
+},)
   #react to make plot button pressed
   observeEvent(input$make_plot, {
     req(input$make_plot)
@@ -234,15 +238,18 @@ server <- function(input, output, session){
     output$word_freq4 <- renderPlot(word_freq4)
   })
 
-  # output example plots in tabs
+  #output example plots in tabs
   output$wordfreqs <- renderUI({
     tabBox(title = "Words per Day",id= "wordfreqtab",
-           tabPanel(freq_words[[1]], plotOutput("word_freq1")),
-           tabPanel(freq_words[[2]], plotOutput("word_freq2")),
-           tabPanel(freq_words[[3]], plotOutput("word_freq3")),
+           #tabPanel(freq_words[[1]], plotOutput("word_freq1")),
+           #tabPanel(freq_words[[2]], plotOutput("word_freq2")),
+           #tabPanel(freq_words[[3]], plotOutput("word_freq3")),
            tabPanel(input$request_wordfreq, plotOutput("word_freq4"))
     )
   })
+
+
+  #render_word(freq_words[[1]])
 
   ### Sixth Tab: Chinese-English Dictionary #########################
   dtbl <- readRDS(paste0(wdir, "/output/dictionary.rds"))
@@ -256,13 +263,10 @@ server <- function(input, output, session){
 
   ### Seventh Tab: Bugs #########################
 
-  output$bugs_desc <- renderText(paste(
-    "14.04.2020 ",
-    "So the app currently 'forces a restart' after a successful update, i.e. ",
-    "it crashes. But after a restart the update is preserved.",
-    "16.04.2020 ",
-    "www.quandl.com port 443 ERROR, stops the app from running, but goes away after a few trys."
-  ))
+  output$bugs_desc <- renderText({paste(
+    "14.04.2020 So the app currently 'forces a restart' after a successful update, i.e. it crashes. But after a restart the update is preserved.",
+    "16.04.2020 www.quandl.com port 443 ERROR, stops the app from running, but goes away after a few trys.", sep = '\n'
+  )})
 
 
 

@@ -1,5 +1,5 @@
 ca_date_urls <- function(years, month, paper_length){
-source(str_c(here::here(), "R", "wrangling",  "make_dates.R", sep = "/"))
+source(str_c(here::here(), "wrangling",  "make_dates.R", sep = "/"))
 
   dates <-  map(years,
             ~make_dates(year = .x,

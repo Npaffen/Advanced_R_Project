@@ -48,7 +48,7 @@ update_article_data <- function(year, page_num,
         seq.Date(last_updated[[i]] + 1, today, by = 1)
 
       message(paste("Beginning scraping..."))
-      source(paste0(here::here(),"/R/wrangling/scrape_article.R")) # for scrape_article(page_num, dates, ...)
+      source(paste0(here::here(),"/wrangling/scrape_article.R")) # for scrape_article(page_num, dates, ...)
 
       dat[[i]] <- scrape_article(
         page_num[[i]],

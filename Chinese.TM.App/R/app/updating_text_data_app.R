@@ -59,7 +59,7 @@ updating_text_data_app <- function(
     message(paste0("Processed Chinese article data missing in folder '/output', ",
                    "will start reprocessing in 5 seconds from scratch, ",
                    "which might take a while. Close window to abort."))
-    source("app/process_articles.R")
+    source(str_c(here::here(), "/app/process_articles.R"))
     process_articles(year = year, page_num = page_num)
   } else {
     message(paste("Processed Chinese articles found, updating..."))
@@ -98,8 +98,8 @@ updating_text_data_app <- function(
   if(RUN_UPDATE) {
 
     # source self-written functions
-    source("app/functions.R")
-    source("wrangling/update_article_data.R")
+    source(str_c(here::here(), "/app/functions.R"))
+    source(str_c(here::here(), "/wrangling/update_article_data.R"))
     # load/install required packages
     require("dplyr") # install.packages("dplyr")
     require("purrr") # install.packages("purrr")
@@ -218,3 +218,4 @@ updating_text_data_app <- function(
   }
   message("******* updating text data completed *******")
 }
+

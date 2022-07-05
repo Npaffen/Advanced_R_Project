@@ -20,11 +20,11 @@ require(stringr)
 # require("DT")
 require(tibble)
 require(dplyr)
-source(str_c(here::here(), "R/scraping/ts_word_frequency.R", sep = "/"))
+source(str_c(here::here(), "/scraping/ts_word_frequency.R"))
 #source("scraping/ts_word_frequency.R")
-source(str_c(here::here(), "R/wrangling/update_article_data.R", sep = "/"))
+source(str_c(here::here(), "/wrangling/update_article_data.R"))
 #source("wrangling/update_article_data.R")
-source(str_c(here::here(), "R/app/functions.R", sep = "/"))
+source(str_c(here::here(), "/app/functions.R"))
 
 
 
@@ -83,21 +83,21 @@ if(fix_objsize != TRUE){
 # 3. Word Frequencies
 
 
-freq_words <<- c( "outbreak", "development",
-                 "inspection"
-
-                # "comrade", "committee"
-                # "corruption", "crown",
-                # , "supervision"
-)
+# freq_words <<- c( "outbreak", "development",
+#                  "inspection",
+#                  "comrade", "committee",
+#                  "corruption", "crown",
+#                  "supervision"
+# )
+freq_words <<- c('committee')
 
 blank_plot <- ggplot(mtcars, aes(x = wt, y = mpg)) + geom_blank()
 
-if(fix_fredr != TRUE){
-  word_freq1 <<- render_word(freq_words[[1]])
-  word_freq2 <- render_word(freq_words[[2]])
-  word_freq3 <- render_word(freq_words[[3]])
-  word_freq4 <- blank_plot
-}
+# if(fix_fredr != TRUE){
+#   word_freq1 <<- render_word(freq_words[[1]])
+#   word_freq2 <- render_word(freq_words[[2]])
+#   word_freq3 <- render_word(freq_words[[3]])
+#   word_freq4 <- blank_plot
+# }
 
 

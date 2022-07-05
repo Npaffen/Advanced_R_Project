@@ -5,7 +5,7 @@ library(tidyverse)
 library(glue)
 
 # load scrape_article() function ------------
-source("src/scrape_article.R")
+source(str_c(here::here(),"/src/scrape_article.R"))
 
 # Scraping begins here ----------------------------------------
 

@@ -9,8 +9,8 @@ library(glue)
 # respectively ]. Please refer to `make_dates.R`.
 
 scrape_article <- function(page_num, dates = NULL, ...) {
-  source(paste0(here::here(),"/R/wrangling/make_dates.R")) # sources make_dates()
-  source(paste0(here::here(),"/R/wrangling/generate_article_urls.R")) # sources generate_urls()
+  source(paste0(here::here(),"/wrangling/make_dates.R")) # sources make_dates()
+  source(paste0(here::here(),"/wrangling/generate_article_urls.R")) # sources generate_urls()
 
   if (is_null(dates)) {
     dates <- make_dates(...)
@@ -23,6 +23,6 @@ scrape_article <- function(page_num, dates = NULL, ...) {
     map_df(dates, ~ generate_urls(.x, page_num))
     )
   # Download content ----------------------------------------------
-  source(paste0(here::here(),"/R/wrangling/get_article_contents.R"))
+  source(paste0(here::here(),"/wrangling/get_article_contents.R"))
   get_article_data(article_urls)
 }

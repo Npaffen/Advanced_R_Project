@@ -34,7 +34,7 @@ require("purrr") # install.packages("purrr")
 require("tibble") # install.packages("tibble")
 require("RYandexTranslate") #devtools::install_github("mukul13/RYandexTranslate")
 require("shiny")
-source(str_c(here::here(), "R/scraping/ts_word_frequency.R", sep = "/"))
+source(str_c(here::here(), "/scraping/ts_word_frequency.R"))
 #source("scraping/ts_word_frequency.R")
 
 ### check_if_complete(), compares two lists A and B, to see if anything is missing from B
@@ -214,13 +214,13 @@ check_files <- function(loaded_files, database_status){
     for( j in 1:length(loaded_files[[i]]) ){
       file_name <- loaded_files[[i]][[j]]
       file_name <- str_sub(file_name, 1, length(file_name)-6)
-<<<<<<< Updated upstream
+
       temp[j, "dimensions"] <- dim(eval(as.name((file_name)))) %>% str_c(collapse = " ")
       temp[j, "size in kb"] <- as.numeric(object.size(eval(as.name((file_name))))/10e3)
-=======
+
       temp[j, "dimensions"] <- file_name %>% as.name  %>%  eval %>% dim  %>%  str_c(collapse = " ")
       temp[j, "size in kb"] <- file_name %>% as.name  %>% eval %>%  object.size %>% {./10e3} %>% as.double()
->>>>>>> Stashed changes
+
       if(i != "dictionary"){
         temp[j, "articles"] <-file_name %>% get %>% .$content %>% unique %>% length
         temp[j, "dates"] <- file_name %>% get %>% .$date %>% unique %>% length
@@ -241,7 +241,7 @@ render_frequency <- function(file, file_name){
     ggtitle(file_name)
 }
 
-## render_word(), creates a word frequency plot to be rendered
+# render_word(), creates a word frequency plot to be rendered
 render_word <- function(word, start_date = "2019-01-01"){
   message(paste("Rendering a stunning word frequency plot just for you..."))
   wordd <- word

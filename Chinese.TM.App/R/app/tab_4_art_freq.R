@@ -2,10 +2,10 @@
 ### Fourth Tab: Plot article frequency  per day #########################
 
 output$artfreq_desc <- renderText(paste(
-  "These plots use the updated data to show patterns in article frequency per day. ",
+  "These plots use the data to show patterns in article frequency per day. ",
   "Frequency can vary quite a lot, depending on for example the size of pictures ",
-  "or the amount of headlines that have to fit on the first page. We also see less ",
-  "outliers in frequency on the second page. Generally, there seems to be a seasonality ",
+  "or the amount of headlines that have to fit on the first page. We observe more ",
+  "outliers in frequency on the second page for 2019 but the opposite for 2020. The latter could be due to the COVID-19 crisis, since overall news were less due to a nationwide shutdown. Generally, there seems to be a seasonality ",
   "of articles, with less articles appearing over the spring festival and summer holidays."
 ))
 

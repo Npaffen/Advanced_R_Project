@@ -3,7 +3,7 @@
 require(dplyr)
 require(ggplot2)
 require(jiebaR)
-source("app/functions.R")
+source(str_c(here::here(),"/app/functions.R"))
 
 # read data
 wdir <- here::here()

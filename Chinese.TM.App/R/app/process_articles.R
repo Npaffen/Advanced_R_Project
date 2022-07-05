@@ -14,7 +14,7 @@ process_articles <- function(year, page_num){
   # 0. Preparation
 
   # source self-written functions
-  source(str_c(here::here(), "/R/app/functions.R"), local = TRUE)
+  source(str_c(here::here(), "/app/functions.R"), local = TRUE)
    # load/install required packages
   require(purrr) # install.packages("purrr")
   # require(devtools) # install.packages("devtools") # for installing packages

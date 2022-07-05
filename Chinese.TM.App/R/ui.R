@@ -37,7 +37,7 @@ sidebar <- dashboardSidebar(
     sidebarMenu(
       menuItem("Data Status", tabName = "data_status", icon = icon("dashboard")),
       menuItem("Loaded Files", tabName = "loadedfiles", icon = icon("dashboard")),
-      menuItem("Updating", tabName = "updating", icon = icon("dashboard")),
+      #menuItem("Updating", tabName = "updating", icon = icon("dashboard")),
       menuItem("Article Frequencies", tabName = "artfreq", icon = icon("dashboard")),
       menuItem("Word Frequencies", tabName = "wordfreq", icon = icon("dashboard")),
       menuItem("Dictionary", tabName = "dict", icon = icon("dashboard")),
@@ -79,23 +79,23 @@ body <-   dashboardBody(
 
 
       ##############################
-      # Third tab content
-
-      tabItem(tabName = "updating",
-              h2("Updating Text and Economic Data"),
-              fluidRow(
-                valueBoxOutput("updating_text")
-              ),
-              fluidRow(
-                textOutput("updating_description"),
-                textInput("request_year_page","","2020-02"),
-                shinyjs::useShinyjs(),
-                actionButton("run_update","run update")
-                ),
-              fluidRow(
-                verbatimTextOutput("update_report")
-              )
-      ),
+      # # Third tab content
+      #
+      # tabItem(tabName = "updating",
+      #         h2("Updating Text and Economic Data"),
+      #         fluidRow(
+      #           valueBoxOutput("updating_text")
+      #         ),
+      #         fluidRow(
+      #           textOutput("updating_description"),
+      #           textInput("request_year_page","","2020-02"),
+      #           shinyjs::useShinyjs(),
+      #           actionButton("run_update","run update")
+      #           ),
+      #         fluidRow(
+      #           verbatimTextOutput("update_report")
+      #         )
+      # ),
 
 
       ##############################
@@ -139,7 +139,7 @@ body <-   dashboardBody(
       tabItem(tabName = "bugs",
               h2("Bugtracker"),
               fluidRow(
-                textOutput("bugs_desc")
+                verbatimTextOutput("bugs_desc")
               )
       )
     )
@@ -149,7 +149,7 @@ body <-   dashboardBody(
 ########################################################
 # join parts
 
-dashboardPage(
+ui <- dashboardPage(
   dashboardHeader(title = "People's Daily Mining"),
   sidebar,
   body

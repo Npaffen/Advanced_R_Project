@@ -19,8 +19,7 @@ ts_word_frequency <- function(page_num = 1, start_date = as.Date("2019-01-01"), 
   library(Quandl)
   library(fredr)
   library(ggplot2)
-  source(str_c(here::here(), "R/scraping/ts_economic_data.R", sep = "/"))
-  source(str_c(here::here(), "R/scraping/ts_economic_data.R", sep = "/"))
+  source(str_c(here::here(), "/scraping/ts_economic_data.R"))
 
 
   economic_data <- ts_economic_data(start_date = start_date,
