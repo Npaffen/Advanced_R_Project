@@ -219,7 +219,7 @@ server <- function(input, output, session){
     "Keep in mind this is a rough translation and no substitute for looking at the Chinese ",
     "original texts with a working knowledge of the language. This version only allows single",
     "word searches, so to find 'Xi Jinping', please use 'Jinping' for now.",
-    "Optional: Choose a different start date between 2019-01-01 and 06.05.2020. ",
+    "Optional: Choose a different start date between 2019-01-01 and 2020-05-06. ",
     "Please allow some time for rendering. ",
     "The economic index is NASDAQ inds CNY (NQCN2000CNY), including around 200 Chinese industrial",
     "firms traded on the NASDAQ, normalized around the starting date.",

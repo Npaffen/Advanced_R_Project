@@ -5,9 +5,9 @@ account: ds-blog
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 6592261
-bundleId: 6071054
+bundleId: 6074442
 url: https://ds-blog.shinyapps.io/Chinese_Newspaper_Textmining/
-when: 1657028264.93792
-lastSyncTime: 1657028264.93792
+when: 1657107078.8508
+lastSyncTime: 1657107078.8508
 asMultiple: FALSE
 asStatic: FALSE
